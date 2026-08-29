@@ -384,6 +384,16 @@ export default function Home() {
     }
   };
 
+  const handlePrintRequest = () => {
+    if (!selectedRequestForPrint) return;
+    const previousTitle = document.title;
+    document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
+    setTimeout(() => {
+      window.print();
+      document.title = previousTitle;
+    }, 150);
+  };
+
   const handleUndoLastBreakage = async () => {
     if (!breakageRecords.length) {
       alert("لا توجد حالات كسر حديثة لإلغاء الخصم عنها.");
@@ -2042,27 +2052,50 @@ export default function Home() {
       {printReportType === "request" && selectedRequestForPrint && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:inset-auto print:bg-white print:block">
           <style dangerouslySetInnerHTML={{__html: `
+            @page {
+              size: A4 portrait;
+              margin: 10mm 8mm;
+            }
+
             @media print {
-              body * { visibility: hidden !important; }
-              #printable-request-area, #printable-request-area * { visibility: visible !important; }
-              #printable-request-area { 
-                position: absolute !important; 
-                left: 0 !important; 
-                top: 0 !important; 
-                width: 100% !important; 
-                margin: 0 !important; 
-                padding: 10mm !important; 
-                background: white !important;
+              html, body {
+                background: #fff !important;
+              }
+
+              body * {
+                visibility: hidden !important;
+              }
+
+              #printable-request-area, #printable-request-area * {
+                visibility: visible !important;
+              }
+
+              #printable-request-area {
+                position: static !important;
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: none !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                background: #fff !important;
+                overflow: visible !important;
+              }
+
+              .print-hide {
+                display: none !important;
               }
             }
           `}} />
           <div className="bg-white rounded-2xl max-w-3xl w-full p-8 shadow-2xl border border-slate-200 print:shadow-none print:border-none print:w-full print:p-0 print:m-0">
-            <div className="flex items-center justify-between pb-6 border-b border-slate-200 print:hidden">
+            <div className="print-hide flex items-center justify-between pb-6 border-b border-slate-200">
               <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg text-xs font-bold">
                 <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك</span>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow transition">
+                <button onClick={handlePrintRequest} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow transition">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => { setPrintReportType(null); setSelectedRequestForPrint(null); }} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
