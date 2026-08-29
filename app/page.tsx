@@ -2050,131 +2050,152 @@ export default function Home() {
       )}
 
       {printReportType === "request" && selectedRequestForPrint && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
-          
-          <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
-            <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
-              <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك بنجاح</span>
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:inset-auto print:bg-white print:block">
+          <style dangerouslySetInnerHTML={{__html: `
+            @page {
+              size: A4 portrait;
+              margin: 10mm;
+            }
+            @media print {
+              body, html {
+                background: #ffffff !important;
+                color: #000000 !important;
+              }
+              body * {
+                visibility: hidden !important;
+              }
+              #printable-request-area, #printable-request-area * {
+                visibility: visible !important;
+              }
+              #printable-request-area {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 5mm !important;
+                background: #ffffff !important;
+                border: 2px solid #000 !important;
+                box-shadow: none !important;
+              }
+              .print-hide {
+                display: none !important;
+              }
+            }
+          `}} />
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-8 shadow-2xl border border-slate-200 print:shadow-none print:border-none print:w-full print:p-0 print:m-0">
+            <div className="print-hide flex items-center justify-between pb-6 border-b border-slate-200">
+              <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg text-xs font-bold">
+                <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <button onClick={handlePrintRequest} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow transition">
+                  <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
+                </button>
+                <button onClick={() => { setPrintReportType(null); setSelectedRequestForPrint(null); }} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
+              </div>
             </div>
-            <div className="flex items-center gap-3">
-              <button 
-                onClick={handleDownloadPdf}
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-xs font-bold shadow transition"
-              >
-                <Download className="w-4 h-4" /> 
-                <span>تحميل PDF مباشر</span>
-              </button>
-              <button 
-                onClick={() => { setPrintReportType(null); setSelectedRequestForPrint(null); }} 
-                className="text-slate-300 hover:text-white p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-          </div>
 
-          <div 
-            id="printable-request-area" 
-            className="bg-white w-full max-w-3xl p-8 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-6 print:m-0 print:p-6 print:border-2 print:border-slate-900 print:shadow-none"
-            dir="rtl"
-          >
-            <div className="rounded-xl border-2 border-slate-800 bg-slate-50 p-4">
-              <div className="flex items-center justify-between gap-3">
-                <div className="text-right text-[10px] font-semibold text-slate-700 leading-relaxed">
-                  <p>وزارة التربية والتعليم</p>
-                  <p>إدارة المختبرات والأنشطة العلمية</p>
-                  <p>مختبر: {selectedRequestForPrint.subject}</p>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="relative h-12 w-12 rounded-full border-2 border-sky-300 bg-white shadow-sm">
-                    <div className="absolute inset-2 rounded-full border border-cyan-200" />
-                    <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400" />
-                    <div className="absolute left-2 top-2 h-2 w-2 rounded-full bg-cyan-400" />
-                    <div className="absolute bottom-2 right-2 h-2 w-2 rounded-full bg-indigo-400" />
+            <div id="printable-request-area" className="mt-6 border-2 border-slate-800 p-6 rounded-xl space-y-6 print:mt-0 print:border-2 print:border-slate-900 print:shadow-none">
+              
+              <div className="rounded-xl border-2 border-slate-800 bg-slate-50 p-4 print:bg-white print:border-2 print:border-slate-900 print:p-3">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-right text-[10px] font-semibold text-slate-700 leading-relaxed print:text-[10px]">
+                    <p>وزارة التربية والتعليم</p>
+                    <p>إدارة المختبرات والأنشطة العلمية</p>
+                    <p>مختبر: {selectedRequestForPrint.subject}</p>
                   </div>
-                  <div className="text-center">
-                    <h2 className="text-lg font-black text-slate-900">استمارة تحضير وصرف تجربة مخبرية</h2>
-                    <p className="text-[10px] font-mono font-bold text-slate-500 mt-1">كود الاستمارة: {selectedRequestForPrint.id}</p>
+
+                  <div className="flex items-center gap-3">
+                    <div className="relative h-12 w-12 rounded-full border-2 border-sky-300 bg-white shadow-sm print:h-10 print:w-10">
+                      <div className="absolute inset-2 rounded-full border border-cyan-200" />
+                      <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400" />
+                      <div className="absolute left-2 top-2 h-2 w-2 rounded-full bg-cyan-400" />
+                      <div className="absolute bottom-2 right-2 h-2 w-2 rounded-full bg-indigo-400" />
+                    </div>
+                    <div className="text-center">
+                      <h2 className="text-lg font-black text-slate-900 print:text-[15px]">استمارة تحضير وصرف تجربة مخبرية</h2>
+                      <p className="text-[10px] font-mono font-bold text-slate-500 mt-1 print:text-[9px]">كود الاستمارة: {selectedRequestForPrint.id}</p>
+                    </div>
+                  </div>
+
+                  <div className="text-left text-[10px] font-semibold text-slate-700 leading-relaxed print:text-[10px]">
+                    <p>{selectedRequestForPrint.semester}</p>
+                    <p>العام الدراسي: {selectedRequestForPrint.academicYear}</p>
+                    <p>التاريخ: {selectedRequestForPrint.date}</p>
                   </div>
                 </div>
+              </div>
 
-                <div className="text-left text-[10px] font-semibold text-slate-700 leading-relaxed">
-                  <p>{selectedRequestForPrint.semester}</p>
-                  <p>العام الدراسي: {selectedRequestForPrint.academicYear}</p>
-                  <p>التاريخ: {selectedRequestForPrint.date}</p>
+              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-300 text-sm print:bg-slate-50">
+                <div>
+                  <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
+                  <p className="mt-2"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
+                  <p className="mt-2"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
+                </div>
+                <div>
+                  <p><span className="font-bold text-slate-900">أمين المختبر المشرف:</span> {selectedRequestForPrint.labTechnician}</p>
+                  <p><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
+                  <p className="mt-2"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
                 </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-300 text-sm">
               <div>
-                <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
-                <p className="mt-2"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
-                <p className="mt-2"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
-              </div>
-              <div>
-                <p><span className="font-bold text-slate-900">أمين المختبر المشرف:</span> {selectedRequestForPrint.labTechnician}</p>
-                <p><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
-                <p className="mt-2"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-sm text-slate-900 mb-2">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
-              <table className="w-full text-right text-xs border border-slate-300">
-                <thead className="bg-slate-100 border-b border-slate-300 text-slate-800 font-bold">
-                  <tr>
-                    <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
-                    <th className="p-2 border-l border-slate-300">اسم المادة / الأداة / الجهاز</th>
-                    <th className="p-2 border-l border-slate-300 text-center">الكمية المصروفة</th>
-                    <th className="p-2 border-l border-slate-300 text-center">نوع البند</th>
-                    <th className="p-2 text-center">حالة الإرجاع والاستهلاك</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-300">
-                  {selectedRequestForPrint.items.map((it, idx) => (
-                    <tr key={idx}>
-                      <td className="p-2 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
-                      <td className="p-2 border-l border-slate-300 font-semibold">{it.itemName}</td>
-                      <td className="p-2 border-l border-slate-300 text-center font-bold text-slate-900">{it.quantity} {it.unit}</td>
-                      <td className="p-2 border-l border-slate-300 text-center">{it.nature === "consumable" ? "مستهلك (كيماويات)" : "عهدة مستردة"}</td>
-                      <td className="p-2 text-center text-slate-600">{it.nature === "consumable" ? "خُصم من الرصيد" : "يُعاد سليماً بعد الحصة"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {selectedRequestForPrint.procurements?.length > 0 && (
-              <div>
-                <h4 className="font-bold text-sm text-slate-900 mb-2">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
+                <h4 className="font-bold text-sm text-slate-900 mb-2">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
                 <table className="w-full text-right text-xs border border-slate-300">
-                  <thead className="bg-emerald-50 border-b border-slate-300 text-emerald-900 font-bold">
+                  <thead className="bg-slate-100 border-b border-slate-300 text-slate-800 font-bold">
                     <tr>
                       <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
-                      <th className="p-2 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
-                      <th className="p-2 border-l border-slate-300 text-center">الكمية المطلوبة</th>
-                      <th className="p-2 text-center">جهة التأمين والتوفير</th>
+                      <th className="p-2 border-l border-slate-300">اسم المادة / الأداة / الجهاز</th>
+                      <th className="p-2 border-l border-slate-300 text-center">الكمية المصروفة</th>
+                      <th className="p-2 border-l border-slate-300 text-center">نوع البند</th>
+                      <th className="p-2 text-center">حالة الإرجاع والاستهلاك</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-300">
-                    {selectedRequestForPrint.procurements.map((prc, pidx) => (
-                      <tr key={pidx}>
-                        <td className="p-2 border-l border-slate-300 text-center font-bold">{pidx + 1}</td>
-                        <td className="p-2 border-l border-slate-300 font-semibold">{prc.name}</td>
-                        <td className="p-2 border-l border-slate-300 text-center font-bold">{prc.quantity}</td>
-                        <td className="p-2 text-center text-slate-700 font-medium">{prc.providedBy}</td>
+                    {selectedRequestForPrint.items.map((it, idx) => (
+                      <tr key={idx}>
+                        <td className="p-2 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
+                        <td className="p-2 border-l border-slate-300 font-semibold">{it.itemName}</td>
+                        <td className="p-2 border-l border-slate-300 text-center font-bold text-slate-900">{it.quantity} {it.unit}</td>
+                        <td className="p-2 border-l border-slate-300 text-center">{it.nature === "consumable" ? "مستهلك (كيماويات)" : "عهدة مستردة"}</td>
+                        <td className="p-2 text-center text-slate-600">{it.nature === "consumable" ? "خُصم من الرصيد" : "يُعاد سليماً بعد الحصة"}</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               </div>
-            )}
 
-            <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-300 text-center text-xs">
-              <div><p className="font-bold text-slate-900 mb-8">توقيع المعلم المنفذ</p><p className="text-slate-400">..............................</p></div>
-              <div><p className="font-bold text-slate-900 mb-8">توقيع واعتماد أمين المختبر</p><p className="text-slate-400">..............................</p></div>
+              {selectedRequestForPrint.procurements?.length > 0 && (
+                <div>
+                  <h4 className="font-bold text-sm text-slate-900 mb-2">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
+                  <table className="w-full text-right text-xs border border-slate-300">
+                    <thead className="bg-emerald-50 border-b border-slate-300 text-emerald-900 font-bold">
+                      <tr>
+                        <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
+                        <th className="p-2 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
+                        <th className="p-2 border-l border-slate-300 text-center">الكمية المطلوبة</th>
+                        <th className="p-2 text-center">جهة التأمين والتوفير</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-300">
+                      {selectedRequestForPrint.procurements.map((prc, pidx) => (
+                        <tr key={pidx}>
+                          <td className="p-2 border-l border-slate-300 text-center font-bold">{pidx + 1}</td>
+                          <td className="p-2 border-l border-slate-300 font-semibold">{prc.name}</td>
+                          <td className="p-2 border-l border-slate-300 text-center font-bold">{prc.quantity}</td>
+                          <td className="p-2 text-center text-slate-700 font-medium">{prc.providedBy}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-300 text-center text-xs">
+                <div><p className="font-bold text-slate-900 mb-8">توقيع المعلم المنفذ</p><p className="text-slate-400">..............................</p></div>
+                <div><p className="font-bold text-slate-900 mb-8">توقيع واعتماد أمين المختبر</p><p className="text-slate-400">..............................</p></div>
+              </div>
             </div>
           </div>
         </div>
