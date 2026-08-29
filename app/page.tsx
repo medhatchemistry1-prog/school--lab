@@ -23,8 +23,7 @@ import {
   LogOut,
   UserCheck,
   KeyRound,
-  Edit3,
-  Download
+  Edit3
 } from "lucide-react";
 
 type ItemNature = "consumable" | "returnable";
@@ -385,23 +384,14 @@ export default function Home() {
     }
   };
 
-  // التحميل المباشر لملف PDF عبر html2pdf.js
-  const handleDownloadPdf = async () => {
+  const handlePrintRequest = () => {
     if (!selectedRequestForPrint) return;
-    const element = document.getElementById('printable-request-area');
-    if (!element) return;
-
-    // استيراد المكتبة ديناميكياً لتجنب مشاكل الـ SSR في Next.js
-    const html2pdf = (await import('html2pdf.js')).default;
-    const opt = {
-      margin:       10,
-      filename:     `استمارة-تحضير-${selectedRequestForPrint.id}.pdf`,
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, useCORS: true },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-    html2pdf().from(element).set(opt).save();
+    const previousTitle = document.title;
+    document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
+    setTimeout(() => {
+      window.print();
+      document.title = previousTitle;
+    }, 150);
   };
 
   const handleUndoLastBreakage = async () => {
