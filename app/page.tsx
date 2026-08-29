@@ -2,7 +2,6 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { 
-  FlaskConical, 
   Atom, 
   Dna, 
   Microscope, 
@@ -124,6 +123,22 @@ const INITIAL_BREAKAGE: BreakageRecord[] = [
 const GRADES_LIST = ["الصف 5", "الصف 6", "الصف 7", "الصف 8", "الصف 9", "الصف 10", "الصف 11", "الصف 12"];
 const PERIODS_LIST = ["الحصة الأولى", "الحصة الثانية", "الحصة الثالثة", "الحصة الرابعة", "الحصة الخامسة", "الحصة السادسة", "الحصة السابعة", "الحصة الثامنة", "الحصة التاسعة", "الحصة العاشرة"];
 const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل الدراسي الثاني", "الفصل الدراسي الثالث"];
+
+function AtomLogo() {
+  return (
+    <div className="relative flex h-20 w-20 items-center justify-center">
+      <div className="absolute h-16 w-16 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
+      <div className="absolute h-12 w-12 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
+      <div className="absolute h-20 w-20 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
+      <div className="absolute h-3 w-3 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_18px_rgba(251,191,36,0.8)]" />
+      <div className="absolute left-6 top-2 h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_16px_rgba(34,211,238,0.8)]" />
+      <div className="absolute right-5 bottom-4 h-2.5 w-2.5 rounded-full bg-violet-400 shadow-[0_0_16px_rgba(167,139,250,0.8)]" />
+      <div className="absolute text-blue-600">
+        <Atom className="h-8 w-8 drop-shadow-[0_0_12px_rgba(37,99,235,0.7)]" />
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [userRole, setUserRole] = useState<"none" | "teacher" | "admin">("none");
@@ -579,8 +594,8 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6" dir="rtl">
         <div className="bg-white rounded-2xl max-w-xl w-full p-8 shadow-2xl border border-slate-100 text-center space-y-6">
-          <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
-            <FlaskConical className="w-8 h-8" />
+          <div className="w-24 h-24 bg-gradient-to-br from-blue-50 via-cyan-50 to-indigo-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner border border-blue-100">
+            <AtomLogo />
           </div>
           <div>
             <h1 className="text-2xl font-bold text-slate-900">نظام إدارة المختبرات المدرسية</h1>
