@@ -160,27 +160,22 @@ export default function Home() {
   const [newYearInput, setNewYearInput] = useState("");
   const [isAddYearModalOpen, setIsAddYearModalOpen] = useState(false);
 
-  // جلب كافة البيانات من قاعدة بيانات Neon السحابية عند الفتح
   useEffect(() => {
-    // 1. جلب المخزون
     fetch('/api/items')
       .then(res => res.json())
       .then(data => { if (data.success) setItems(data.items || []); })
       .catch(err => console.error("Error items:", err));
 
-    // 2. جلب سجل الكسر
     fetch('/api/breakage')
       .then(res => res.json())
       .then(data => { if (data.success) setBreakageRecords(data.records || []); })
       .catch(err => console.error("Error breakage:", err));
 
-    // 3. جلب الخطة التشغيلية
     fetch('/api/plans')
       .then(res => res.json())
       .then(data => { if (data.success) setOperationalPlans(data.plans || []); })
       .catch(err => console.error("Error plans:", err));
 
-    // 4. جلب طلبات التحضير
     fetch('/api/requests')
       .then(res => res.json())
       .then(data => { if (data.success) setPrepRequests(data.requests || []); })
@@ -525,13 +520,8 @@ export default function Home() {
     setRequestedItemsList(updated);
   };
 
-  const resetProcurementForm = () => {
-    setNewProcureName("");
-    setNewProcureQty("");
-    setNewProcureProvidedBy("أمين المختبر / المدرسة");
-  };
-
-  const handleAddProcurement = () => {
+  const handleAddProcurement = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
     const cleanName = newProcureName.trim();
     const cleanQty = newProcureQty.trim();
 
@@ -541,9 +531,12 @@ export default function Home() {
     }
 
     setProcurementList(prev => [...prev, { name: cleanName, quantity: cleanQty, providedBy: newProcureProvidedBy }]);
-    resetProcurementForm();
+    setNewProcureName("");
+    setNewProcureQty("");
+    setNewProcureProvidedBy("أمين المختبر / المدرسة");
     setErrorMsg("");
   };
+
   const handleRemoveProcurement = (idx: number) => setProcurementList(procurementList.filter((_, i) => i !== idx));
 
   const handleCreateRequest = async (e: React.FormEvent) => {
@@ -725,7 +718,7 @@ export default function Home() {
             <AtomLogo />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">نظام إدارة المختبرات المدرسية الشامل</h1>
+            <h1 className="text-2xl font-bold text-slate-900">نظام إدارة المختبرات المدرسية</h1>
             <p className="text-sm text-slate-500 mt-2">يرجى اختيار بوابة الدخول المناسبة لصلاحياتك:</p>
           </div>
 
