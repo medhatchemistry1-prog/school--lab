@@ -483,7 +483,7 @@ export default function Home() {
       itemId: itemObj.id,
       itemName: itemObj.name,
       quantity: qty,
-      brokenBy: breakageForm.brokenBy || "غير مححدد",
+      brokenBy: breakageForm.brokenBy || "غير محدد",
       reason: breakageForm.reason,
       teacherName: breakageForm.teacherName || "المعلم المشرف",
     };
@@ -736,6 +736,8 @@ export default function Home() {
           سجل التحضير والاستمارات ({prepRequests.length})
         </button>
       </div>
+
+      {/* --- عرض الأقسام --- */}
 
       {activeView === "inventory" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
@@ -1071,6 +1073,8 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* --- النوافذ المنبثقة (MODALS) --- */}
 
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
@@ -1472,12 +1476,14 @@ export default function Home() {
               </div>
               <div className="flex justify-end gap-2 pt-3 border-t">
                 <button type="button" onClick={() => setIsPlanModalOpen(false)} className="px-3 py-1.5 text-xs text-slate-600">إلغاء</button>
-                <button type="submit" className="px-4 py-1.5 text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-lg">إدراج في الخطة</>
+                <button type="submit" className="px-4 py-1.5 text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-lg">إدراج في الخطة</button>
               </div>
             </form>
           </div>
         </div>
       )}
+
+      {/* --- تقارير الطباعة PDF --- */}
 
       {printReportType === "inventory" && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
