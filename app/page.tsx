@@ -386,11 +386,54 @@ export default function Home() {
 
   const handlePrintRequest = () => {
     if (!selectedRequestForPrint) return;
+
+    const printRoot = document.getElementById('printable-request-area');
+    if (!printRoot) return;
+
     const previousTitle = document.title;
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousBodyVisibility = document.body.style.visibility;
+    const previousRootStyle = {
+      position: printRoot.style.position,
+      inset: printRoot.style.inset,
+      display: printRoot.style.display,
+      padding: printRoot.style.padding,
+      background: printRoot.style.background,
+      zIndex: printRoot.style.zIndex,
+      visibility: printRoot.style.visibility,
+    };
+
     document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
+    document.body.style.overflow = 'visible';
+    document.body.style.visibility = 'visible';
+    printRoot.style.position = 'fixed';
+    printRoot.style.inset = '0';
+    printRoot.style.display = 'block';
+    printRoot.style.padding = '12mm';
+    printRoot.style.background = '#ffffff';
+    printRoot.style.zIndex = '2147483647';
+    printRoot.style.visibility = 'visible';
+
+    const restore = () => {
+      document.title = previousTitle;
+      document.body.style.overflow = previousBodyOverflow;
+      document.body.style.visibility = previousBodyVisibility;
+      printRoot.style.position = previousRootStyle.position;
+      printRoot.style.inset = previousRootStyle.inset;
+      printRoot.style.display = previousRootStyle.display;
+      printRoot.style.padding = previousRootStyle.padding;
+      printRoot.style.background = previousRootStyle.background;
+      printRoot.style.zIndex = previousRootStyle.zIndex;
+      printRoot.style.visibility = previousRootStyle.visibility;
+    };
+
+    window.onafterprint = () => {
+      restore();
+      window.onafterprint = null;
+    };
+
     setTimeout(() => {
       window.print();
-      document.title = previousTitle;
     }, 150);
   };
 
@@ -2060,28 +2103,6 @@ export default function Home() {
             @media print {
               html, body {
                 background: #fff !important;
-              }
-
-              body * {
-                visibility: hidden !important;
-              }
-
-              #printable-request-area, #printable-request-area * {
-                visibility: visible !important;
-              }
-
-              #printable-request-area {
-                position: static !important;
-                display: block !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                border: none !important;
-                border-radius: 0 !important;
-                box-shadow: none !important;
-                background: #fff !important;
-                overflow: visible !important;
               }
 
               .print-hide {
