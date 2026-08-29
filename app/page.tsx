@@ -1320,7 +1320,7 @@ export default function Home() {
                       <button
                         onClick={() => {
                           setSelectedRequestForPrint(req);
-                          setPrintReportType("request");
+                          printReportType !== "request" && setPrintReportType("request");
                         }}
                         className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm"
                       >
@@ -2041,7 +2041,22 @@ export default function Home() {
 
       {printReportType === "request" && selectedRequestForPrint && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:inset-auto print:bg-white print:block">
-          <div className="bg-white rounded-2xl max-w-3xl w-full p-8 shadow-2xl border border-slate-200 print:shadow-none print:border-none print:w-full print:p-6 print:m-0">
+          <style dangerouslySetInnerHTML={{__html: `
+            @media print {
+              body * { visibility: hidden !important; }
+              #printable-request-area, #printable-request-area * { visibility: visible !important; }
+              #printable-request-area { 
+                position: absolute !important; 
+                left: 0 !important; 
+                top: 0 !important; 
+                width: 100% !important; 
+                margin: 0 !important; 
+                padding: 10mm !important; 
+                background: white !important;
+              }
+            }
+          `}} />
+          <div className="bg-white rounded-2xl max-w-3xl w-full p-8 shadow-2xl border border-slate-200 print:shadow-none print:border-none print:w-full print:p-0 print:m-0">
             <div className="flex items-center justify-between pb-6 border-b border-slate-200 print:hidden">
               <div className="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-lg text-xs font-bold">
                 <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك</span>
@@ -2054,50 +2069,34 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="mt-6 border-2 border-slate-800 p-6 rounded-xl space-y-6 print:mt-0 print:border-2 print:border-slate-900">
+            <div id="printable-request-area" className="mt-6 border-2 border-slate-800 p-6 rounded-xl space-y-6 print:mt-0 print:border-2 print:border-slate-900 print:shadow-none">
+              
               <div className="rounded-xl border-2 border-slate-800 bg-slate-50 p-4 print:bg-white print:border-2 print:border-slate-900 print:p-3">
-                <div className="flex items-center justify-between gap-3 print:block">
-                  <div className="text-right text-[10px] font-semibold text-slate-700 leading-relaxed print:text-[9px]">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="text-right text-[10px] font-semibold text-slate-700 leading-relaxed print:text-[10px]">
                     <p>وزارة التربية والتعليم</p>
                     <p>إدارة المختبرات والأنشطة العلمية</p>
                     <p>مختبر: {selectedRequestForPrint.subject}</p>
                   </div>
 
-                  <div className="flex items-center gap-3 print:justify-center">
+                  <div className="flex items-center gap-3">
                     <div className="relative h-12 w-12 rounded-full border-2 border-sky-300 bg-white shadow-sm print:h-10 print:w-10">
                       <div className="absolute inset-2 rounded-full border border-cyan-200" />
-                      <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
+                      <div className="absolute left-1/2 top-1/2 h-2 w-2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-amber-400" />
                       <div className="absolute left-2 top-2 h-2 w-2 rounded-full bg-cyan-400" />
                       <div className="absolute bottom-2 right-2 h-2 w-2 rounded-full bg-indigo-400" />
                     </div>
-                    <div className="text-center print:text-center">
-                      <h2 className="text-lg font-black text-slate-900 print:text-[16px]">استمارة تحضير وصرف تجربة مخبرية</h2>
+                    <div className="text-center">
+                      <h2 className="text-lg font-black text-slate-900 print:text-[15px]">استمارة تحضير وصرف تجربة مخبرية</h2>
                       <p className="text-[10px] font-mono font-bold text-slate-500 mt-1 print:text-[9px]">كود الاستمارة: {selectedRequestForPrint.id}</p>
                     </div>
                   </div>
 
-                  <div className="text-left text-[10px] font-semibold text-slate-700 leading-relaxed print:text-[9px]">
+                  <div className="text-left text-[10px] font-semibold text-slate-700 leading-relaxed print:text-[10px]">
                     <p>{selectedRequestForPrint.semester}</p>
                     <p>العام الدراسي: {selectedRequestForPrint.academicYear}</p>
                     <p>التاريخ: {selectedRequestForPrint.date}</p>
                   </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between border-b-2 border-slate-800 pb-4 text-center print:hidden">
-                <div className="text-right text-xs space-y-1 font-semibold text-slate-700">
-                  <p>وزارة التربية والتعليم</p>
-                  <p>إدارة المختبرات والأنشطة العلمية</p>
-                  <p>مختبر: {selectedRequestForPrint.subject}</p>
-                </div>
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">استمارة تحضير وصرف تجربة مخبرية</h2>
-                  <p className="text-xs font-mono font-bold text-slate-500 mt-1">كود الاستمارة: {selectedRequestForPrint.id}</p>
-                </div>
-                <div className="text-left text-xs space-y-1 font-semibold text-slate-700">
-                  <p>{selectedRequestForPrint.semester}</p>
-                  <p>العام الدراسي: {selectedRequestForPrint.academicYear}</p>
-                  <p>التاريخ: {selectedRequestForPrint.date}</p>
                 </div>
               </div>
 
