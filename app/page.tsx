@@ -195,6 +195,7 @@ export default function Home() {
 
   const [activeView, setActiveView] = useState<"inventory" | "requests" | "plans" | "breakage">("inventory");
   const [selectedSubject, setSelectedSubject] = useState<string>("الكل");
+  const [selectedCategory, setSelectedCategory] = useState<string>("الكل");
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>("2026-2027");
   const [selectedSemester, setSelectedSemester] = useState<string>("الفصل الدراسي الأول");
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
@@ -281,16 +282,21 @@ export default function Home() {
     return Array.from(weeks).sort((a, b) => a - b);
   }, [operationalPlans, selectedAcademicYear, selectedSemester]);
 
+  const categoryOptions = useMemo(() => {
+    return ["الكل", ...Array.from(new Set(items.map(item => item.category)))];
+  }, [items]);
+
   const filteredItems = useMemo(() => {
     return items.filter((item) => {
       const matchSubject = selectedSubject === "الكل" || item.subject === selectedSubject;
+      const matchCategory = selectedCategory === "الكل" || item.category === selectedCategory;
       const matchSearch = 
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.location.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchSubject && matchSearch;
+      return matchSubject && matchCategory && matchSearch;
     });
-  }, [items, selectedSubject, searchQuery]);
+  }, [items, selectedSubject, selectedCategory, searchQuery]);
 
   const filteredPlans = useMemo(() => {
     return operationalPlans.filter((p) => {
@@ -360,6 +366,40 @@ export default function Home() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const refreshInventoryFromDb = async () => {
+    try {
+      const res = await fetch('/api/items');
+      const data = await res.json();
+      if (data.success) {
+        setItems(data.items);
+      } else {
+        alert("تعذر تحديث المخزون من قاعدة البيانات: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("حدث خطأ أثناء تحديث المخزون.");
+    }
+  };
+
+  const handleUndoLastBreakage = async () => {
+    if (!breakageRecords.length) {
+      alert("لا توجد حالات كسر حديثة لإلغاء الخصم عنها.");
+      return;
+    }
+
+    const lastBreakage = breakageRecords[0];
+    const targetItem = items.find(item => item.id === lastBreakage.itemId);
+    if (!targetItem) {
+      setBreakageRecords(prev => prev.slice(1));
+      return;
+    }
+
+    const restoredItem = { ...targetItem, currentStock: targetItem.currentStock + lastBreakage.quantity };
+    setItems(prev => prev.map(item => item.id === targetItem.id ? restoredItem : item));
+    setBreakageRecords(prev => prev.filter(item => item.id !== lastBreakage.id));
+    await persistItemToDb(restoredItem);
   };
 
   const handleAddNewAcademicYear = (e: React.FormEvent) => {
@@ -457,6 +497,22 @@ export default function Home() {
     }
   };
 
+  const persistItemToDb = async (item: LabItem) => {
+    try {
+      const res = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(item)
+      });
+      const data = await res.json();
+      if (!data.success) {
+        console.error("Failed to persist item stock:", data.error);
+      }
+    } catch (err) {
+      console.error("Error saving item stock:", err);
+    }
+  };
+
   const handleAddItemRow = () => setRequestedItemsList([...requestedItemsList, { itemId: "", quantity: "" }]);
   const handleRemoveItemRow = (index: number) => requestedItemsList.length > 1 && setRequestedItemsList(requestedItemsList.filter((_, i) => i !== index));
   const handleItemRowChange = (index: number, field: "itemId" | "quantity", value: string) => {
@@ -473,7 +529,7 @@ export default function Home() {
   };
   const handleRemoveProcurement = (idx: number) => setProcurementList(procurementList.filter((_, i) => i !== idx));
 
-  const handleCreateRequest = (e: React.FormEvent) => {
+  const handleCreateRequest = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
@@ -519,9 +575,18 @@ export default function Home() {
       });
     }
 
-    setItems(prev =>
-      prev.map(item => consumableDeductions[item.id] ? { ...item, currentStock: item.currentStock - consumableDeductions[item.id] } : item)
-    );
+    const updatedItems = items.map(item => {
+      if (!consumableDeductions[item.id]) return item;
+      return { ...item, currentStock: item.currentStock - consumableDeductions[item.id] };
+    });
+
+    setItems(updatedItems);
+
+    for (const updatedItem of updatedItems) {
+      if (consumableDeductions[updatedItem.id]) {
+        await persistItemToDb(updatedItem);
+      }
+    }
 
     const newRequest: PrepRequest = {
       id: `REQ-${Date.now().toString().slice(-4)}`,
@@ -546,7 +611,7 @@ export default function Home() {
     setPrintReportType("request");
   };
 
-  const handleRecordBreakage = (e: React.FormEvent) => {
+  const handleRecordBreakage = async (e: React.FormEvent) => {
     e.preventDefault();
     const itemObj = items.find(it => it.id === breakageForm.itemId);
     if (!itemObj) return;
@@ -557,7 +622,9 @@ export default function Home() {
       return;
     }
 
-    setItems(prev => prev.map(it => it.id === itemObj.id ? { ...it, currentStock: it.currentStock - qty } : it));
+    const updatedItem = { ...itemObj, currentStock: itemObj.currentStock - qty };
+    setItems(prev => prev.map(it => it.id === itemObj.id ? updatedItem : it));
+    await persistItemToDb(updatedItem);
 
     const newBreakage: BreakageRecord = {
       id: `BRK-${Date.now().toString().slice(-4)}`,
@@ -822,30 +889,66 @@ export default function Home() {
       {activeView === "inventory" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="print:hidden p-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-              {["الكل", "الكيمياء", "الفيزياء", "الأحياء", "العلوم العامة"].map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setSelectedSubject(tab)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
-                    selectedSubject === tab ? "bg-slate-900 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                  }`}
-                >
-                  {tab}
-                </button>
-              ))}
+            <div className="flex flex-col gap-2 w-full md:w-auto">
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+                {["الكل", "الكيمياء", "الفيزياء", "الأحياء", "العلوم العامة"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedSubject(tab)}
+                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+                      selectedSubject === tab ? "bg-slate-900 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+                {categoryOptions.map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setSelectedCategory(tab)}
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-medium transition whitespace-nowrap ${
+                      selectedCategory === tab ? "bg-blue-600 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    }`}
+                  >
+                    {tab}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="flex items-center gap-3 w-full md:w-auto">
               {userRole === "admin" && (
+                <>
+                  <button
+                    onClick={() => setIsAddItemModalOpen(true)}
+                    className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>إضافة صنف</span>
+                  </button>
+                  <button
+                    onClick={refreshInventoryFromDb}
+                    className="flex items-center gap-1.5 bg-sky-600 hover:bg-sky-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" />
+                    <span>تحديث المخزون من قاعدة البيانات</span>
+                  </button>
+                </>
+              )}
+
+              {breakageRecords.length > 0 && (
                 <button
-                  onClick={() => setIsAddItemModalOpen(true)}
-                  className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow"
+                  onClick={handleUndoLastBreakage}
+                  className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow"
                 >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>إضافة صنف</span>
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>إلغاء آخر خصم</span>
                 </button>
               )}
+
               <button
                 onClick={() => setPrintReportType("inventory")}
                 className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
