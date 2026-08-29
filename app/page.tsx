@@ -113,15 +113,6 @@ interface OperationalPlanItem {
   status: "مجدولة" | "تم التنفيذ" | "مؤجلة";
 }
 
-const INITIAL_INVENTORY: LabItem[] = [
-  { id: "CH-001", name: "حمض الهيدروكلوريك (HCl) 1M", subject: "الكيمياء", category: "مواد كيميائية وأحماض", nature: "consumable", currentStock: 500, minLimit: 200, unit: "مل", location: "خزانة الأحماض A1" },
-  { id: "CH-002", name: "هيدروكسيد الصوديوم (NaOH) 1M", subject: "الكيمياء", category: "مواد كيميائية وأحماض", nature: "consumable", currentStock: 400, minLimit: 150, unit: "مل", location: "خزانة القواعد B2" },
-  { id: "CH-003", name: "كؤوس زجاجية مدرجة 250ml", subject: "الكيمياء", category: "أدوات زجاجية", nature: "returnable", currentStock: 35, minLimit: 10, unit: "قطعة", location: "الرف الزجاجي 3" },
-  { id: "PH-101", name: "ميزان حرارة إلكتروني رقمي", subject: "الفيزياء", category: "أجهزة ومعدات", nature: "returnable", currentStock: 12, minLimit: 5, unit: "جهاز", location: "خزانة الأجهزة 2" },
-  { id: "BIO-201", name: "مجهر ضوئي مركب", subject: "الأحياء", category: "أجهزة ومعدات", nature: "returnable", currentStock: 8, minLimit: 10, unit: "جهاز", location: "طاولة الفحص 1" },
-  { id: "BIO-202", name: "صبغة اليود المخففة", subject: "الأحياء", category: "مواد كيميائية وأحماض", nature: "consumable", currentStock: 600, minLimit: 200, unit: "مل", location: "خزانة الكواشف B" },
-];
-
 const INITIAL_PLAN: OperationalPlanItem[] = [
   { id: "PLAN-1", academicYear: "2026-2027", semester: "الفصل الدراسي الأول", weekNumber: 1, day: "الأحد", period: "الحصة الثانية", subject: "الكيمياء", grade: "الصف 10", track: "متقدم", section: "A", teacherName: "أ. محمد مدحت", labTechnician: "أ. سامي عبد الله", experimentTitle: "المعايرة والتعادل الكيميائي", labRoom: "مختبر الكيمياء الرئيسي", status: "تم التنفيذ" },
 ];
@@ -165,7 +156,20 @@ export default function Home() {
     }, 1500);
   };
 
-  const [items, setItems] = useState<LabItem[]>(INITIAL_INVENTORY);
+  const [items, setItems] = useState<LabItem[]>([]);
+  
+  // جلب الأصناف من قاعدة بيانات Neon عند فتح الموقع
+  useEffect(() => {
+    fetch('/api/items')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.items.length > 0) {
+          setItems(data.items);
+        }
+      })
+      .catch(err => console.error("Error fetching items:", err));
+  }, []);
+
   const [prepRequests, setPrepRequests] = useState<PrepRequest[]>([]);
   const [breakageRecords, setBreakageRecords] = useState<BreakageRecord[]>(INITIAL_BREAKAGE);
   const [operationalPlans, setOperationalPlans] = useState<OperationalPlanItem[]>(INITIAL_PLAN);
@@ -291,9 +295,19 @@ export default function Home() {
     }
   };
 
-  const handleDeleteItem = (id: string) => {
+  const handleDeleteItem = async (id: string) => {
     if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً من عهدة المختبر؟")) {
-      setItems(prev => prev.filter(item => item.id !== id));
+      try {
+        const res = await fetch(`/api/items?id=${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          setItems(prev => prev.filter(item => item.id !== id));
+        } else {
+          alert("خطأ أثناء الحذف: " + data.error);
+        }
+      } catch (err) {
+        console.error(err);
+      }
     }
   };
 
@@ -302,13 +316,27 @@ export default function Home() {
     setIsEditItemModalOpen(true);
   };
 
-  const handleUpdateItem = (e: React.FormEvent) => {
+  const handleUpdateItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingItemForm || !editingItemForm.name.trim()) return;
 
-    setItems(prev => prev.map(it => it.id === editingItemForm.id ? editingItemForm : it));
-    setIsEditItemModalOpen(false);
-    setEditingItemForm(null);
+    try {
+      const res = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingItemForm)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setItems(prev => prev.map(it => it.id === editingItemForm.id ? editingItemForm : it));
+        setIsEditItemModalOpen(false);
+        setEditingItemForm(null);
+      } else {
+        alert("خطأ أثناء التعديل: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleAddNewAcademicYear = (e: React.FormEvent) => {
@@ -369,7 +397,7 @@ export default function Home() {
     if (suggestedProcurements.length > 0) setProcurementList(suggestedProcurements);
   };
 
-  const handleAddNewItem = (e: React.FormEvent) => {
+  const handleAddNewItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newItemForm.name.trim()) return;
 
@@ -387,9 +415,23 @@ export default function Home() {
       location: newItemForm.location.trim() || "المستودع الرئيسي",
     };
 
-    setItems(prev => [newItem, ...prev]);
-    setIsAddItemModalOpen(false);
-    setNewItemForm({ id: "", name: "", subject: "الكيمياء", category: "مواد كيميائية وأحماض", nature: "consumable", currentStock: "", minLimit: "", unit: "مل", location: "" });
+    try {
+      const res = await fetch('/api/items', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setItems(prev => [newItem, ...prev]);
+        setIsAddItemModalOpen(false);
+        setNewItemForm({ id: "", name: "", subject: "الكيمياء", category: "مواد كيميائية وأحماض", nature: "consumable", currentStock: "", minLimit: "", unit: "مل", location: "" });
+      } else {
+        alert("خطأ أثناء الإضافة: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleAddItemRow = () => setRequestedItemsList([...requestedItemsList, { itemId: "", quantity: "" }]);
@@ -614,7 +656,7 @@ export default function Home() {
             <h1 className="text-xl font-bold tracking-tight text-slate-900">نظام إدارة المختبرات المدرسية الشامل</h1>
             {userRole === "admin" ? (
               <span className="bg-teal-100 text-teal-800 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> أمين المختبر (صلاحيات كاملة)
+                <ShieldCheck className="w-3.5 h-3.5" /> أمين المختبر (قاعدة بيانات سحابية Neon)
               </span>
             ) : (
               <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
@@ -1226,7 +1268,7 @@ export default function Home() {
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                 <button type="button" onClick={() => setIsAddItemModalOpen(false)} className="px-4 py-2 text-sm text-slate-600">إلغاء</button>
-                <button type="submit" className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow">حفظ وإدراج</button>
+                <button type="submit" className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow">حفظ في قاعدة البيانات</button>
               </div>
             </form>
           </div>
@@ -1300,7 +1342,7 @@ export default function Home() {
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                 <button type="button" onClick={() => setIsEditItemModalOpen(false)} className="px-4 py-2 text-sm text-slate-600">إلغاء</button>
-                <button type="submit" className="px-5 py-2 text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow">حفظ التعديلات</button>
+                <button type="submit" className="px-5 py-2 text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow">تحديث في قاعدة البيانات</button>
               </div>
             </form>
           </div>
