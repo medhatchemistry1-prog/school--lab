@@ -99,7 +99,7 @@ interface OperationalPlanItem {
   academicYear: string;
   semester: string;
   weekNumber: number;
-  day: "الأحد" | "الإثنين" | "الثلاثاء" | "الأربعاء" | "الخميس";
+  day: "السبت" | "الأحد" | "الإثنين" | "الثلاثاء" | "الأربعاء" | "الخميس" | "الجمعة";
   period: string;
   subject: "الكيمياء" | "الفيزياء" | "الأحياء" | "العلوم العامة";
   grade: string;
@@ -123,7 +123,6 @@ const INITIAL_INVENTORY: LabItem[] = [
 
 const INITIAL_PLAN: OperationalPlanItem[] = [
   { id: "PLAN-1", academicYear: "2026-2027", semester: "الفصل الدراسي الأول", weekNumber: 1, day: "الأحد", period: "الحصة الثانية", subject: "الكيمياء", grade: "الصف 10", track: "متقدم", section: "A", teacherName: "أ. محمد مدحت", labTechnician: "أ. سامي عبد الله", experimentTitle: "المعايرة والتعادل الكيميائي", labRoom: "مختبر الكيمياء الرئيسي", status: "تم التنفيذ" },
-  { id: "PLAN-2", academicYear: "2026-2027", semester: "الفصل الدراسي الأول", weekNumber: 1, day: "الإثنين", period: "الحصة الثالثة", subject: "الأحياء", grade: "الصف 11", track: "متقدم", section: "B", teacherName: "أ. أحمد خالد", labTechnician: "أ. سامي عبد الله", experimentTitle: "تشريح قلب وكبد الخروف", labRoom: "مختبر الأحياء", status: "مجدولة" },
 ];
 
 const INITIAL_BREAKAGE: BreakageRecord[] = [
@@ -140,7 +139,6 @@ export default function Home() {
   const [adminLoginError, setAdminLoginError] = useState(false);
   const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
 
-  // إدارة وتخزين كلمة المرور الخاصة بالأمين
   const [adminPassword, setAdminPassword] = useState("lab520");
   const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
   const [newPasswordInput, setNewPasswordInput] = useState("");
@@ -485,7 +483,7 @@ export default function Home() {
       itemId: itemObj.id,
       itemName: itemObj.name,
       quantity: qty,
-      brokenBy: breakageForm.brokenBy || "غير محدد",
+      brokenBy: breakageForm.brokenBy || "غير مححدد",
       reason: breakageForm.reason,
       teacherName: breakageForm.teacherName || "المعلم المشرف",
     };
@@ -1074,7 +1072,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* مودال تغيير كلمة المرور للأمين */}
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
@@ -1106,7 +1103,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: إضافة عام دراسي جديد */}
       {isAddYearModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
@@ -1135,7 +1131,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: إضافة صنف جديد (أدمن فقط) */}
       {isAddItemModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1210,7 +1205,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: طلب التحضير والصرف */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1353,7 +1347,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: كسر وتوالف (أدمن فقط) */}
       {isBreakageModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
@@ -1396,7 +1389,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: إضافة خطة تشغيلية (أدمن فقط) */}
       {isPlanModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1428,7 +1420,13 @@ export default function Home() {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">اليوم</label>
                   <select value={planFormData.day} onChange={(e) => setPlanFormData({ ...planFormData, day: e.target.value as any })} className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg">
-                    <option value="الأحد">الأحد</option><option value="الإثنين">الإثنين</option><option value="الثلاثاء">الثلاثاء</option><option value="الأربعاء">الأربعاء</option><option value="الخميس">الخميس</option>
+                    <option value="السبت">السبت</option>
+                    <option value="الأحد">الأحد</option>
+                    <option value="الإثنين">الإثنين</option>
+                    <option value="الثلاثاء">الثلاثاء</option>
+                    <option value="الأربعاء">الأربعاء</option>
+                    <option value="الخميس">الخميس</option>
+                    <option value="الجمعة">الجمعة</option>
                   </select>
                 </div>
                 <div>
@@ -1474,14 +1472,13 @@ export default function Home() {
               </div>
               <div className="flex justify-end gap-2 pt-3 border-t">
                 <button type="button" onClick={() => setIsPlanModalOpen(false)} className="px-3 py-1.5 text-xs text-slate-600">إلغاء</button>
-                <button type="submit" className="px-4 py-1.5 text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-lg">إدراج في الخطة</button>
+                <button type="submit" className="px-4 py-1.5 text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white rounded-lg">إدراج في الخطة</>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* تقارير الطباعة PDF */}
       {printReportType === "inventory" && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
