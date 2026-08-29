@@ -88,6 +88,7 @@ interface BreakageRecord {
   date: string;
   itemId: string;
   itemName: string;
+  subject: "الكيمياء" | "الفيزياء" | "الأحياء" | "العلوم العامة";
   quantity: number;
   brokenBy: string;
   reason: string;
@@ -117,7 +118,7 @@ const INITIAL_PLAN: OperationalPlanItem[] = [
 ];
 
 const INITIAL_BREAKAGE: BreakageRecord[] = [
-  { id: "BRK-001", date: "2026-08-28", itemId: "CH-003", itemName: "كؤوس زجاجية مدرجة 250ml", quantity: 2, brokenBy: "المجموعة 3 (الصف 10 متقدم)", reason: "سقوط أثناء غسيل الأدوات", teacherName: "أ. محمد مدحت" }
+  { id: "BRK-001", date: "2026-08-28", itemId: "CH-003", itemName: "كؤوس زجاجية مدرجة 250ml", subject: "الكيمياء", quantity: 2, brokenBy: "المجموعة 3 (الصف 10 متقدم)", reason: "سقوط أثناء غسيل الأدوات", teacherName: "أ. محمد مدحت" }
 ];
 
 const GRADES_LIST = ["الصف 5", "الصف 6", "الصف 7", "الصف 8", "الصف 9", "الصف 10", "الصف 11", "الصف 12"];
@@ -183,6 +184,15 @@ export default function Home() {
         }
       })
       .catch(err => console.error("Error fetching items:", err));
+
+    fetch('/api/breakage')
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && Array.isArray(data.records)) {
+          setBreakageRecords(data.records);
+        }
+      })
+      .catch(err => console.error("Error fetching breakage records:", err));
   }, []);
 
   const [prepRequests, setPrepRequests] = useState<PrepRequest[]>([]);
@@ -196,6 +206,7 @@ export default function Home() {
   const [activeView, setActiveView] = useState<"inventory" | "requests" | "plans" | "breakage">("inventory");
   const [selectedSubject, setSelectedSubject] = useState<string>("الكل");
   const [selectedCategory, setSelectedCategory] = useState<string>("الكل");
+  const [selectedBreakageSubject, setSelectedBreakageSubject] = useState<string>("الكل");
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>("2026-2027");
   const [selectedSemester, setSelectedSemester] = useState<string>("الفصل الدراسي الأول");
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
@@ -298,6 +309,13 @@ export default function Home() {
     });
   }, [items, selectedSubject, selectedCategory, searchQuery]);
 
+  const filteredBreakageRecords = useMemo(() => {
+    return breakageRecords.filter((record) => {
+      const matchSubject = selectedBreakageSubject === "الكل" || record.subject === selectedBreakageSubject;
+      return matchSubject;
+    });
+  }, [breakageRecords, selectedBreakageSubject]);
+
   const filteredPlans = useMemo(() => {
     return operationalPlans.filter((p) => {
       const matchYear = p.academicYear === selectedAcademicYear;
@@ -391,8 +409,14 @@ export default function Home() {
 
     const lastBreakage = breakageRecords[0];
     const targetItem = items.find(item => item.id === lastBreakage.itemId);
+
     if (!targetItem) {
       setBreakageRecords(prev => prev.slice(1));
+      try {
+        await fetch(`/api/breakage?id=${lastBreakage.id}`, { method: 'DELETE' });
+      } catch (err) {
+        console.error(err);
+      }
       return;
     }
 
@@ -400,6 +424,27 @@ export default function Home() {
     setItems(prev => prev.map(item => item.id === targetItem.id ? restoredItem : item));
     setBreakageRecords(prev => prev.filter(item => item.id !== lastBreakage.id));
     await persistItemToDb(restoredItem);
+
+    try {
+      await fetch(`/api/breakage?id=${lastBreakage.id}`, { method: 'DELETE' });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const refreshBreakageFromDb = async () => {
+    try {
+      const res = await fetch('/api/breakage');
+      const data = await res.json();
+      if (data.success) {
+        setBreakageRecords(data.records || []);
+      } else {
+        alert("تعذر تحديث سجل الكسر من قاعدة البيانات: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("حدث خطأ أثناء تحديث سجل الكسر.");
+    }
   };
 
   const handleAddNewAcademicYear = (e: React.FormEvent) => {
@@ -631,6 +676,7 @@ export default function Home() {
       date: new Date().toISOString().split("T")[0],
       itemId: itemObj.id,
       itemName: itemObj.name,
+      subject: itemObj.subject,
       quantity: qty,
       brokenBy: breakageForm.brokenBy || "غير محدد",
       reason: breakageForm.reason,
@@ -638,6 +684,17 @@ export default function Home() {
     };
 
     setBreakageRecords(prev => [newBreakage, ...prev]);
+
+    try {
+      await fetch('/api/breakage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newBreakage)
+      });
+    } catch (err) {
+      console.error(err);
+    }
+
     setIsBreakageModalOpen(false);
   };
 
@@ -1144,12 +1201,12 @@ export default function Home() {
 
       {activeView === "breakage" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="print:hidden p-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="print:hidden p-4 border-b border-slate-200 flex items-center justify-between gap-4">
             <div>
               <h3 className="font-bold text-slate-900">سجل كسر الزجاجيات وتلف الأجهزة</h3>
               <p className="text-xs text-slate-500 mt-0.5">توثيق حالات الكسر وخصمها من عهدة المختبر</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 flex-wrap justify-end">
               {userRole === "admin" && (
                 <button
                   onClick={() => setIsBreakageModalOpen(true)}
@@ -1169,12 +1226,36 @@ export default function Home() {
             </div>
           </div>
 
+          <div className="print:hidden p-4 border-b border-slate-200 bg-slate-50/60">
+            <div className="flex flex-wrap items-center gap-2">
+              {['الكل', 'الكيمياء', 'الفيزياء', 'الأحياء', 'العلوم العامة'].map((subject) => (
+                <button
+                  key={subject}
+                  onClick={() => setSelectedBreakageSubject(subject)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition ${
+                    selectedBreakageSubject === subject ? 'bg-rose-600 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  {subject}
+                </button>
+              ))}
+              <button
+                onClick={refreshBreakageFromDb}
+                className="ml-auto flex items-center gap-1.5 bg-sky-600 hover:bg-sky-700 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                تحديث السجل من قاعدة البيانات
+              </button>
+            </div>
+          </div>
+
           <div className="overflow-x-auto">
             <table className="w-full text-right text-sm">
               <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
                 <tr>
                   <th className="px-6 py-4 font-semibold">رقم المحضر</th>
                   <th className="px-6 py-4 font-semibold">التاريخ</th>
+                  <th className="px-6 py-4 font-semibold">المادة</th>
                   <th className="px-6 py-4 font-semibold">الصنف المكسور</th>
                   <th className="px-6 py-4 font-semibold text-center">الكمية التالفة</th>
                   <th className="px-6 py-4 font-semibold">المتسبب</th>
@@ -1183,10 +1264,11 @@ export default function Home() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
-                {breakageRecords.map((brk) => (
+                {filteredBreakageRecords.map((brk) => (
                   <tr key={brk.id} className="hover:bg-slate-50/75 transition">
                     <td className="px-6 py-4 font-mono font-bold text-rose-700">{brk.id}</td>
                     <td className="px-6 py-4 text-slate-600 text-xs">{brk.date}</td>
+                    <td className="px-6 py-4"><span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 text-xs font-bold">{brk.subject}</span></td>
                     <td className="px-6 py-4 font-bold text-slate-900">{brk.itemName}</td>
                     <td className="px-6 py-4 text-center font-bold text-rose-600">-{brk.quantity}</td>
                     <td className="px-6 py-4 text-slate-700 font-medium">{brk.brokenBy}</td>
@@ -1931,7 +2013,18 @@ export default function Home() {
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
-              <h3 className="font-bold text-slate-900 text-lg">معاينة محضر كسر وتوالف العهدة</h3>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-slate-600">فلتر الطباعة:</span>
+                <select
+                  value={selectedBreakageSubject}
+                  onChange={(e) => setSelectedBreakageSubject(e.target.value)}
+                  className="text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                >
+                  {['الكل', 'الكيمياء', 'الفيزياء', 'الأحياء', 'العلوم العامة'].map((subject) => (
+                    <option key={subject} value={subject}>{subject}</option>
+                  ))}
+                </select>
+              </div>
               <div className="flex items-center gap-3">
                 <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
@@ -1960,6 +2053,7 @@ export default function Home() {
                   <tr>
                     <th className="p-2 border-l border-slate-300 text-center">رقم المحضر</th>
                     <th className="p-2 border-l border-slate-300 text-center">التاريخ</th>
+                    <th className="p-2 border-l border-slate-300">المادة</th>
                     <th className="p-2 border-l border-slate-300">اسم الصنف المكسور / التالف</th>
                     <th className="p-2 border-l border-slate-300 text-center">الكمية التالفة</th>
                     <th className="p-2 border-l border-slate-300">المتسبب (الطالب / الشعبة)</th>
@@ -1968,10 +2062,11 @@ export default function Home() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-300">
-                  {breakageRecords.map((b) => (
+                  {filteredBreakageRecords.map((b) => (
                     <tr key={b.id}>
                       <td className="p-2 border-l border-slate-300 text-center font-mono font-bold text-rose-700">{b.id}</td>
                       <td className="p-2 border-l border-slate-300 text-center">{b.date}</td>
+                      <td className="p-2 border-l border-slate-300 font-bold text-slate-700">{b.subject}</td>
                       <td className="p-2 border-l border-slate-300 font-bold text-slate-900">{b.itemName}</td>
                       <td className="p-2 border-l border-slate-300 text-center font-bold text-rose-600">-{b.quantity}</td>
                       <td className="p-2 border-l border-slate-300 font-semibold">{b.brokenBy}</td>
