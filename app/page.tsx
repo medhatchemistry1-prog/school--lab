@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { 
   FlaskConical, 
   Atom, 
@@ -30,7 +30,11 @@ import {
   RotateCcw,
   PackagePlus,
   Sparkles,
-  FolderPlus
+  FolderPlus,
+  Lock,
+  LogOut,
+  UserCheck,
+  KeyRound
 } from "lucide-react";
 
 type ItemNature = "consumable" | "returnable";
@@ -131,17 +135,46 @@ const PERIODS_LIST = ["الحصة الأولى", "الحصة الثانية", "�
 const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل الدراسي الثاني", "الفصل الدراسي الثالث"];
 
 export default function Home() {
+  const [userRole, setUserRole] = useState<"none" | "teacher" | "admin">("none");
+  const [adminPasswordInput, setAdminPasswordInput] = useState("");
+  const [adminLoginError, setAdminLoginError] = useState(false);
+  const [showAdminLoginModal, setShowAdminLoginModal] = useState(false);
+
+  // إدارة وتخزين كلمة المرور الخاصة بالأمين
+  const [adminPassword, setAdminPassword] = useState("lab520");
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+  const [newPasswordInput, setNewPasswordInput] = useState("");
+  const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
+
+  useEffect(() => {
+    const savedPass = localStorage.getItem("lab_admin_password");
+    if (savedPass) {
+      setAdminPassword(savedPass);
+    }
+  }, []);
+
+  const handleUpdatePassword = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPasswordInput.trim()) return;
+    setAdminPassword(newPasswordInput.trim());
+    localStorage.setItem("lab_admin_password", newPasswordInput.trim());
+    setPasswordChangeSuccess(true);
+    setTimeout(() => {
+      setPasswordChangeSuccess(false);
+      setNewPasswordInput("");
+      setIsChangePasswordModalOpen(false);
+    }, 1500);
+  };
+
   const [items, setItems] = useState<LabItem[]>(INITIAL_INVENTORY);
   const [prepRequests, setPrepRequests] = useState<PrepRequest[]>([]);
   const [breakageRecords, setBreakageRecords] = useState<BreakageRecord[]>(INITIAL_BREAKAGE);
   const [operationalPlans, setOperationalPlans] = useState<OperationalPlanItem[]>(INITIAL_PLAN);
   
-  // قائمة الأعوام الدراسية مع إمكانية إضافة عام جديد
   const [academicYears, setAcademicYears] = useState<string[]>(["2026-2027", "2027-2028", "2028-2029"]);
   const [newYearInput, setNewYearInput] = useState("");
   const [isAddYearModalOpen, setIsAddYearModalOpen] = useState(false);
 
-  // الفلاتر
   const [activeView, setActiveView] = useState<"inventory" | "requests" | "plans" | "breakage">("inventory");
   const [selectedSubject, setSelectedSubject] = useState<string>("الكل");
   const [selectedAcademicYear, setSelectedAcademicYear] = useState<string>("2026-2027");
@@ -149,7 +182,6 @@ export default function Home() {
   const [selectedWeek, setSelectedWeek] = useState<number>(1);
   const [searchQuery, setSearchQuery] = useState<string>("");
 
-  // حالات النوافذ
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isBreakageModalOpen, setIsBreakageModalOpen] = useState(false);
@@ -158,15 +190,13 @@ export default function Home() {
   const [printReportType, setPrintReportType] = useState<"request" | "inventory" | "plan" | "breakage" | null>(null);
   const [selectedRequestForPrint, setSelectedRequestForPrint] = useState<PrepRequest | null>(null);
 
-  // نموذج إضافة صنف
   const [newItemForm, setNewItemForm] = useState({
     id: "", name: "", subject: "الكيمياء" as any, category: "مواد كيميائية وأحماض" as any, nature: "consumable" as ItemNature, currentStock: "", minLimit: "", unit: "مل", location: "",
   });
 
-  // نموذج طلب التحضير
   const [formData, setFormData] = useState({
     teacherName: "",
-    labTechnician: "",
+    labTechnician: "أ. سامي عبد الله",
     subject: "الكيمياء" as any,
     grade: "الصف 10",
     track: "متقدم",
@@ -188,7 +218,6 @@ export default function Home() {
     itemId: "", quantity: "1", brokenBy: "", reason: "انزلاق أثناء التجربة", teacherName: "",
   });
 
-  // نموذج الخطة
   const [planFormData, setPlanFormData] = useState({
     academicYear: "2026-2027",
     semester: "الفصل الدراسي الأول",
@@ -200,7 +229,7 @@ export default function Home() {
     track: "متقدم",
     section: "A",
     teacherName: "",
-    labTechnician: "",
+    labTechnician: "أ. سامي عبد الله",
     experimentTitle: "",
     labRoom: "مختبر الكيمياء الرئيسي",
   });
@@ -216,7 +245,6 @@ export default function Home() {
     return { totalItems, lowStockCount, returnableCount, totalRequests: prepRequests.length, totalPlans: operationalPlans.length, totalBreakages };
   }, [items, prepRequests, operationalPlans, breakageRecords]);
 
-  // قائمة الأسابيع المتاحة في الخطة حسب العام والفصل المختارين
   const availableWeeksList = useMemo(() => {
     const weeks = new Set<number>([1, 2, 3, 4, 5, 6]);
     operationalPlans
@@ -250,7 +278,24 @@ export default function Home() {
     return items.filter(i => i.subject === formData.subject);
   }, [items, formData.subject]);
 
-  // إضافة عام دراسي جديد
+  const handleAdminLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (adminPasswordInput === adminPassword) {
+      setUserRole("admin");
+      setShowAdminLoginModal(false);
+      setAdminPasswordInput("");
+      setAdminLoginError(false);
+    } else {
+      setAdminLoginError(true);
+    }
+  };
+
+  const handleDeleteItem = (id: string) => {
+    if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً من عهدة المختبر؟")) {
+      setItems(prev => prev.filter(item => item.id !== id));
+    }
+  };
+
   const handleAddNewAcademicYear = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newYearInput.trim()) return;
@@ -473,146 +518,246 @@ export default function Home() {
     setIsPlanModalOpen(false);
   };
 
+  if (userRole === "none") {
+    return (
+      <div className="min-h-screen bg-slate-900 flex items-center justify-center p-6" dir="rtl">
+        <div className="bg-white rounded-2xl max-w-xl w-full p-8 shadow-2xl border border-slate-100 text-center space-y-6">
+          <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto shadow-inner">
+            <FlaskConical className="w-8 h-8" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">نظام إدارة المختبرات المدرسية</h1>
+            <p className="text-sm text-slate-500 mt-2">يرجى اختيار بوابة الدخول المناسبة لصلاحياتك:</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+            <button
+              onClick={() => setUserRole("teacher")}
+              className="p-6 rounded-xl border-2 border-slate-200 hover:border-blue-600 hover:bg-blue-50/50 transition flex flex-col items-center text-center group shadow-sm"
+            >
+              <div className="w-12 h-12 bg-blue-100 text-blue-700 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                <User className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-base">بوابة المعلم</h3>
+              <p className="text-xs text-slate-500 mt-1">الاطلاع على محتويات المختبر وتقديم طلبات التحضير والصرف</p>
+            </button>
+
+            <button
+              onClick={() => setShowAdminLoginModal(true)}
+              className="p-6 rounded-xl border-2 border-slate-200 hover:border-teal-600 hover:bg-teal-50/50 transition flex flex-col items-center text-center group shadow-sm"
+            >
+              <div className="w-12 h-12 bg-teal-100 text-teal-700 rounded-xl flex items-center justify-center mb-3 group-hover:scale-110 transition">
+                <ShieldCheck className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-900 text-base">بوابة أمين المختبر (الأدمن)</h3>
+              <p className="text-xs text-slate-500 mt-1">إدارة العهدة، الحذف والإضافة، تسجيل الكسر، والخطة التشغيلية</p>
+            </button>
+          </div>
+        </div>
+
+        {showAdminLoginModal && (
+          <div className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+            <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div className="flex items-center gap-2 text-teal-700 font-bold">
+                  <Lock className="w-4 h-4" />
+                  <h3>تسجيل دخول أمين المختبر</h3>
+                </div>
+                <button onClick={() => setShowAdminLoginModal(false)} className="text-slate-400 p-1"><X className="w-4 h-4" /></button>
+              </div>
+              <form onSubmit={handleAdminLogin} className="mt-4 space-y-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">أدخل كلمة المرور السرية للأدمن</label>
+                  <input
+                    type="password"
+                    required
+                    placeholder="•••••"
+                    value={adminPasswordInput}
+                    onChange={(e) => setAdminPasswordInput(e.target.value)}
+                    className="w-full text-sm p-3 bg-slate-50 border border-slate-300 rounded-lg outline-none font-bold text-center"
+                  />
+                </div>
+                {adminLoginError && <p className="text-rose-600 text-xs text-center font-bold">كلمة المرور غير صحيحة! (الرمز الافتراضي: lab520)</p>}
+                <div className="flex justify-end gap-2 pt-2 border-t">
+                  <button type="button" onClick={() => setShowAdminLoginModal(false)} className="px-3 py-1.5 text-xs text-slate-600">إلغاء</button>
+                  <button type="submit" className="px-4 py-2 text-xs font-bold bg-teal-700 text-white rounded-lg">دخول اللوحة</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-50 p-6 text-slate-800 print:bg-white print:p-0" dir="rtl">
       
-      {/* شاشات ولوحة التحكم العادية */}
-      <div className="print:hidden">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between pb-6 border-b border-slate-200 gap-4">
+      <div className="print:hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight text-slate-900">نظام إدارة المختبرات المدرسية الشامل</h1>
+            {userRole === "admin" ? (
+              <span className="bg-teal-100 text-teal-800 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <ShieldCheck className="w-3.5 h-3.5" /> أمين المختبر (صلاحيات كاملة)
+              </span>
+            ) : (
+              <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
+                <UserCheck className="w-3.5 h-3.5" /> معلم مادة (صلاحية الطلب والاطلاع)
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-slate-500 mt-1">طلبات التحضير، الخطة التشغيلية بالفصول والأعوام، جرد العهدة، وسجل الكسر</p>
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {userRole === "admin" && (
+            <>
+              <button 
+                onClick={() => setIsChangePasswordModalOpen(true)}
+                className="flex items-center gap-1.5 bg-amber-600 hover:bg-amber-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"
+              >
+                <KeyRound className="w-4 h-4" />
+                <span>تغيير كلمة السر</span>
+              </button>
+              <button 
+                onClick={() => setIsAddYearModalOpen(true)}
+                className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"
+              >
+                <FolderPlus className="w-4 h-4" />
+                <span>+ عام دراسي</span>
+              </button>
+              <button 
+                onClick={() => setIsAddItemModalOpen(true)}
+                className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"
+              >
+                <PackagePlus className="w-4 h-4" />
+                <span>+ إضافة صنف</span>
+              </button>
+              <button 
+                onClick={() => setIsBreakageModalOpen(true)}
+                className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-lg text-xs font-semibold transition"
+              >
+                <ShieldAlert className="w-4 h-4" />
+                <span>تسجيل كسر</span>
+              </button>
+            </>
+          )}
+
+          <button 
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition shadow"
+          >
+            <ClipboardList className="w-4 h-4" />
+            <span>طلب تحضير و صرف</span>
+          </button>
+
+          <button
+            onClick={() => setUserRole("none")}
+            className="flex items-center gap-1.5 bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-xs font-semibold transition"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>خروج</span>
+          </button>
+        </div>
+      </div>
+
+      <div className="print:hidden grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900">نظام إدارة المختبرات المدرسية الشامل</h1>
-            <p className="text-sm text-slate-500 mt-1">طلبات التحضير، الخطة التشغيلية بالفصول والأعوام، جرد العهدة، وسجل الكسر</p>
+            <p className="text-sm font-medium text-slate-500">أجهزة وزجاجيات العهدة</p>
+            <p className="text-2xl font-bold text-slate-900 mt-1">{stats.returnableCount} <span className="text-xs font-normal text-slate-500">قطعة</span></p>
           </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <button 
-              onClick={() => setIsAddYearModalOpen(true)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition"
-            >
-              <FolderPlus className="w-4 h-4" />
-              <span>+ عام دراسي جديد</span>
-            </button>
-            <button 
-              onClick={() => setIsAddItemModalOpen(true)}
-              className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition"
-            >
-              <PackagePlus className="w-4 h-4" />
-              <span>+ إضافة صنف للعهدة</span>
-            </button>
-            <button 
-              onClick={() => setIsBreakageModalOpen(true)}
-              className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-lg text-xs font-semibold transition"
-            >
-              <ShieldAlert className="w-4 h-4" />
-              <span>تسجيل كسر</span>
-            </button>
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-xs font-semibold transition"
-            >
-              <ClipboardList className="w-4 h-4" />
-              <span>طلب تحضير و صرف</span>
-            </button>
+          <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+            <Microscope className="w-6 h-6" />
           </div>
         </div>
 
-        {/* بطاقات المؤشرات */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500">أجهزة وزجاجيات العهدة</p>
-              <p className="text-2xl font-bold text-slate-900 mt-1">{stats.returnableCount} <span className="text-xs font-normal text-slate-500">قطعة</span></p>
-            </div>
-            <div className="w-12 h-12 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
-              <Microscope className="w-6 h-6" />
-            </div>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">كيماويات قاربت على النفاد</p>
+            <p className="text-2xl font-bold text-amber-600 mt-1">{stats.lowStockCount}</p>
           </div>
-
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500">كيماويات قاربت على النفاد</p>
-              <p className="text-2xl font-bold text-amber-600 mt-1">{stats.lowStockCount}</p>
-            </div>
-            <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
-              <AlertTriangle className="w-6 h-6" />
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500">طلبات التحضير المنجزة</p>
-              <p className="text-2xl font-bold text-indigo-600 mt-1">{stats.totalRequests}</p>
-            </div>
-            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
-              <ClipboardList className="w-6 h-6" />
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-slate-500">إجمالي قطع الكسر والتالف</p>
-              <p className="text-2xl font-bold text-rose-600 mt-1">{stats.totalBreakages}</p>
-            </div>
-            <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
-              <ShieldAlert className="w-6 h-6" />
-            </div>
+          <div className="w-12 h-12 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center">
+            <AlertTriangle className="w-6 h-6" />
           </div>
         </div>
 
-        {/* التبديل بين التبويبات */}
-        <div className="flex gap-2 border-b border-slate-200 mb-6 overflow-x-auto">
-          <button
-            onClick={() => setActiveView("inventory")}
-            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
-              activeView === "inventory" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            المخزون والعهدة وتصنيف المواد ({items.length})
-          </button>
-          <button
-            onClick={() => setActiveView("plans")}
-            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
-              activeView === "plans" ? "border-teal-600 text-teal-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            الخطة التشغيلية ({operationalPlans.length})
-          </button>
-          <button
-            onClick={() => setActiveView("breakage")}
-            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
-              activeView === "breakage" ? "border-rose-600 text-rose-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            سجل الكسر والتوالف ({breakageRecords.length})
-          </button>
-          <button
-            onClick={() => setActiveView("requests")}
-            className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
-              activeView === "requests" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-700"
-            }`}
-          >
-            سجل التحضير والاستمارات ({prepRequests.length})
-          </button>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">طلبات التحضير المنجزة</p>
+            <p className="text-2xl font-bold text-indigo-600 mt-1">{stats.totalRequests}</p>
+          </div>
+          <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+            <ClipboardList className="w-6 h-6" />
+          </div>
         </div>
 
-        {/* 1. جدول المخزون */}
-        {activeView === "inventory" && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-                {["الكل", "الكيمياء", "الفيزياء", "الأحياء", "العلوم العامة"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setSelectedSubject(tab)}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
-                      selectedSubject === tab ? "bg-slate-900 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-                    }`}
-                  >
-                    {tab}
-                  </button>
-                ))}
-              </div>
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">إجمالي قطع الكسر والتالف</p>
+            <p className="text-2xl font-bold text-rose-600 mt-1">{stats.totalBreakages}</p>
+          </div>
+          <div className="w-12 h-12 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center">
+            <ShieldAlert className="w-6 h-6" />
+          </div>
+        </div>
+      </div>
 
-              <div className="flex items-center gap-3 w-full md:w-auto">
+      <div className="print:hidden flex gap-2 border-b border-slate-200 mb-6 overflow-x-auto">
+        <button
+          onClick={() => setActiveView("inventory")}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
+            activeView === "inventory" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          المخزون والعهدة وتصنيف المواد ({items.length})
+        </button>
+        <button
+          onClick={() => setActiveView("plans")}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
+            activeView === "plans" ? "border-teal-600 text-teal-600" : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          الخطة التشغيلية ({operationalPlans.length})
+        </button>
+        <button
+          onClick={() => setActiveView("breakage")}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
+            activeView === "breakage" ? "border-rose-600 text-rose-600" : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          سجل الكسر والتوالف ({breakageRecords.length})
+        </button>
+        <button
+          onClick={() => setActiveView("requests")}
+          className={`pb-3 px-4 text-sm font-semibold border-b-2 transition whitespace-nowrap ${
+            activeView === "requests" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          سجل التحضير والاستمارات ({prepRequests.length})
+        </button>
+      </div>
+
+      {activeView === "inventory" && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="print:hidden p-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
+              {["الكل", "الكيمياء", "الفيزياء", "الأحياء", "العلوم العامة"].map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setSelectedSubject(tab)}
+                  className={`px-3.5 py-1.5 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+                    selectedSubject === tab ? "bg-slate-900 text-white shadow" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3 w-full md:w-auto">
+              {userRole === "admin" && (
                 <button
                   onClick={() => setIsAddItemModalOpen(true)}
                   className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow"
@@ -620,99 +765,112 @@ export default function Home() {
                   <Plus className="w-3.5 h-3.5" />
                   <span>إضافة صنف</span>
                 </button>
-                <button
-                  onClick={() => setPrintReportType("inventory")}
-                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>طباعة جرد المخزون PDF</span>
-                </button>
-                <div className="relative flex-1 md:w-64">
-                  <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="ابحث عن مادة، جهاز، أو موقع..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-3 pr-9 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg outline-none"
-                  />
-                </div>
+              )}
+              <button
+                onClick={() => setPrintReportType("inventory")}
+                className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+              >
+                <Printer className="w-4 h-4" />
+                <span>طباعة جرد المخزون PDF</span>
+              </button>
+              <div className="relative flex-1 md:w-64">
+                <Search className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="ابحث عن مادة، جهاز، أو موقع..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-3 pr-9 py-2 text-xs bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                />
               </div>
             </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-sm">
-                <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">كود الصنف</th>
-                    <th className="px-6 py-4 font-semibold">اسم الأداة / المادة</th>
-                    <th className="px-6 py-4 font-semibold">التخصص</th>
-                    <th className="px-6 py-4 font-semibold">التصنيف</th>
-                    <th className="px-6 py-4 font-semibold">طبيعة الصنف</th>
-                    <th className="px-6 py-4 font-semibold">الموقع</th>
-                    <th className="px-6 py-4 font-semibold text-center">الرصيد الفعلي</th>
-                    <th className="px-6 py-4 font-semibold text-center">الحالة</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {filteredItems.map((item) => (
-                    <tr key={item.id} className="hover:bg-slate-50/75 transition">
-                      <td className="px-6 py-4 font-mono font-medium text-slate-600">{item.id}</td>
-                      <td className="px-6 py-4 font-semibold text-slate-900">{item.name}</td>
-                      <td className="px-6 py-4"><span className="px-2 py-0.5 rounded text-xs bg-slate-100">{item.subject}</span></td>
-                      <td className="px-6 py-4 text-slate-600 text-xs">{item.category}</td>
-                      <td className="px-6 py-4">
-                        {item.nature === "consumable" ? (
-                          <span className="text-xs font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">مستهلك (كيماويات)</span>
-                        ) : (
-                          <span className="text-xs font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">عهدة مستردة</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-slate-500">{item.location}</td>
-                      <td className="px-6 py-4 text-center font-bold text-slate-900">{item.currentStock} {item.unit}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          {item.currentStock > item.minLimit ? "متوفر" : "منخفض"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           </div>
-        )}
 
-        {/* 2. الخطة التشغيلية (مع فلاتر العام والفصل والأسبوع) */}
-        {activeView === "plans" && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-200 flex flex-col gap-3 bg-slate-50/50">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="flex items-center gap-3 flex-wrap">
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-1">فلتر العام الدراسي:</label>
-                    <select
-                      value={selectedAcademicYear}
-                      onChange={(e) => setSelectedAcademicYear(e.target.value)}
-                      className="text-xs font-bold p-2 bg-white border border-slate-300 rounded-lg outline-none"
-                    >
-                      {academicYears.map(yr => <option key={yr} value={yr}>العام الدراسي {yr}</option>)}
-                    </select>
-                  </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 font-semibold">كود الصنف</th>
+                  <th className="px-6 py-4 font-semibold">اسم الأداة / المادة</th>
+                  <th className="px-6 py-4 font-semibold">التخصص</th>
+                  <th className="px-6 py-4 font-semibold">التصنيف</th>
+                  <th className="px-6 py-4 font-semibold">طبيعة الصنف</th>
+                  <th className="px-6 py-4 font-semibold">الموقع</th>
+                  <th className="px-6 py-4 font-semibold text-center">الرصيد الفعلي</th>
+                  <th className="px-6 py-4 font-semibold text-center">الحالة</th>
+                  {userRole === "admin" && <th className="px-6 py-4 font-semibold text-center">إدارة الحذف</th>}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {filteredItems.map((item) => (
+                  <tr key={item.id} className="hover:bg-slate-50/75 transition">
+                    <td className="px-6 py-4 font-mono font-medium text-slate-600">{item.id}</td>
+                    <td className="px-6 py-4 font-semibold text-slate-900">{item.name}</td>
+                    <td className="px-6 py-4"><span className="px-2 py-0.5 rounded text-xs bg-slate-100">{item.subject}</span></td>
+                    <td className="px-6 py-4 text-slate-600 text-xs">{item.category}</td>
+                    <td className="px-6 py-4">
+                      {item.nature === "consumable" ? (
+                        <span className="text-xs font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">مستهلك (كيماويات)</span>
+                      ) : (
+                        <span className="text-xs font-semibold text-blue-800 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">عهدة مستردة</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-slate-500">{item.location}</td>
+                    <td className="px-6 py-4 text-center font-bold text-slate-900">{item.currentStock} {item.unit}</td>
+                    <td className="px-6 py-4 text-center">
+                      <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        {item.currentStock > item.minLimit ? "متوفر" : "منخفض"}
+                      </span>
+                    </td>
+                    {userRole === "admin" && (
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition"
+                          title="حذف الصنف"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-500 mb-1">فلتر الفصل الدراسي:</label>
-                    <select
-                      value={selectedSemester}
-                      onChange={(e) => setSelectedSemester(e.target.value)}
-                      className="text-xs font-bold p-2 bg-white border border-slate-300 rounded-lg outline-none"
-                    >
-                      {SEMESTERS_LIST.map(sem => <option key={sem} value={sem}>{sem}</option>)}
-                    </select>
-                  </div>
+      {activeView === "plans" && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="print:hidden p-4 border-b border-slate-200 flex flex-col gap-3 bg-slate-50/50">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">فلتر العام الدراسي:</label>
+                  <select
+                    value={selectedAcademicYear}
+                    onChange={(e) => setSelectedAcademicYear(e.target.value)}
+                    className="text-xs font-bold p-2 bg-white border border-slate-300 rounded-lg outline-none"
+                  >
+                    {academicYears.map(yr => <option key={yr} value={yr}>العام الدراسي {yr}</option>)}
+                  </select>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-1">فلتر الفصل الدراسي:</label>
+                  <select
+                    value={selectedSemester}
+                    onChange={(e) => setSelectedSemester(e.target.value)}
+                    className="text-xs font-bold p-2 bg-white border border-slate-300 rounded-lg outline-none"
+                  >
+                    {SEMESTERS_LIST.map(sem => <option key={sem} value={sem}>{sem}</option>)}
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {userRole === "admin" && (
                   <button
                     onClick={() => setIsPlanModalOpen(true)}
                     className="flex items-center gap-1.5 bg-teal-700 hover:bg-teal-800 text-white px-3 py-2 rounded-lg text-xs font-bold transition shadow"
@@ -720,87 +878,87 @@ export default function Home() {
                     <Plus className="w-3.5 h-3.5" />
                     <span>إضافة تجربة للخطة</span>
                   </button>
-                  <button
-                    onClick={() => setPrintReportType("plan")}
-                    className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                  >
-                    <Printer className="w-4 h-4" />
-                    <span>طباعة الخطة PDF</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* اختيار الأسبوع */}
-              <div className="flex items-center gap-3 pt-2 border-t border-slate-200 overflow-x-auto">
-                <span className="text-xs font-bold text-slate-700 whitespace-nowrap">الأسابيع الدراسية ({selectedSemester}):</span>
-                <div className="flex gap-1 bg-slate-200/80 p-1 rounded-lg overflow-x-auto">
-                  {availableWeeksList.map((wk) => (
-                    <button
-                      key={wk}
-                      onClick={() => setSelectedWeek(wk)}
-                      className={`px-3 py-1 rounded-md text-xs font-bold transition whitespace-nowrap ${
-                        selectedWeek === wk ? "bg-white text-teal-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
-                      }`}
-                    >
-                      أسبوع {wk}
-                    </button>
-                  ))}
-                </div>
+                )}
+                <button
+                  onClick={() => setPrintReportType("plan")}
+                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+                >
+                  <Printer className="w-4 h-4" />
+                  <span>طباعة الخطة PDF</span>
+                </button>
               </div>
             </div>
 
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-sm">
-                <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">اليوم والحصة</th>
-                    <th className="px-6 py-4 font-semibold">الصف والشعبة</th>
-                    <th className="px-6 py-4 font-semibold">المادة والتجربة</th>
-                    <th className="px-6 py-4 font-semibold">المعلم المسؤول</th>
-                    <th className="px-6 py-4 font-semibold">أمين المختبر</th>
-                    <th className="px-6 py-4 font-semibold">المختبر</th>
-                    <th className="px-6 py-4 font-semibold text-center">الحالة</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {filteredPlans.length === 0 ? (
-                    <tr>
-                      <td colSpan={7} className="text-center py-12 text-slate-400">
-                        لا توجد تجارب مجدولة في الأسبوع ({selectedWeek}) لـ ({selectedSemester} - {selectedAcademicYear}).
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredPlans.map((plan) => (
-                      <tr key={plan.id} className="hover:bg-slate-50/75 transition">
-                        <td className="px-6 py-4 font-bold text-slate-900">{plan.day} - {plan.period}</td>
-                        <td className="px-6 py-4">{plan.grade} ({plan.track}) - شعبة {plan.section}</td>
-                        <td className="px-6 py-4 font-medium text-teal-700">{plan.experimentTitle}</td>
-                        <td className="px-6 py-4 text-slate-700">{plan.teacherName}</td>
-                        <td className="px-6 py-4 text-slate-700 text-xs">{plan.labTechnician}</td>
-                        <td className="px-6 py-4 text-slate-500 text-xs">{plan.labRoom}</td>
-                        <td className="px-6 py-4 text-center">
-                          <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                            {plan.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+            <div className="flex items-center gap-3 pt-2 border-t border-slate-200 overflow-x-auto">
+              <span className="text-xs font-bold text-slate-700 whitespace-nowrap">الأسابيع الدراسية ({selectedSemester}):</span>
+              <div className="flex gap-1 bg-slate-200/80 p-1 rounded-lg overflow-x-auto">
+                {availableWeeksList.map((wk) => (
+                  <button
+                    key={wk}
+                    onClick={() => setSelectedWeek(wk)}
+                    className={`px-3 py-1 rounded-md text-xs font-bold transition whitespace-nowrap ${
+                      selectedWeek === wk ? "bg-white text-teal-700 shadow-sm" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    أسبوع {wk}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* 3. سجل الكسر والتوالف */}
-        {activeView === "breakage" && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-              <div>
-                <h3 className="font-bold text-slate-900">سجل كسر الزجاجيات وتلف الأجهزة</h3>
-                <p className="text-xs text-slate-500 mt-0.5">توثيق حالات الكسر وخصمها من عهدة المختبر</p>
-              </div>
-              <div className="flex items-center gap-3">
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 font-semibold">اليوم والحصة</th>
+                  <th className="px-6 py-4 font-semibold">الصف والشعبة</th>
+                  <th className="px-6 py-4 font-semibold">المادة والتجربة</th>
+                  <th className="px-6 py-4 font-semibold">المعلم المسؤول</th>
+                  <th className="px-6 py-4 font-semibold">أمين المختبر</th>
+                  <th className="px-6 py-4 font-semibold">المختبر</th>
+                  <th className="px-6 py-4 font-semibold text-center">الحالة</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {filteredPlans.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="text-center py-12 text-slate-400">
+                      لا توجد تجارب مجدولة في الأسبوع ({selectedWeek}) لـ ({selectedSemester} - {selectedAcademicYear}).
+                    </td>
+                  </tr>
+                ) : (
+                  filteredPlans.map((plan) => (
+                    <tr key={plan.id} className="hover:bg-slate-50/75 transition">
+                      <td className="px-6 py-4 font-bold text-slate-900">{plan.day} - {plan.period}</td>
+                      <td className="px-6 py-4">{plan.grade} ({plan.track}) - شعبة {plan.section}</td>
+                      <td className="px-6 py-4 font-medium text-teal-700">{plan.experimentTitle}</td>
+                      <td className="px-6 py-4 text-slate-700">{plan.teacherName}</td>
+                      <td className="px-6 py-4 text-slate-700 text-xs">{plan.labTechnician}</td>
+                      <td className="px-6 py-4 text-slate-500 text-xs">{plan.labRoom}</td>
+                      <td className="px-6 py-4 text-center">
+                        <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                          {plan.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeView === "breakage" && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="print:hidden p-4 border-b border-slate-200 flex items-center justify-between">
+            <div>
+              <h3 className="font-bold text-slate-900">سجل كسر الزجاجيات وتلف الأجهزة</h3>
+              <p className="text-xs text-slate-500 mt-0.5">توثيق حالات الكسر وخصمها من عهدة المختبر</p>
+            </div>
+            <div className="flex items-center gap-3">
+              {userRole === "admin" && (
                 <button
                   onClick={() => setIsBreakageModalOpen(true)}
                   className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-lg text-xs font-bold transition shadow"
@@ -808,118 +966,147 @@ export default function Home() {
                   <Plus className="w-3.5 h-3.5" />
                   <span>تسجيل كسر جديد</span>
                 </button>
-                <button
-                  onClick={() => setPrintReportType("breakage")}
-                  className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
-                >
-                  <Printer className="w-4 h-4" />
-                  <span>طباعة محضر التوالف PDF</span>
-                </button>
+              )}
+              <button
+                onClick={() => setPrintReportType("breakage")}
+                className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition shadow"
+              >
+                <Printer className="w-4 h-4" />
+                <span>طباعة محضر التوالف PDF</span>
+              </button>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 font-semibold">رقم المحضر</th>
+                  <th className="px-6 py-4 font-semibold">التاريخ</th>
+                  <th className="px-6 py-4 font-semibold">الصنف المكسور</th>
+                  <th className="px-6 py-4 font-semibold text-center">الكمية التالفة</th>
+                  <th className="px-6 py-4 font-semibold">المتسبب</th>
+                  <th className="px-6 py-4 font-semibold">السبب والملاحظات</th>
+                  <th className="px-6 py-4 font-semibold">المعلم المشرف</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {breakageRecords.map((brk) => (
+                  <tr key={brk.id} className="hover:bg-slate-50/75 transition">
+                    <td className="px-6 py-4 font-mono font-bold text-rose-700">{brk.id}</td>
+                    <td className="px-6 py-4 text-slate-600 text-xs">{brk.date}</td>
+                    <td className="px-6 py-4 font-bold text-slate-900">{brk.itemName}</td>
+                    <td className="px-6 py-4 text-center font-bold text-rose-600">-{brk.quantity}</td>
+                    <td className="px-6 py-4 text-slate-700 font-medium">{brk.brokenBy}</td>
+                    <td className="px-6 py-4 text-slate-600 text-xs">{brk.reason}</td>
+                    <td className="px-6 py-4 text-slate-700 text-xs">{brk.teacherName}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {activeView === "requests" && (
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="p-4 border-b border-slate-200">
+            <h3 className="font-bold text-slate-900">سجل طلبات التحضير واستمارات الصرف</h3>
+            <p className="text-xs text-slate-500 mt-0.5">طباعة وتحويل أي طلب تحضير إلى ملف PDF رسمي بضغطة واحدة</p>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-right text-sm">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th className="px-6 py-4 font-semibold">رقم الاستمارة</th>
+                  <th className="px-6 py-4 font-semibold">المعلم / أمين المختبر</th>
+                  <th className="px-6 py-4 font-semibold">الصف والفصل</th>
+                  <th className="px-6 py-4 font-semibold">عنوان التجربة</th>
+                  <th className="px-6 py-4 font-semibold">المواد والأجهزة المصروفة</th>
+                  <th className="px-6 py-4 font-semibold">مواد يتم شراؤها</th>
+                  <th className="px-6 py-4 font-semibold text-center">الإجراء</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {prepRequests.map((req) => (
+                  <tr key={req.id} className="hover:bg-slate-50/75 transition">
+                    <td className="px-6 py-4 font-mono font-bold text-indigo-700">{req.id}</td>
+                    <td className="px-6 py-4">
+                      <div className="font-semibold text-slate-900">{req.teacherName}</div>
+                      <div className="text-xs text-amber-700">أمين المختبر: {req.labTechnician}</div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="font-bold text-slate-800">{req.grade} - شعبة {req.section}</span>
+                      <div className="text-xs text-slate-500">{req.semester} ({req.academicYear})</div>
+                    </td>
+                    <td className="px-6 py-4 text-indigo-700 font-medium">{req.experimentTitle}</td>
+                    <td className="px-6 py-4">
+                      {req.items.map((it, idx) => (
+                        <span key={idx} className="text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded inline-block ml-1">
+                          {it.itemName} ({it.quantity} {it.unit})
+                        </span>
+                      ))}
+                    </td>
+                    <td className="px-6 py-4">
+                      {req.procurements?.map((p, idx) => (
+                        <span key={idx} className="text-xs bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded inline-block ml-1">
+                          {p.name} ({p.quantity})
+                        </span>
+                      ))}
+                    </td>
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => {
+                          setSelectedRequestForPrint(req);
+                          setPrintReportType("request");
+                        }}
+                        className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm"
+                      >
+                        <Printer className="w-3.5 h-3.5" />
+                        <span>استمارة PDF</span>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* مودال تغيير كلمة المرور للأمين */}
+      {isChangePasswordModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-200">
+              <h3 className="text-base font-bold text-slate-900">تغيير كلمة مرور أمين المختبر</h3>
+              <button onClick={() => setIsChangePasswordModalOpen(false)} className="text-slate-400 p-1"><X className="w-4 h-4" /></button>
+            </div>
+            <form onSubmit={handleUpdatePassword} className="mt-4 space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">كلمة المرور الجديدة</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="أدخل كلمة المرور الجديدة"
+                  value={newPasswordInput}
+                  onChange={(e) => setNewPasswordInput(e.target.value)}
+                  className="w-full text-sm p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none font-bold text-center"
+                />
               </div>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-sm">
-                <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">رقم المحضر</th>
-                    <th className="px-6 py-4 font-semibold">التاريخ</th>
-                    <th className="px-6 py-4 font-semibold">الصنف المكسور</th>
-                    <th className="px-6 py-4 font-semibold text-center">الكمية التالفة</th>
-                    <th className="px-6 py-4 font-semibold">المتسبب</th>
-                    <th className="px-6 py-4 font-semibold">السبب والملاحظات</th>
-                    <th className="px-6 py-4 font-semibold">المعلم المشرف</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {breakageRecords.map((brk) => (
-                    <tr key={brk.id} className="hover:bg-slate-50/75 transition">
-                      <td className="px-6 py-4 font-mono font-bold text-rose-700">{brk.id}</td>
-                      <td className="px-6 py-4 text-slate-600 text-xs">{brk.date}</td>
-                      <td className="px-6 py-4 font-bold text-slate-900">{brk.itemName}</td>
-                      <td className="px-6 py-4 text-center font-bold text-rose-600">-{brk.quantity}</td>
-                      <td className="px-6 py-4 text-slate-700 font-medium">{brk.brokenBy}</td>
-                      <td className="px-6 py-4 text-slate-600 text-xs">{brk.reason}</td>
-                      <td className="px-6 py-4 text-slate-700 text-xs">{brk.teacherName}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+              {passwordChangeSuccess && (
+                <p className="text-emerald-600 text-xs text-center font-bold">تم تغيير كلمة المرور بنجاح!</p>
+              )}
+              <div className="flex justify-end gap-2 pt-2 border-t">
+                <button type="button" onClick={() => setIsChangePasswordModalOpen(false)} className="px-3 py-1.5 text-xs text-slate-600">إلغاء</button>
+                <button type="submit" className="px-4 py-1.5 text-xs font-bold bg-amber-600 text-white rounded-lg">حفظ التعديل</button>
+              </div>
+            </form>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* 4. سجل التحضير */}
-        {activeView === "requests" && (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-200">
-              <h3 className="font-bold text-slate-900">سجل طلبات التحضير واستمارات الصرف</h3>
-              <p className="text-xs text-slate-500 mt-0.5">طباعة وتحويل أي طلب تحضير إلى ملف PDF رسمي بضغطة واحدة</p>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-sm">
-                <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold">رقم الاستمارة</th>
-                    <th className="px-6 py-4 font-semibold">المعلم / أمين المختبر</th>
-                    <th className="px-6 py-4 font-semibold">الصف والفصل</th>
-                    <th className="px-6 py-4 font-semibold">عنوان التجربة</th>
-                    <th className="px-6 py-4 font-semibold">المواد والأجهزة المصروفة</th>
-                    <th className="px-6 py-4 font-semibold">مواد يتم شراؤها</th>
-                    <th className="px-6 py-4 font-semibold text-center">الإجراء</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {prepRequests.map((req) => (
-                    <tr key={req.id} className="hover:bg-slate-50/75 transition">
-                      <td className="px-6 py-4 font-mono font-bold text-indigo-700">{req.id}</td>
-                      <td className="px-6 py-4">
-                        <div className="font-semibold text-slate-900">{req.teacherName}</div>
-                        <div className="text-xs text-amber-700">أمين المختبر: {req.labTechnician}</div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className="font-bold text-slate-800">{req.grade} - شعبة {req.section}</span>
-                        <div className="text-xs text-slate-500">{req.semester} ({req.academicYear})</div>
-                      </td>
-                      <td className="px-6 py-4 text-indigo-700 font-medium">{req.experimentTitle}</td>
-                      <td className="px-6 py-4">
-                        {req.items.map((it, idx) => (
-                          <span key={idx} className="text-xs bg-slate-100 text-slate-800 px-2 py-0.5 rounded inline-block ml-1">
-                            {it.itemName} ({it.quantity} {it.unit})
-                          </span>
-                        ))}
-                      </td>
-                      <td className="px-6 py-4">
-                        {req.procurements?.map((p, idx) => (
-                          <span key={idx} className="text-xs bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded inline-block ml-1">
-                            {p.name} ({p.quantity})
-                          </span>
-                        ))}
-                      </td>
-                      <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => {
-                            setSelectedRequestForPrint(req);
-                            setPrintReportType("request");
-                          }}
-                          className="inline-flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition shadow-sm"
-                        >
-                          <Printer className="w-3.5 h-3.5" />
-                          <span>استمارة PDF</span>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ========================================================= */}
       {/* Modal: إضافة عام دراسي جديد */}
-      {/* ========================================================= */}
       {isAddYearModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
@@ -948,9 +1135,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* Modal: إضافة صنف جديد */}
-      {/* ========================================================= */}
+      {/* Modal: إضافة صنف جديد (أدمن فقط) */}
       {isAddItemModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1025,7 +1210,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: طلب التحضير (مع اختيار الفصل والعام) */}
+      {/* Modal: طلب التحضير والصرف */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1059,7 +1244,6 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* اختيار العام الدراسي والفصل الدراسي */}
               <div className="grid grid-cols-2 gap-3 p-3 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">العام الدراسي</label>
@@ -1102,7 +1286,7 @@ export default function Home() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">الحصة (1 إلى 10)</label>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">الحصة</label>
                   <select value={formData.period} onChange={(e) => setFormData({ ...formData, period: e.target.value })} className="w-full text-sm p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none">
                     {PERIODS_LIST.map(p => <option key={p} value={p}>{p}</option>)}
                   </select>
@@ -1125,7 +1309,6 @@ export default function Home() {
                 <input type="date" required value={formData.date} onChange={(e) => setFormData({ ...formData, date: e.target.value })} className="w-full text-sm p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none" />
               </div>
 
-              {/* أدوات المخزن */}
               <div className="p-3 bg-blue-50/60 rounded-xl border border-blue-100 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-blue-900">الأدوات، الزجاجيات، والكيماويات من المخزن:</span>
@@ -1143,7 +1326,6 @@ export default function Home() {
                 ))}
               </div>
 
-              {/* عينات الشراء */}
               <div className="p-3 bg-emerald-50/70 rounded-xl border border-emerald-200 space-y-2">
                 <span className="text-xs font-bold text-emerald-900">مواد شراء خارجية (عينات تشريح طازجة، ثلج، نباتات...):</span>
                 <div className="flex gap-2">
@@ -1171,7 +1353,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: كسر وتوالف */}
+      {/* Modal: كسر وتوالف (أدمن فقط) */}
       {isBreakageModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
@@ -1214,7 +1396,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: إضافة خطة (مع اختيار الفصل والعام) */}
+      {/* Modal: إضافة خطة تشغيلية (أدمن فقط) */}
       {isPlanModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1299,11 +1481,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* ========================================================= */}
-      {/* تقارير الطباعة الرسمية (PRINT PREVIEWS) */}
-      {/* ========================================================= */}
-
-      {/* تقرير جرد المخزون */}
+      {/* تقارير الطباعة PDF */}
       {printReportType === "inventory" && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
@@ -1373,7 +1551,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* تقرير الخطة التشغيلية */}
       {printReportType === "plan" && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
@@ -1442,7 +1619,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* تقرير محضر الكسر */}
       {printReportType === "breakage" && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
@@ -1507,7 +1683,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* استمارة طلب التحضير */}
       {printReportType === "request" && selectedRequestForPrint && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-3xl w-full p-8 shadow-2xl border border-slate-200 print:shadow-none print:border-none print:w-full">
