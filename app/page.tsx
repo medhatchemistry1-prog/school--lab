@@ -235,7 +235,15 @@ export default function Home() {
   const [newProcureProvidedBy, setNewProcureProvidedBy] = useState<"أمين المختبر / المدرسة" | "المعلم" | "الطلاب">("أمين المختبر / المدرسة");
 
   const [breakageForm, setBreakageForm] = useState({
+    subject: "الكيمياء" as "الكيمياء" | "الفيزياء" | "الأحياء" | "العلوم العامة",
+    itemType: "returnable" as "all" | "returnable" | "consumable",
     itemId: "", quantity: "1", brokenBy: "", reason: "انزلاق أثناء التجربة", teacherName: "",
+  });
+
+  const filteredBreakageItems = items.filter((it) => {
+    const subjectMatch = it.subject === breakageForm.subject;
+    const typeMatch = breakageForm.itemType === "all" || it.nature === breakageForm.itemType;
+    return subjectMatch && typeMatch;
   });
 
   const [planFormData, setPlanFormData] = useState({
@@ -1514,13 +1522,52 @@ export default function Home() {
               <button onClick={() => setIsBreakageModalOpen(false)} className="text-slate-400 p-1"><X className="w-5 h-5" /></button>
             </div>
             <form onSubmit={handleRecordBreakage} className="mt-4 space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">الصنف التالف من العهدة</label>
-                <select required value={breakageForm.itemId} onChange={(e) => setBreakageForm({ ...breakageForm, itemId: e.target.value })} className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none">
-                  <option value="">-- اختر الصنف --</option>
-                  {items.filter(it => it.nature === "returnable").map(it => <option key={it.id} value={it.id}>{it.name} ({it.currentStock} {it.unit})</option>)}
-                </select>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">المادة</label>
+                  <select
+                    value={breakageForm.subject}
+                    onChange={(e) => setBreakageForm({ ...breakageForm, subject: e.target.value as any, itemId: "" })}
+                    className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                  >
+                    <option value="الكيمياء">الكيمياء</option>
+                    <option value="الفيزياء">الفيزياء</option>
+                    <option value="الأحياء">الأحياء</option>
+                    <option value="العلوم العامة">العلوم العامة</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">المخزون / العهدة</label>
+                  <select
+                    value={breakageForm.itemType}
+                    onChange={(e) => setBreakageForm({ ...breakageForm, itemType: e.target.value as any, itemId: "" })}
+                    className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                  >
+                    <option value="returnable">العهدة</option>
+                    <option value="consumable">المخزون</option>
+                    <option value="all">الكل</option>
+                  </select>
+                </div>
               </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">الصنف التالف من العهدة أو المخزون</label>
+                <select
+                  required
+                  value={breakageForm.itemId}
+                  onChange={(e) => setBreakageForm({ ...breakageForm, itemId: e.target.value })}
+                  className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                >
+                  <option value="">-- اختر الصنف --</option>
+                  {filteredBreakageItems.map(it => (
+                    <option key={it.id} value={it.id}>{it.name} ({it.currentStock} {it.unit})</option>
+                  ))}
+                </select>
+                {filteredBreakageItems.length === 0 && (
+                  <p className="mt-1 text-[10px] text-amber-700 font-bold">لا توجد عناصر متاحة في هذه المادة والنوع الحالي.</p>
+                )}
+              </div>
+
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">الكمية</label>
