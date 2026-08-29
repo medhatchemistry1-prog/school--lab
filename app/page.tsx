@@ -34,7 +34,8 @@ import {
   Lock,
   LogOut,
   UserCheck,
-  KeyRound
+  KeyRound,
+  Edit3
 } from "lucide-react";
 
 type ItemNature = "consumable" | "returnable";
@@ -184,6 +185,10 @@ export default function Home() {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isBreakageModalOpen, setIsBreakageModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
+
+  // حالات نافذة التعديل لصنف موجود
+  const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
+  const [editingItemForm, setEditingItemForm] = useState<LabItem | null>(null);
   
   const [printReportType, setPrintReportType] = useState<"request" | "inventory" | "plan" | "breakage" | null>(null);
   const [selectedRequestForPrint, setSelectedRequestForPrint] = useState<PrepRequest | null>(null);
@@ -292,6 +297,20 @@ export default function Home() {
     if (confirm("هل أنت متأكد من حذف هذا الصنف نهائياً من عهدة المختبر؟")) {
       setItems(prev => prev.filter(item => item.id !== id));
     }
+  };
+
+  const handleOpenEditItem = (item: LabItem) => {
+    setEditingItemForm({ ...item });
+    setIsEditItemModalOpen(true);
+  };
+
+  const handleUpdateItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingItemForm || !editingItemForm.name.trim()) return;
+
+    setItems(prev => prev.map(it => it.id === editingItemForm.id ? editingItemForm : it));
+    setIsEditItemModalOpen(false);
+    setEditingItemForm(null);
   };
 
   const handleAddNewAcademicYear = (e: React.FormEvent) => {
@@ -798,7 +817,7 @@ export default function Home() {
                   <th className="px-6 py-4 font-semibold">الموقع</th>
                   <th className="px-6 py-4 font-semibold text-center">الرصيد الفعلي</th>
                   <th className="px-6 py-4 font-semibold text-center">الحالة</th>
-                  {userRole === "admin" && <th className="px-6 py-4 font-semibold text-center">إدارة الحذف</th>}
+                  {userRole === "admin" && <th className="px-6 py-4 font-semibold text-center">الإجراءات (تعديل / حذف)</th>}
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -824,13 +843,22 @@ export default function Home() {
                     </td>
                     {userRole === "admin" && (
                       <td className="px-6 py-4 text-center">
-                        <button
-                          onClick={() => handleDeleteItem(item.id)}
-                          className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition"
-                          title="حذف الصنف"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <button
+                            onClick={() => handleOpenEditItem(item)}
+                            className="p-1.5 bg-amber-50 text-amber-600 hover:bg-amber-600 hover:text-white rounded-lg transition"
+                            title="تعديل الصنف"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteItem(item.id)}
+                            className="p-1.5 bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white rounded-lg transition"
+                            title="حذف الصنف"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
                       </td>
                     )}
                   </tr>
@@ -1135,6 +1163,7 @@ export default function Home() {
         </div>
       )}
 
+      {/* Modal: إضافة صنف جديد (أدمن فقط) */}
       {isAddItemModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1203,6 +1232,81 @@ export default function Home() {
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
                 <button type="button" onClick={() => setIsAddItemModalOpen(false)} className="px-4 py-2 text-sm text-slate-600">إلغاء</button>
                 <button type="submit" className="px-5 py-2 text-sm font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow">حفظ وإدراج</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: تعديل صنف موجود (أدمن فقط) */}
+      {isEditItemModalOpen && editingItemForm && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200">
+              <div className="flex items-center gap-2 text-amber-700">
+                <Edit3 className="w-5 h-5" />
+                <h3 className="text-lg font-bold text-slate-900">تعديل بيانات الصنف [{editingItemForm.id}]</h3>
+              </div>
+              <button onClick={() => setIsEditItemModalOpen(false)} className="text-slate-400 hover:text-slate-600 p-1"><X className="w-5 h-5" /></button>
+            </div>
+
+            <form onSubmit={handleUpdateItem} className="mt-4 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">كود الصنف (ثابت)</label>
+                  <input type="text" disabled value={editingItemForm.id} className="w-full text-xs p-2.5 bg-slate-100 border border-slate-300 rounded-lg outline-none font-mono text-slate-500" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">التخصص</label>
+                  <select value={editingItemForm.subject} onChange={(e) => setEditingItemForm({ ...editingItemForm, subject: e.target.value as any })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none">
+                    <option value="الكيمياء">الكيمياء</option><option value="الفيزياء">الفيزياء</option><option value="الأحياء">الأحياء</option><option value="العلوم العامة">العلوم العامة</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">اسم الأداة / الجهاز / المادة *</label>
+                <input type="text" required value={editingItemForm.name} onChange={(e) => setEditingItemForm({ ...editingItemForm, name: e.target.value })} className="w-full text-sm p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none font-medium" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">التصنيف</label>
+                  <select value={editingItemForm.category} onChange={(e) => setEditingItemForm({ ...editingItemForm, category: e.target.value as any })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none">
+                    <option value="مواد كيميائية وأحماض">مواد كيميائية وأحماض</option><option value="أدوات زجاجية">أدوات زجاجية</option><option value="أجهزة ومعدات">أجهزة ومعدات</option><option value="نماذج ومجسمات">نماذج ومجسمات</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">طبيعة الصنف وسياسة الخصم</label>
+                  <select value={editingItemForm.nature} onChange={(e) => setEditingItemForm({ ...editingItemForm, nature: e.target.value as ItemNature })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none font-bold">
+                    <option value="returnable">عهدة مستردة (لا تخصم إلا بالكسر)</option><option value="consumable">مستهلك (يخصم عند الاستهلاك)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">الرصيد الفعلي *</label>
+                  <input type="number" step="any" required value={editingItemForm.currentStock} onChange={(e) => setEditingItemForm({ ...editingItemForm, currentStock: parseFloat(e.target.value) || 0 })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-center font-bold outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">وحدة القياس *</label>
+                  <input type="text" required value={editingItemForm.unit} onChange={(e) => setEditingItemForm({ ...editingItemForm, unit: e.target.value })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-center outline-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">حد الإنذار</label>
+                  <input type="number" step="any" value={editingItemForm.minLimit} onChange={(e) => setEditingItemForm({ ...editingItemForm, minLimit: parseFloat(e.target.value) || 0 })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-center outline-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 mb-1">موقع التخزين في المختبر</label>
+                <input type="text" value={editingItemForm.location} onChange={(e) => setEditingItemForm({ ...editingItemForm, location: e.target.value })} className="w-full text-xs p-2.5 bg-slate-50 border border-slate-300 rounded-lg outline-none" />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+                <button type="button" onClick={() => setIsEditItemModalOpen(false)} className="px-4 py-2 text-sm text-slate-600">إلغاء</button>
+                <button type="submit" className="px-5 py-2 text-sm font-bold bg-amber-600 hover:bg-amber-700 text-white rounded-lg shadow">حفظ التعديلات</button>
               </div>
             </form>
           </div>
