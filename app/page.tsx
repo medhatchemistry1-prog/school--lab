@@ -391,40 +391,49 @@ export default function Home() {
     if (!printRoot) return;
 
     const previousTitle = document.title;
-    const previousBodyOverflow = document.body.style.overflow;
-    const previousBodyVisibility = document.body.style.visibility;
     const previousRootStyle = {
       position: printRoot.style.position,
       inset: printRoot.style.inset,
       display: printRoot.style.display,
+      width: printRoot.style.width,
+      maxWidth: printRoot.style.maxWidth,
       padding: printRoot.style.padding,
       background: printRoot.style.background,
       zIndex: printRoot.style.zIndex,
       visibility: printRoot.style.visibility,
+      margin: printRoot.style.margin,
+      boxShadow: printRoot.style.boxShadow,
+      borderRadius: printRoot.style.borderRadius,
     };
 
     document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
-    document.body.style.overflow = 'visible';
-    document.body.style.visibility = 'visible';
-    printRoot.style.position = 'fixed';
-    printRoot.style.inset = '0';
+    printRoot.style.position = 'relative';
+    printRoot.style.inset = 'auto';
     printRoot.style.display = 'block';
+    printRoot.style.width = '100%';
+    printRoot.style.maxWidth = '100%';
     printRoot.style.padding = '12mm';
     printRoot.style.background = '#ffffff';
-    printRoot.style.zIndex = '2147483647';
+    printRoot.style.zIndex = '1';
     printRoot.style.visibility = 'visible';
+    printRoot.style.margin = '0';
+    printRoot.style.boxShadow = 'none';
+    printRoot.style.borderRadius = '0';
 
     const restore = () => {
       document.title = previousTitle;
-      document.body.style.overflow = previousBodyOverflow;
-      document.body.style.visibility = previousBodyVisibility;
       printRoot.style.position = previousRootStyle.position;
       printRoot.style.inset = previousRootStyle.inset;
       printRoot.style.display = previousRootStyle.display;
+      printRoot.style.width = previousRootStyle.width;
+      printRoot.style.maxWidth = previousRootStyle.maxWidth;
       printRoot.style.padding = previousRootStyle.padding;
       printRoot.style.background = previousRootStyle.background;
       printRoot.style.zIndex = previousRootStyle.zIndex;
       printRoot.style.visibility = previousRootStyle.visibility;
+      printRoot.style.margin = previousRootStyle.margin;
+      printRoot.style.boxShadow = previousRootStyle.boxShadow;
+      printRoot.style.borderRadius = previousRootStyle.borderRadius;
     };
 
     window.onafterprint = () => {
@@ -432,9 +441,7 @@ export default function Home() {
       window.onafterprint = null;
     };
 
-    setTimeout(() => {
-      window.print();
-    }, 150);
+    setTimeout(() => window.print(), 150);
   };
 
   const handleUndoLastBreakage = async () => {
@@ -2097,16 +2104,36 @@ export default function Home() {
           <style dangerouslySetInnerHTML={{__html: `
             @page {
               size: A4 portrait;
-              margin: 10mm 8mm;
+              margin: 8mm;
+              marks: none;
             }
 
             @media print {
               html, body {
+                margin: 0 !important;
+                padding: 0 !important;
                 background: #fff !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+              }
+
+              body {
+                overflow: visible !important;
               }
 
               .print-hide {
                 display: none !important;
+              }
+
+              #printable-request-area {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 10mm 8mm !important;
+                background: #fff !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
               }
             }
           `}} />
