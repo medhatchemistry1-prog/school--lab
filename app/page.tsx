@@ -3,28 +3,17 @@
 import React, { useState, useMemo, useEffect } from "react";
 import { 
   Atom, 
-  Dna, 
   Microscope, 
   Search, 
   AlertTriangle, 
   CheckCircle2, 
   Plus, 
-  Filter, 
-  Download,
-  Calendar,
   ClipboardList,
   User,
   X,
-  Layers,
-  CalendarDays,
-  Clock,
-  MapPin,
-  Check,
   ShieldCheck,
   Printer,
   Trash2,
-  FileText,
-  ShoppingBag,
   ShieldAlert,
   RotateCcw,
   PackagePlus,
@@ -113,14 +102,6 @@ interface OperationalPlanItem {
   status: "مجدولة" | "تم التنفيذ" | "مؤجلة";
 }
 
-const INITIAL_PLAN: OperationalPlanItem[] = [
-  { id: "PLAN-1", academicYear: "2026-2027", semester: "الفصل الدراسي الأول", weekNumber: 1, day: "الأحد", period: "الحصة الثانية", subject: "الكيمياء", grade: "الصف 10", track: "متقدم", section: "A", teacherName: "أ. محمد مدحت", labTechnician: "أ. سامي عبد الله", experimentTitle: "المعايرة والتعادل الكيميائي", labRoom: "مختبر الكيمياء الرئيسي", status: "تم التنفيذ" },
-];
-
-const INITIAL_BREAKAGE: BreakageRecord[] = [
-  { id: "BRK-001", date: "2026-08-28", itemId: "CH-003", itemName: "كؤوس زجاجية مدرجة 250ml", subject: "الكيمياء", quantity: 2, brokenBy: "المجموعة 3 (الصف 10 متقدم)", reason: "سقوط أثناء غسيل الأدوات", teacherName: "أ. محمد مدحت" }
-];
-
 const GRADES_LIST = ["الصف 5", "الصف 6", "الصف 7", "الصف 8", "الصف 9", "الصف 10", "الصف 11", "الصف 12"];
 const PERIODS_LIST = ["الحصة الأولى", "الحصة الثانية", "الحصة الثالثة", "الحصة الرابعة", "الحصة الخامسة", "الحصة السادسة", "الحصة السابعة", "الحصة الثامنة", "الحصة التاسعة", "الحصة العاشرة"];
 const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل الدراسي الثاني", "الفصل الدراسي الثالث"];
@@ -154,9 +135,7 @@ export default function Home() {
 
   useEffect(() => {
     const savedPass = localStorage.getItem("lab_admin_password");
-    if (savedPass) {
-      setAdminPassword(savedPass);
-    }
+    if (savedPass) setAdminPassword(savedPass);
   }, []);
 
   const handleUpdatePassword = (e: React.FormEvent) => {
@@ -173,35 +152,40 @@ export default function Home() {
   };
 
   const [items, setItems] = useState<LabItem[]>([]);
-  
-  // جلب الأصناف من قاعدة بيانات Neon عند فتح الموقع
-  useEffect(() => {
-    fetch('/api/items')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.items.length > 0) {
-          setItems(data.items);
-        }
-      })
-      .catch(err => console.error("Error fetching items:", err));
-
-    fetch('/api/breakage')
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && Array.isArray(data.records)) {
-          setBreakageRecords(data.records);
-        }
-      })
-      .catch(err => console.error("Error fetching breakage records:", err));
-  }, []);
-
   const [prepRequests, setPrepRequests] = useState<PrepRequest[]>([]);
-  const [breakageRecords, setBreakageRecords] = useState<BreakageRecord[]>(INITIAL_BREAKAGE);
-  const [operationalPlans, setOperationalPlans] = useState<OperationalPlanItem[]>(INITIAL_PLAN);
+  const [breakageRecords, setBreakageRecords] = useState<BreakageRecord[]>([]);
+  const [operationalPlans, setOperationalPlans] = useState<OperationalPlanItem[]>([]);
   
   const [academicYears, setAcademicYears] = useState<string[]>(["2026-2027", "2027-2028", "2028-2029"]);
   const [newYearInput, setNewYearInput] = useState("");
   const [isAddYearModalOpen, setIsAddYearModalOpen] = useState(false);
+
+  // جلب كافة البيانات من قاعدة بيانات Neon السحابية عند الفتح
+  useEffect(() => {
+    // 1. جلب المخزون
+    fetch('/api/items')
+      .then(res => res.json())
+      .then(data => { if (data.success) setItems(data.items || []); })
+      .catch(err => console.error("Error items:", err));
+
+    // 2. جلب سجل الكسر
+    fetch('/api/breakage')
+      .then(res => res.json())
+      .then(data => { if (data.success) setBreakageRecords(data.records || []); })
+      .catch(err => console.error("Error breakage:", err));
+
+    // 3. جلب الخطة التشغيلية
+    fetch('/api/plans')
+      .then(res => res.json())
+      .then(data => { if (data.success) setOperationalPlans(data.plans || []); })
+      .catch(err => console.error("Error plans:", err));
+
+    // 4. جلب طلبات التحضير
+    fetch('/api/requests')
+      .then(res => res.json())
+      .then(data => { if (data.success) setPrepRequests(data.requests || []); })
+      .catch(err => console.error("Error requests:", err));
+  }, []);
 
   const [activeView, setActiveView] = useState<"inventory" | "requests" | "plans" | "breakage">("inventory");
   const [selectedSubject, setSelectedSubject] = useState<string>("الكل");
@@ -311,8 +295,7 @@ export default function Home() {
 
   const filteredBreakageRecords = useMemo(() => {
     return breakageRecords.filter((record) => {
-      const matchSubject = selectedBreakageSubject === "الكل" || record.subject === selectedBreakageSubject;
-      return matchSubject;
+      return selectedBreakageSubject === "الكل" || record.subject === selectedBreakageSubject;
     });
   }, [breakageRecords, selectedBreakageSubject]);
 
@@ -390,14 +373,19 @@ export default function Home() {
     try {
       const res = await fetch('/api/items');
       const data = await res.json();
-      if (data.success) {
-        setItems(data.items);
-      } else {
-        alert("تعذر تحديث المخزون من قاعدة البيانات: " + data.error);
-      }
+      if (data.success) setItems(data.items);
     } catch (err) {
       console.error(err);
-      alert("حدث خطأ أثناء تحديث المخزون.");
+    }
+  };
+
+  const refreshBreakageFromDb = async () => {
+    try {
+      const res = await fetch('/api/breakage');
+      const data = await res.json();
+      if (data.success) setBreakageRecords(data.records || []);
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -412,11 +400,7 @@ export default function Home() {
 
     if (!targetItem) {
       setBreakageRecords(prev => prev.slice(1));
-      try {
-        await fetch(`/api/breakage?id=${lastBreakage.id}`, { method: 'DELETE' });
-      } catch (err) {
-        console.error(err);
-      }
+      try { await fetch(`/api/breakage?id=${lastBreakage.id}`, { method: 'DELETE' }); } catch (err) { console.error(err); }
       return;
     }
 
@@ -429,21 +413,6 @@ export default function Home() {
       await fetch(`/api/breakage?id=${lastBreakage.id}`, { method: 'DELETE' });
     } catch (err) {
       console.error(err);
-    }
-  };
-
-  const refreshBreakageFromDb = async () => {
-    try {
-      const res = await fetch('/api/breakage');
-      const data = await res.json();
-      if (data.success) {
-        setBreakageRecords(data.records || []);
-      } else {
-        alert("تعذر تحديث سجل الكسر من قاعدة البيانات: " + data.error);
-      }
-    } catch (err) {
-      console.error(err);
-      alert("حدث خطأ أثناء تحديث سجل الكسر.");
     }
   };
 
@@ -534,28 +503,18 @@ export default function Home() {
         setItems(prev => [newItem, ...prev]);
         setIsAddItemModalOpen(false);
         setNewItemForm({ id: "", name: "", subject: "الكيمياء", category: "مواد كيميائية وأحماض", nature: "consumable", currentStock: "", minLimit: "", unit: "مل", location: "" });
-      } else {
-        alert("خطأ أثناء الإضافة: " + data.error);
       }
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const persistItemToDb = async (item: LabItem) => {
     try {
-      const res = await fetch('/api/items', {
+      await fetch('/api/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(item)
       });
-      const data = await res.json();
-      if (!data.success) {
-        console.error("Failed to persist item stock:", data.error);
-      }
-    } catch (err) {
-      console.error("Error saving item stock:", err);
-    }
+    } catch (err) { console.error(err); }
   };
 
   const handleAddItemRow = () => setRequestedItemsList([...requestedItemsList, { itemId: "", quantity: "" }]);
@@ -626,7 +585,6 @@ export default function Home() {
     });
 
     setItems(updatedItems);
-
     for (const updatedItem of updatedItems) {
       if (consumableDeductions[updatedItem.id]) {
         await persistItemToDb(updatedItem);
@@ -651,6 +609,15 @@ export default function Home() {
     };
 
     setPrepRequests(prev => [newRequest, ...prev]);
+
+    try {
+      await fetch('/api/requests', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newRequest)
+      });
+    } catch (err) { console.error(err); }
+
     setIsModalOpen(false);
     setSelectedRequestForPrint(newRequest);
     setPrintReportType("request");
@@ -676,7 +643,7 @@ export default function Home() {
       date: new Date().toISOString().split("T")[0],
       itemId: itemObj.id,
       itemName: itemObj.name,
-      subject: itemObj.subject,
+      subject: breakageForm.subject,
       quantity: qty,
       brokenBy: breakageForm.brokenBy || "غير محدد",
       reason: breakageForm.reason,
@@ -691,14 +658,12 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newBreakage)
       });
-    } catch (err) {
-      console.error(err);
-    }
+    } catch (err) { console.error(err); }
 
     setIsBreakageModalOpen(false);
   };
 
-  const handleCreatePlan = (e: React.FormEvent) => {
+  const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault();
     const newPlanItem: OperationalPlanItem = {
       id: `PLAN-${Date.now().toString().slice(-4)}`,
@@ -719,6 +684,15 @@ export default function Home() {
     };
 
     setOperationalPlans(prev => [...prev, newPlanItem]);
+
+    try {
+      await fetch('/api/plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newPlanItem)
+      });
+    } catch (err) { console.error(err); }
+
     setIsPlanModalOpen(false);
   };
 
@@ -730,7 +704,7 @@ export default function Home() {
             <AtomLogo />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">نظام إدارة المختبرات المدرسية</h1>
+            <h1 className="text-2xl font-bold text-slate-900">نظام إدارة المختبرات المدرسية الشامل</h1>
             <p className="text-sm text-slate-500 mt-2">يرجى اختيار بوابة الدخول المناسبة لصلاحياتك:</p>
           </div>
 
@@ -803,7 +777,7 @@ export default function Home() {
             <h1 className="text-xl font-bold tracking-tight text-slate-900">نظام إدارة المختبرات المدرسية الشامل</h1>
             {userRole === "admin" ? (
               <span className="bg-teal-100 text-teal-800 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> أمين المختبر (قاعدة بيانات سحابية Neon)
+                <ShieldCheck className="w-3.5 h-3.5" /> أمين المختبر (قاعدة بيانات سحابية Neon 100%)
               </span>
             ) : (
               <span className="bg-blue-100 text-blue-800 text-xs px-2.5 py-0.5 rounded-full font-bold flex items-center gap-1">
@@ -811,7 +785,7 @@ export default function Home() {
               </span>
             )}
           </div>
-          <p className="text-xs text-slate-500 mt-1">طلبات التحضير، الخطة التشغيلية بالفصول والأعوام، جرد العهدة، وسجل الكسر</p>
+          <p className="text-xs text-slate-500 mt-1">طلبات التحضير، الخطة التشغيلية بالفصول والأعوام، جرد العهدة، وسجل الكسر مرتبطة بالكامل بالسحابة</p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
@@ -1348,7 +1322,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* --- النوافذ المنبثقة (MODALS) --- */}
+      {/* --- النوافذ المنبثقة والمودالات (Modals) --- */}
 
       {isChangePasswordModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
@@ -1748,9 +1722,6 @@ export default function Home() {
                     <option key={it.id} value={it.id}>{it.name} ({it.currentStock} {it.unit})</option>
                   ))}
                 </select>
-                {filteredBreakageItems.length === 0 && (
-                  <p className="mt-1 text-[10px] text-amber-700 font-bold">لا توجد عناصر متاحة في هذه المادة والنوع الحالي.</p>
-                )}
               </div>
 
               <div className="grid grid-cols-2 gap-2">
@@ -1811,13 +1782,7 @@ export default function Home() {
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">اليوم</label>
                   <select value={planFormData.day} onChange={(e) => setPlanFormData({ ...planFormData, day: e.target.value as any })} className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg">
-                    <option value="السبت">السبت</option>
-                    <option value="الأحد">الأحد</option>
-                    <option value="الإثنين">الإثنين</option>
-                    <option value="الثلاثاء">الثلاثاء</option>
-                    <option value="الأربعاء">الأربعاء</option>
-                    <option value="الخميس">الخميس</option>
-                    <option value="الجمعة">الجمعة</option>
+                    <option value="السبت">السبت</option><option value="الأحد">الأحد</option><option value="الإثنين">الإثنين</option><option value="الثلاثاء">الثلاثاء</option><option value="الأربعاء">الأربعاء</option><option value="الخميس">الخميس</option><option value="الجمعة">الجمعة</option>
                   </select>
                 </div>
                 <div>
@@ -1871,7 +1836,6 @@ export default function Home() {
       )}
 
       {/* --- تقارير الطباعة PDF --- */}
-
       {printReportType === "inventory" && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
@@ -1884,13 +1848,11 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-
             <div className="mt-6 border-2 border-slate-800 p-6 rounded-xl space-y-6">
               <div className="flex items-center justify-between border-b-2 border-slate-800 pb-4 text-center">
                 <div className="text-right text-xs space-y-1 font-semibold text-slate-700">
                   <p>وزارة التربية والتعليم</p>
                   <p>إدارة المختبرات العلمية</p>
-                  <p>قسم العلوم والمختبرات</p>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">تقرير جرد المخزون والعهدة المخبرية</h2>
@@ -1901,7 +1863,6 @@ export default function Home() {
                   <p>التاريخ: {new Date().toISOString().split("T")[0]}</p>
                 </div>
               </div>
-
               <table className="w-full text-right text-xs border border-slate-300">
                 <thead className="bg-slate-100 border-b border-slate-300 text-slate-900 font-bold">
                   <tr>
@@ -1922,7 +1883,7 @@ export default function Home() {
                       <td className="p-2 border-l border-slate-300 font-mono">{it.id}</td>
                       <td className="p-2 border-l border-slate-300 font-semibold">{it.name}</td>
                       <td className="p-2 border-l border-slate-300">{it.subject}</td>
-                      <td className="p-2 border-l border-slate-300">{it.nature === "consumable" ? "مستهلك (كيماويات)" : "عهدة مستردة"}</td>
+                      <td className="p-2 border-l border-slate-300">{it.nature === "consumable" ? "مستهلك" : "عهدة مستردة"}</td>
                       <td className="p-2 border-l border-slate-300 text-center font-bold">{it.currentStock} {it.unit}</td>
                       <td className="p-2 border-l border-slate-300 text-center">{it.minLimit} {it.unit}</td>
                       <td className="p-2 text-center text-slate-600">{it.location}</td>
@@ -1930,12 +1891,6 @@ export default function Home() {
                   ))}
                 </tbody>
               </table>
-
-              <div className="grid grid-cols-3 gap-6 pt-8 border-t border-slate-300 text-center text-xs">
-                <div><p className="font-bold text-slate-900 mb-8">أمين المختبر المسؤول</p><p className="text-slate-400">..............................</p></div>
-                <div><p className="font-bold text-slate-900 mb-8">رئيس قسم العلوم</p><p className="text-slate-400">..............................</p></div>
-                <div><p className="font-bold text-slate-900 mb-8">مدير المدرسة</p><p className="text-slate-400">..............................</p></div>
-              </div>
             </div>
           </div>
         </div>
@@ -1953,13 +1908,11 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-
             <div className="mt-6 border-2 border-slate-800 p-6 rounded-xl space-y-6">
               <div className="flex items-center justify-between border-b-2 border-slate-800 pb-4 text-center">
                 <div className="text-right text-xs space-y-1 font-semibold text-slate-700">
                   <p>وزارة التربية والتعليم</p>
                   <p>إدارة الشؤون التعليمية</p>
-                  <p>شعبة العلوم التطبيقية</p>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">الخطة التشغيلية وجدول تجارب المختبر</h2>
@@ -1967,10 +1920,8 @@ export default function Home() {
                 </div>
                 <div className="text-left text-xs space-y-1 font-semibold text-slate-700">
                   <p>التاريخ: {new Date().toISOString().split("T")[0]}</p>
-                  <p>المختبرات المدرسية</p>
                 </div>
               </div>
-
               <table className="w-full text-right text-xs border border-slate-300">
                 <thead className="bg-slate-100 border-b border-slate-300 text-slate-900 font-bold">
                   <tr>
@@ -1999,11 +1950,6 @@ export default function Home() {
                   ))}
                 </tbody>
               </table>
-
-              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-300 text-center text-xs">
-                <div><p className="font-bold text-slate-900 mb-8">إعداد وتنسيق أمين المختبر</p><p className="text-slate-400">..............................</p></div>
-                <div><p className="font-bold text-slate-900 mb-8">اعتماد مدير المدرسة</p><p className="text-slate-400">..............................</p></div>
-              </div>
             </div>
           </div>
         </div>
@@ -2032,7 +1978,6 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-
             <div className="mt-6 border-2 border-rose-900 p-6 rounded-xl space-y-6">
               <div className="flex items-center justify-between border-b-2 border-rose-900 pb-4 text-center">
                 <div className="text-right text-xs space-y-1 font-semibold text-slate-700">
@@ -2047,7 +1992,6 @@ export default function Home() {
                   <p>تاريخ الاعتماد: {new Date().toISOString().split("T")[0]}</p>
                 </div>
               </div>
-
               <table className="w-full text-right text-xs border border-slate-300">
                 <thead className="bg-rose-50 border-b border-slate-300 text-rose-950 font-bold">
                   <tr>
@@ -2076,11 +2020,6 @@ export default function Home() {
                   ))}
                 </tbody>
               </table>
-
-              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-300 text-center text-xs">
-                <div><p className="font-bold text-slate-900 mb-8">توقيع المعلم المشرف على الحصة</p><p className="text-slate-400">..............................</p></div>
-                <div><p className="font-bold text-slate-900 mb-8">توقيع واعتماد أمين المختبر</p><p className="text-slate-400">..............................</p></div>
-              </div>
             </div>
           </div>
         </div>
@@ -2100,13 +2039,11 @@ export default function Home() {
                 <button onClick={() => { setPrintReportType(null); setSelectedRequestForPrint(null); }} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-
             <div className="mt-6 border-2 border-slate-800 p-6 rounded-xl space-y-6">
               <div className="flex items-center justify-between border-b-2 border-slate-800 pb-4 text-center">
                 <div className="text-right text-xs space-y-1 font-semibold text-slate-700">
                   <p>وزارة التربية والتعليم</p>
                   <p>إدارة المختبرات والأنشطة العلمية</p>
-                  <p>مختبر: {selectedRequestForPrint.subject}</p>
                 </div>
                 <div>
                   <h2 className="text-xl font-bold text-slate-900">استمارة تحضير وصرف تجربة مخبرية</h2>
@@ -2115,78 +2052,7 @@ export default function Home() {
                 <div className="text-left text-xs space-y-1 font-semibold text-slate-700">
                   <p>{selectedRequestForPrint.semester}</p>
                   <p>العام الدراسي: {selectedRequestForPrint.academicYear}</p>
-                  <p>التاريخ: {selectedRequestForPrint.date}</p>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-300 text-sm">
-                <div>
-                  <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
-                  <p className="mt-2"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
-                  <p className="mt-2"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
-                </div>
-                <div>
-                  <p><span className="font-bold text-slate-900">أمين المختبر المشرف:</span> {selectedRequestForPrint.labTechnician}</p>
-                  <p><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
-                  <p className="mt-2"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
-                </div>
-              </div>
-
-              <div>
-                <h4 className="font-bold text-sm text-slate-900 mb-2">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
-                <table className="w-full text-right text-xs border border-slate-300">
-                  <thead className="bg-slate-100 border-b border-slate-300 text-slate-800 font-bold">
-                    <tr>
-                      <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
-                      <th className="p-2 border-l border-slate-300">اسم المادة / الأداة / الجهاز</th>
-                      <th className="p-2 border-l border-slate-300 text-center">الكمية المصروفة</th>
-                      <th className="p-2 border-l border-slate-300 text-center">نوع البند</th>
-                      <th className="p-2 text-center">حالة الإرجاع والاستهلاك</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-300">
-                    {selectedRequestForPrint.items.map((it, idx) => (
-                      <tr key={idx}>
-                        <td className="p-2 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
-                        <td className="p-2 border-l border-slate-300 font-semibold">{it.itemName}</td>
-                        <td className="p-2 border-l border-slate-300 text-center font-bold text-slate-900">{it.quantity} {it.unit}</td>
-                        <td className="p-2 border-l border-slate-300 text-center">{it.nature === "consumable" ? "مستهلك (كيماويات)" : "عهدة مستردة"}</td>
-                        <td className="p-2 text-center text-slate-600">{it.nature === "consumable" ? "خُصم من الرصيد" : "يُعاد سليماً بعد الحصة"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-              {selectedRequestForPrint.procurements?.length > 0 && (
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900 mb-2">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
-                  <table className="w-full text-right text-xs border border-slate-300">
-                    <thead className="bg-emerald-50 border-b border-slate-300 text-emerald-900 font-bold">
-                      <tr>
-                        <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
-                        <th className="p-2 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
-                        <th className="p-2 border-l border-slate-300 text-center">الكمية المطلوبة</th>
-                        <th className="p-2 text-center">جهة التأمين والتوفير</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-300">
-                      {selectedRequestForPrint.procurements.map((prc, pidx) => (
-                        <tr key={pidx}>
-                          <td className="p-2 border-l border-slate-300 text-center font-bold">{pidx + 1}</td>
-                          <td className="p-2 border-l border-slate-300 font-semibold">{prc.name}</td>
-                          <td className="p-2 border-l border-slate-300 text-center font-bold">{prc.quantity}</td>
-                          <td className="p-2 text-center text-slate-700 font-medium">{prc.providedBy}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-300 text-center text-xs">
-                <div><p className="font-bold text-slate-900 mb-8">توقيع المعلم المنفذ</p><p className="text-slate-400">..............................</p></div>
-                <div><p className="font-bold text-slate-900 mb-8">توقيع واعتماد أمين المختبر</p><p className="text-slate-400">..............................</p></div>
               </div>
             </div>
           </div>
