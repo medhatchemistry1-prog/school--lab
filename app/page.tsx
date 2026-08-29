@@ -185,8 +185,6 @@ export default function Home() {
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [isBreakageModalOpen, setIsBreakageModalOpen] = useState(false);
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
-
-  // حالات نافذة التعديل لصنف موجود
   const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
   const [editingItemForm, setEditingItemForm] = useState<LabItem | null>(null);
   
@@ -756,8 +754,6 @@ export default function Home() {
         </button>
       </div>
 
-      {/* --- عرض الأقسام --- */}
-
       {activeView === "inventory" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="print:hidden p-4 border-b border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
@@ -1163,7 +1159,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: إضافة صنف جديد (أدمن فقط) */}
       {isAddItemModalOpen && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
@@ -1238,7 +1233,6 @@ export default function Home() {
         </div>
       )}
 
-      {/* Modal: تعديل صنف موجود (أدمن فقط) */}
       {isEditItemModalOpen && editingItemForm && (
         <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:hidden">
           <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
