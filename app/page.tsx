@@ -2105,35 +2105,43 @@ export default function Home() {
             @page {
               size: A4 portrait;
               margin: 8mm;
-              marks: none;
             }
 
             @media print {
               html, body {
                 margin: 0 !important;
                 padding: 0 !important;
-                background: #fff !important;
+                background: #ffffff !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
               }
 
-              body {
-                overflow: visible !important;
+              body * {
+                visibility: hidden !important;
+              }
+
+              #printable-request-area, #printable-request-area * {
+                visibility: visible !important;
+              }
+
+              #printable-request-area {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                margin: 0 !important;
+                padding: 8mm !important;
+                background: #ffffff !important;
+                border: 2px solid #1e293b !important;
+                box-shadow: none !important;
+                border-radius: 0 !important;
+                z-index: 999999 !important;
+                box-sizing: border-box !important;
               }
 
               .print-hide {
                 display: none !important;
-              }
-
-              #printable-request-area {
-                display: block !important;
-                width: 100% !important;
-                max-width: 100% !important;
-                margin: 0 !important;
-                padding: 10mm 8mm !important;
-                background: #fff !important;
-                box-shadow: none !important;
-                border-radius: 0 !important;
               }
             }
           `}} />
