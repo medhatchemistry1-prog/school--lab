@@ -24,3 +24,134 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@page {
+  size: A4 portrait;
+  margin: 8mm;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    width: 100% !important;
+    min-height: 0 !important;
+  }
+
+  body {
+    margin: 0 !important;
+  }
+
+  .printing-report > * {
+    visibility: hidden !important;
+  }
+
+  .printing-report .print-report,
+  .printing-report .print-report * {
+    visibility: visible !important;
+  }
+
+  .printing-report .print-report {
+    position: absolute !important;
+    inset: 0 !important;
+    display: block !important;
+    width: 100% !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  .printing-report .report-paper {
+    width: 100% !important;
+    max-width: none !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+  }
+
+  .printing-report .report-paper > div {
+    break-inside: avoid;
+  }
+
+  .printing-report table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    page-break-inside: auto;
+  }
+
+  .printing-report thead {
+    display: table-header-group;
+  }
+
+  .printing-report tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .printing-report th,
+  .printing-report td {
+    padding: 4px 5px !important;
+    line-height: 1.25 !important;
+  }
+
+  .report-request .report-paper {
+    font-size: 9px !important;
+    line-height: 1.25 !important;
+  }
+
+  .report-request .report-paper > div {
+    margin-top: 0 !important;
+    margin-bottom: 7px !important;
+    padding: 7px !important;
+  }
+
+  .report-request .report-paper h2 {
+    font-size: 15px !important;
+  }
+
+  .report-request .report-paper h4 {
+    font-size: 10px !important;
+    margin-bottom: 3px !important;
+  }
+
+  .report-request .report-paper p {
+    margin-top: 2px !important;
+  }
+
+  .report-request .report-paper .grid {
+    gap: 8px !important;
+  }
+
+  .report-request .report-paper .border-t {
+    padding-top: 8px !important;
+  }
+
+  .report-inventory .report-paper,
+  .report-plan .report-paper,
+  .report-breakage .report-paper {
+    font-size: 9px !important;
+  }
+
+  .report-inventory .report-paper > div,
+  .report-plan .report-paper > div,
+  .report-breakage .report-paper > div {
+    margin-top: 0 !important;
+    margin-bottom: 8px !important;
+    padding: 7px !important;
+  }
+
+  .report-inventory .report-paper h2,
+  .report-plan .report-paper h2,
+  .report-breakage .report-paper h2 {
+    font-size: 14px !important;
+  }
+}

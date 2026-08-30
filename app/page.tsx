@@ -793,7 +793,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 text-slate-800 print:bg-white print:p-0" dir="rtl">
+    <div className={`app-shell min-h-screen bg-slate-50 p-6 text-slate-800 print:bg-white print:p-0 ${printReportType ? "printing-report" : ""}`} dir="rtl">
       
       <div className="print:hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
@@ -1861,8 +1861,8 @@ export default function Home() {
 
       {/* --- تقارير الطباعة PDF --- */}
       {printReportType === "inventory" && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
+        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+          <div className="report-paper bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <h3 className="font-bold text-slate-900 text-lg">معاينة تقرير جرد المختبرات</h3>
               <div className="flex items-center gap-3">
@@ -1921,8 +1921,8 @@ export default function Home() {
       )}
 
       {printReportType === "plan" && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
+        <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+          <div className="report-paper bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <h3 className="font-bold text-slate-900 text-lg">معاينة الخطة التشغيلية للمختبرات</h3>
               <div className="flex items-center gap-3">
@@ -1980,8 +1980,8 @@ export default function Home() {
       )}
 
       {printReportType === "breakage" && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
+        <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+          <div className="report-paper bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-600">فلتر الطباعة:</span>
@@ -2050,7 +2050,7 @@ export default function Home() {
       )}
 
       {printReportType === "request" && selectedRequestForPrint && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
               <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك بنجاح</span>
@@ -2074,7 +2074,7 @@ export default function Home() {
 
           <div 
             id="printable-request-area" 
-            className="bg-white w-full max-w-3xl p-8 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-6 print:m-0 print:p-0 print:border-none print:shadow-none"
+            className="report-paper bg-white w-full max-w-3xl p-8 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-6 print:m-0 print:p-0 print:border-none print:shadow-none"
             dir="rtl"
           >
             <style dangerouslySetInnerHTML={{__html: `
