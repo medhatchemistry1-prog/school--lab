@@ -129,33 +129,24 @@ function PrintStylesheet() {
     <style
       dangerouslySetInnerHTML={{
         __html: `
-        @page { size: A4 portrait; margin: 12mm 10mm; }
+        @page { size: A4 portrait; margin: 10mm; }
         @media print {
-          html, body { background: #ffffff !important; }
+          html, body { background: #ffffff !important; margin: 0 !important; }
           body * { visibility: hidden !important; }
-          #printable-report-area, #printable-report-area * { visibility: visible !important; }
-          #printable-report-area {
+          .printable-report, .printable-report * { visibility: visible !important; }
+          .printable-report {
             position: absolute !important; inset: 0 !important; width: 100% !important;
             margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important;
+            overflow: visible !important; background: #ffffff !important;
           }
-          .report-row { break-inside: avoid; }
+          .report-row { break-inside: avoid; page-break-inside: avoid; }
           .report-table thead { display: table-header-group; }
-          .report-watermark { opacity: 0.05 !important; }
+          .report-table { border-collapse: collapse !important; page-break-inside: auto; }
+          .report-table th, .report-table td { padding: 4px 5px !important; line-height: 1.25 !important; }
         }
       `,
       }}
     />
-  );
-}
-
-// شعار مائي خفيف يظهر خلف كل تقرير مطبوع لإضفاء طابع رسمي ومنع التزوير البصري
-function ReportWatermark() {
-  return (
-    <div className="report-watermark pointer-events-none select-none absolute inset-0 flex items-center justify-center opacity-[0.04] print:opacity-[0.05] overflow-hidden">
-      <span className="text-[130px] font-black text-slate-900 rotate-[-18deg] whitespace-nowrap">
-        مدرسة خالد بن الوليد
-      </span>
-    </div>
   );
 }
 
@@ -1989,7 +1980,7 @@ export default function Home() {
 
       {/* --- تقارير الطباعة PDF --- */}
       {printReportType === "inventory" && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2001,8 +1992,7 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div id="printable-report-area" className="relative mt-6 print:mt-0 border-2 border-slate-800 print:border print:border-slate-800 p-6 rounded-xl overflow-hidden" dir="rtl">
-              <ReportWatermark />
+            <div className="printable-report relative mt-6 print:mt-0 border-2 border-slate-800 print:border print:border-slate-800 p-6 rounded-xl overflow-hidden" dir="rtl">
               <div className="relative">
                 <ReportLetterhead
                   reportCode={`INV-${selectedAcademicYear}`}
@@ -2045,7 +2035,7 @@ export default function Home() {
       )}
 
       {printReportType === "plan" && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+        <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2057,8 +2047,7 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div id="printable-report-area" className="relative mt-6 print:mt-0 border-2 border-teal-800 print:border print:border-teal-800 p-6 rounded-xl overflow-hidden" dir="rtl">
-              <ReportWatermark />
+            <div className="printable-report relative mt-6 print:mt-0 border-2 border-teal-800 print:border print:border-teal-800 p-6 rounded-xl overflow-hidden" dir="rtl">
               <div className="relative">
                 <ReportLetterhead
                   reportCode={`PLAN-${selectedAcademicYear}-W${selectedWeek}`}
@@ -2110,7 +2099,7 @@ export default function Home() {
       )}
 
       {printReportType === "breakage" && (
-        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+        <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2133,8 +2122,7 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div id="printable-report-area" className="relative mt-6 print:mt-0 border-2 border-rose-900 print:border print:border-rose-900 p-6 rounded-xl overflow-hidden" dir="rtl">
-              <ReportWatermark />
+            <div className="printable-report relative mt-6 print:mt-0 border-2 border-rose-900 print:border print:border-rose-900 p-6 rounded-xl overflow-hidden" dir="rtl">
               <div className="relative">
                 <ReportLetterhead
                   reportCode={`BRK-${new Date().toISOString().split("T")[0]}`}
@@ -2186,7 +2174,7 @@ export default function Home() {
       )}
 
       {printReportType === "request" && selectedRequestForPrint && (
-        <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
               <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك بنجاح</span>
@@ -2209,12 +2197,10 @@ export default function Home() {
           </div>
 
           <div 
-            id="printable-report-area" 
-            className="relative bg-white w-full max-w-3xl p-8 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-6 print:m-0 print:p-0 print:border-none print:shadow-none overflow-hidden"
+            className="printable-report relative bg-white w-full max-w-3xl p-8 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-6 print:m-0 print:p-0 print:border-none print:shadow-none overflow-hidden"
             dir="rtl"
           >
             <PrintStylesheet />
-            <ReportWatermark />
 
             <div className="relative rounded-xl border-2 border-slate-800 bg-slate-50 p-4 print:bg-white print:border-2 print:border-slate-900">
               <div className="flex items-center justify-between gap-3">
