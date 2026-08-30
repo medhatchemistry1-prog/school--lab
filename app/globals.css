@@ -44,12 +44,15 @@ body {
   body {
     background: #ffffff !important;
     color: #000000 !important;
+    padding: 0 !important;
     width: 100% !important;
-    min-height: 0 !important;
+    min-height: auto !important;
   }
 
   body {
     margin: 0 !important;
+    display: block !important;
+    position: static !important;
   }
 
   .printing-report > * {
@@ -62,15 +65,34 @@ body {
   }
 
   .printing-report .print-report {
-    position: absolute !important;
-    inset: 0 !important;
+    position: static !important;
     display: block !important;
     width: 100% !important;
     min-height: 0 !important;
+    height: auto !important;
     padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
     background: #ffffff !important;
+  }
+
+  .printing-report .print-report.flex {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+  }
+
+  .printing-report .printable-report {
+    position: relative !important;
+    display: block !important;
+    width: 100% !important;
+    max-width: none !important;
+    left: auto !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    page-break-before: auto !important;
+    break-before: auto !important;
   }
 
   .printing-report .report-paper {

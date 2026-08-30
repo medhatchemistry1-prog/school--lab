@@ -129,21 +129,62 @@ function PrintStylesheet() {
     <style
       dangerouslySetInnerHTML={{
         __html: `
-        @page { size: A4 portrait; margin: 10mm; }
-        @page inventory-landscape { size: A4 landscape; margin: 8mm; }
+        @page {
+          size: A4 portrait;
+          margin: 10mm;
+        }
+        @page inventory-landscape {
+          size: A4 landscape;
+          margin: 8mm;
+        }
         @media print {
-          html, body { background: #ffffff !important; margin: 0 !important; }
+          html, body {
+            background: #ffffff !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+            min-height: auto !important;
+          }
+          body {
+            display: block !important;
+            position: static !important;
+          }
           body * { visibility: hidden !important; }
           .printable-report, .printable-report * { visibility: visible !important; }
           .printable-report {
-            position: static !important; width: 100% !important;
-            margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important;
-            overflow: visible !important; background: #ffffff !important;
+            position: relative !important;
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            left: auto !important;
+            top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            transform: none !important;
+            box-shadow: none !important;
+            border: none !important;
+            overflow: visible !important;
+            background: #ffffff !important;
+            page-break-before: auto !important;
+            break-before: auto !important;
           }
+          .printable-report > div { width: 100% !important; max-width: none !important; }
           .report-row { break-inside: avoid; page-break-inside: avoid; }
           .report-table thead { display: table-header-group; }
           .report-table { border-collapse: collapse !important; page-break-inside: auto; }
           .report-table th, .report-table td { padding: 4px 5px !important; line-height: 1.25 !important; }
+          .print-report {
+            position: static !important;
+            display: block !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: transparent !important;
+          }
         }
       `,
       }}
@@ -1981,7 +2022,7 @@ export default function Home() {
 
       {/* --- تقارير الطباعة PDF --- */}
       {printReportType === "inventory" && (
-        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent" style={{ page: "inventory-landscape" } as React.CSSProperties}>
+        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent" style={{ page: "inventory-landscape" } as React.CSSProperties}>
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2050,7 +2091,7 @@ export default function Home() {
       )}
 
       {printReportType === "plan" && (
-        <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+        <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2114,7 +2155,7 @@ export default function Home() {
       )}
 
       {printReportType === "breakage" && (
-        <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+        <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2189,7 +2230,7 @@ export default function Home() {
       )}
 
       {printReportType === "request" && selectedRequestForPrint && (
-        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto">
+        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible">
           <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
               <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك بنجاح</span>
