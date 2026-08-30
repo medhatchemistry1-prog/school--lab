@@ -130,12 +130,13 @@ function PrintStylesheet() {
       dangerouslySetInnerHTML={{
         __html: `
         @page { size: A4 portrait; margin: 10mm; }
+        @page inventory-landscape { size: A4 landscape; margin: 8mm; }
         @media print {
           html, body { background: #ffffff !important; margin: 0 !important; }
           body * { visibility: hidden !important; }
           .printable-report, .printable-report * { visibility: visible !important; }
           .printable-report {
-            position: absolute !important; inset: 0 !important; width: 100% !important;
+            position: static !important; width: 100% !important;
             margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: none !important;
             overflow: visible !important; background: #ffffff !important;
           }
@@ -1980,11 +1981,25 @@ export default function Home() {
 
       {/* --- تقارير الطباعة PDF --- */}
       {printReportType === "inventory" && (
-        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent">
+        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:bg-transparent" style={{ page: "inventory-landscape" } as React.CSSProperties}>
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
-              <h3 className="font-bold text-slate-900 text-lg">معاينة تقرير جرد المختبرات</h3>
+              <div className="flex items-center gap-3">
+                <h3 className="font-bold text-slate-900 text-lg">معاينة تقرير جرد المختبرات</h3>
+                <label className="flex items-center gap-2 text-xs font-bold text-slate-600">
+                  <span>فلتر التخصص:</span>
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    className="text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg outline-none"
+                  >
+                    {["الكل", "الكيمياء", "الفيزياء", "الأحياء", "العلوم العامة"].map((subject) => (
+                      <option key={subject} value={subject}>{subject}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
               <div className="flex items-center gap-3">
                 <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>

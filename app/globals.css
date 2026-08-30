@@ -30,6 +30,15 @@ body {
   margin: 8mm;
 }
 
+@page inventory-landscape {
+  size: A4 landscape;
+  margin: 8mm;
+}
+
+.report-inventory {
+  page: inventory-landscape;
+}
+
 @media print {
   html,
   body {
