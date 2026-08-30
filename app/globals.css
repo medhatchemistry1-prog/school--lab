@@ -55,16 +55,16 @@ body {
     position: static !important;
   }
 
-  .printing-report > * {
+  .print-report > * {
     visibility: hidden !important;
   }
 
-  .printing-report .print-report,
-  .printing-report .print-report * {
+  .print-report,
+  .print-report * {
     visibility: visible !important;
   }
 
-  .printing-report .print-report {
+  .print-report {
     position: static !important;
     display: block !important;
     width: 100% !important;
@@ -76,12 +76,12 @@ body {
     background: #ffffff !important;
   }
 
-  .printing-report .print-report.flex {
+  .print-report.flex {
     align-items: flex-start !important;
     justify-content: flex-start !important;
   }
 
-  .printing-report .printable-report {
+  .print-report .printable-report {
     position: relative !important;
     display: block !important;
     width: 100% !important;
@@ -95,7 +95,7 @@ body {
     break-before: auto !important;
   }
 
-  .printing-report .report-paper {
+  .print-report .report-paper {
     width: 100% !important;
     max-width: none !important;
     min-height: 0 !important;
@@ -109,27 +109,27 @@ body {
     background: #ffffff !important;
   }
 
-  .printing-report .report-paper > div {
+  .print-report .report-paper > div {
     break-inside: avoid;
   }
 
-  .printing-report table {
+  .print-report table {
     width: 100% !important;
     border-collapse: collapse !important;
     page-break-inside: auto;
   }
 
-  .printing-report thead {
+  .print-report thead {
     display: table-header-group;
   }
 
-  .printing-report tr {
+  .print-report tr {
     break-inside: avoid;
     page-break-inside: avoid;
   }
 
-  .printing-report th,
-  .printing-report td {
+  .print-report th,
+  .print-report td {
     padding: 4px 5px !important;
     line-height: 1.25 !important;
   }
