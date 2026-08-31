@@ -141,28 +141,37 @@ function PrintStylesheet() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body * {
-            visibility: visible !important;
+          body > *:not(.print-report) {
+            display: none !important;
           }
           .print-report {
             display: block !important;
-            visibility: visible !important;
             position: static !important;
+            left: auto !important;
+            top: auto !important;
             width: 100% !important;
-            max-width: none !important;
             height: auto !important;
+            max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
-            background: #ffffff !important;
+            background: transparent !important;
+            background-color: transparent !important;
             box-shadow: none !important;
             border: none !important;
+            backdrop-filter: none !important;
             box-sizing: border-box !important;
             overflow: visible !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+          .print-report > :not(.printable-report) {
+            display: none !important;
           }
           .printable-report {
             display: block !important;
-            visibility: visible !important;
             position: static !important;
+            left: auto !important;
+            top: auto !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
@@ -172,14 +181,19 @@ function PrintStylesheet() {
             border: none !important;
             box-sizing: border-box !important;
             overflow: visible !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
+          .printable-report,
           .printable-report *,
           .report-table,
           .report-table *,
           .report-row {
             visibility: visible !important;
+            color: #0f172a !important;
+            background: transparent !important;
+            background-color: transparent !important;
           }
-          .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
           .report-table {
             border-collapse: collapse !important;
