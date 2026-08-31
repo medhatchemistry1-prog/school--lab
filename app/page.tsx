@@ -132,7 +132,6 @@ function PrintStylesheet() {
         @media print {
           html, body {
             background: #ffffff !important;
-            color: #0f172a !important;
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
@@ -141,49 +140,47 @@ function PrintStylesheet() {
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body > *:not(.print-report) {
-            display: none !important;
+          body {
+            display: block !important;
           }
           .print-report {
-            display: block !important;
             position: static !important;
             left: auto !important;
             top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
             width: 100% !important;
-            height: auto !important;
             max-width: none !important;
+            height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
-            background: transparent !important;
-            background-color: transparent !important;
+            display: block !important;
+            background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
-            backdrop-filter: none !important;
-            box-sizing: border-box !important;
             overflow: visible !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
-          .print-report > :not(.printable-report) {
-            display: none !important;
-          }
           .printable-report {
-            display: block !important;
             position: static !important;
             left: auto !important;
             top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
+            display: block !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
-            box-sizing: border-box !important;
             overflow: visible !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
           }
+          .print-report,
           .printable-report,
           .printable-report *,
           .report-table,
@@ -192,8 +189,8 @@ function PrintStylesheet() {
             visibility: visible !important;
             color: #0f172a !important;
             background: transparent !important;
-            background-color: transparent !important;
           }
+          .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
           .report-table {
             border-collapse: collapse !important;
@@ -207,7 +204,10 @@ function PrintStylesheet() {
             word-wrap: break-word !important;
             color: #0f172a !important;
           }
-          .no-print { display: none !important; }
+          .no-print,
+          .print-report > :not(.printable-report) {
+            display: none !important;
+          }
         }
       `,
       }}
