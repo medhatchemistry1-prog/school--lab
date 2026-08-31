@@ -121,7 +121,7 @@ function AtomLogo() {
 }
 
 // ============================================================
-//          PRINT STYLESHEET مُحسَّن بشكل كبير
+//       أوراق طباعة وتصدير PDF مُحسّنة باحترافية عالية
 // ============================================================
 function PrintStylesheet() {
   return (
@@ -131,21 +131,24 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 5mm 8mm;
+          margin: 10mm 12mm;
         }
+
         @media print {
           * {
             box-sizing: border-box !important;
           }
+
           html, body {
             background: #ffffff !important;
+            color: #0f172a !important;
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
             height: auto !important;
-            overflow: visible !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
 
           body > *:not(.print-report) {
@@ -155,104 +158,73 @@ function PrintStylesheet() {
           .print-report {
             display: block !important;
             width: 100% !important;
-            height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-
-          .print-report > *:not(.printable-report) {
-            display: none !important;
           }
 
           .printable-report {
             display: block !important;
             width: 100% !important;
             max-width: none !important;
-            height: auto !important;
             margin: 0 !important;
-            padding: 4mm 6mm !important;
+            padding: 0 !important;
             background: #ffffff !important;
-            box-shadow: none !important;
             border: none !important;
+            box-shadow: none !important;
             border-radius: 0 !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
-            overflow: visible !important;
-            font-size: 11px !important;
           }
 
-          /* جداول التقرير */
+          /* الترويسة الرسمية الموحدة للتقارير */
+          .official-letterhead {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            border-bottom: 2px solid #0f172a !important;
+            padding-bottom: 8px !important;
+            margin-bottom: 12px !important;
+            background: #ffffff !important;
+          }
+
+          /* جداول البيانات */
           .report-table {
-            display: table !important;
-            border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 10.5px !important;
+            border-collapse: collapse !important;
+            margin-bottom: 15px !important;
             table-layout: auto !important;
-            border: 1px solid #cbd5e1 !important;
-          }
-
-          .report-table thead {
-            display: table-header-group !important;
           }
 
           .report-table th,
           .report-table td {
-            display: table-cell !important;
-            padding: 4px 5px !important;
+            padding: 6px 8px !important;
+            font-size: 11px !important;
             line-height: 1.4 !important;
+            border: 1px solid #94a3b8 !important;
             word-wrap: break-word !important;
-            border: 1px solid #cbd5e1 !important;
           }
 
-          .report-table th {
-            background-color: #1e293b !important;
+          .report-table thead th {
+            background-color: #0f172a !important;
             color: #ffffff !important;
             font-weight: bold !important;
-          }
-
-          .report-row {
-            display: table-row !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
+            text-align: right !important;
           }
 
           .report-row:nth-child(even) {
             background-color: #f8fafc !important;
           }
 
-          /* ترويسة وتذييل */
-          .printable-report > div:first-child {
-            margin-top: 0 !important;
-          }
-
-          /* منع الصفحات البيضاء */
-          .printable-report,
-          .report-row,
-          .report-table {
-            page-break-after: avoid !important;
-            break-after: avoid !important;
+          .report-footer {
+            margin-top: 20px !important;
+            padding-top: 10px !important;
+            border-top: 1px solid #cbd5e1 !important;
+            page-break-inside: avoid !important;
           }
 
           .no-print {
             display: none !important;
-          }
-
-          /* ضمان ظهور كل المحتوى في استمارة التحضير */
-          .report-request .printable-report {
-            padding: 3mm 5mm !important;
-          }
-          .report-request .report-table {
-            font-size: 10.5px !important;
-          }
-          .report-request .report-table th,
-          .report-request .report-table td {
-            padding: 3px 4px !important;
           }
         }
       `,
@@ -260,7 +232,6 @@ function PrintStylesheet() {
     />
   );
 }
-// ============================================================
 
 function ReportLetterhead({
   reportCode,
@@ -277,32 +248,24 @@ function ReportLetterhead({
   accentClass?: string;
   titleColorClass?: string;
 }) {
-  const headerStyle = accentClass.includes("teal")
-    ? { backgroundColor: "#0f766e", borderColor: "#115e59", color: "#ffffff" }
-    : accentClass.includes("rose")
-      ? { backgroundColor: "#881337", borderColor: "#4c0519", color: "#ffffff" }
-      : { backgroundColor: "#0f172a", borderColor: "#1e293b", color: "#ffffff" };
-
   return (
-    <div className="mb-2 overflow-hidden rounded-t-md border border-b-0" style={{ borderColor: headerStyle.borderColor }}>
-      <div className="flex items-center justify-between gap-2 px-2 py-1" style={{ backgroundColor: headerStyle.backgroundColor, color: headerStyle.color }}>
-        <div className="min-w-[120px] text-right text-[7.5px] font-bold leading-[1.15] opacity-95">
-          <p>دولة الإمارات العربية المتحدة</p>
-          <p>وزارة التربية والتعليم</p>
-          <p>قسم المختبرات</p>
-        </div>
+    <div className="official-letterhead mb-4 flex items-center justify-between border-b-2 border-slate-900 pb-3" dir="rtl">
+      <div className="text-right text-[10px] font-bold leading-relaxed text-slate-800">
+        <p>دولة الإمارات العربية المتحدة</p>
+        <p>وزارة التربية والتعليم</p>
+        <p>قسم المختبرات المدرسية</p>
+      </div>
 
-        <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <p className="text-[6.8px] font-mono opacity-90" style={{ color: headerStyle.color }}>كود التقرير: {reportCode}</p>
-          <h2 className={`text-[9.5px] font-black ${titleColorClass}`} style={{ color: headerStyle.color }}>{title}</h2>
-          {subtitle && <p className="text-[7px] font-semibold opacity-90" style={{ color: headerStyle.color }}>{subtitle}</p>}
-        </div>
+      <div className="flex flex-col items-center justify-center text-center">
+        <span className="font-mono text-[9px] font-semibold text-slate-500 mb-0.5">معرف المستند: {reportCode}</span>
+        <h2 className={`text-sm font-black ${titleColorClass}`}>{title}</h2>
+        {subtitle && <p className="text-[10px] font-semibold text-slate-600 mt-0.5">{subtitle}</p>}
+      </div>
 
-        <div className="min-w-[120px] text-left text-[7.5px] font-bold leading-[1.15] opacity-95">
-          {rightMeta.map((line, i) => (
-            <p key={i}>{line}</p>
-          ))}
-        </div>
+      <div className="text-left text-[10px] font-bold leading-relaxed text-slate-800">
+        {rightMeta.map((line, i) => (
+          <p key={i}>{line}</p>
+        ))}
       </div>
     </div>
   );
@@ -310,20 +273,20 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-2 pt-1 border-t border-slate-300 space-y-0.5">
-      <div className="grid grid-cols-2 gap-8 text-center text-[9px]">
+    <div className="report-footer mt-6 pt-3 border-t border-slate-300">
+      <div className="grid grid-cols-2 gap-12 text-center text-xs mb-4">
         <div>
-          <p className="font-bold text-slate-900 mb-2">توقيع أمين المختبر</p>
-          <p className="text-slate-400">..............................</p>
+          <p className="font-bold text-slate-900 mb-6">توقيع وختم أمين المختبر</p>
+          <p className="text-slate-400">...................................................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-2">اعتماد قسم المختبرات</p>
-          <p className="text-slate-400">..............................</p>
+          <p className="font-bold text-slate-900 mb-6">اعتماد إدارة المدرسة / قسم المختبرات</p>
+          <p className="text-slate-400">...................................................</p>
         </div>
       </div>
-      <div className="flex items-center justify-between text-[7.5px] text-slate-400 pt-0.5 border-t border-slate-200">
-        <span>تم إصدار هذا التقرير آلياً من قاعدة البيانات السحابية (Neon) بتاريخ {new Date().toLocaleString("ar-EG")}</span>
-        <span>إجمالي السجلات: {recordCount}</span>
+      <div className="flex items-center justify-between text-[8px] text-slate-400 pt-2 border-t border-slate-200">
+        <span>تم إصدار هذا المستند آلياً من نظام إدارة المختبرات السحابي بتاريخ {new Date().toLocaleString("ar-EG")}</span>
+        <span>إجمالي العناصر المدرجة: {recordCount}</span>
       </div>
     </div>
   );
@@ -362,7 +325,7 @@ export default function Home() {
   const [prepRequests, setPrepRequests] = useState<PrepRequest[]>([]);
   const [breakageRecords, setBreakageRecords] = useState<BreakageRecord[]>([]);
   const [operationalPlans, setOperationalPlans] = useState<OperationalPlanItem[]>([]);
-  
+
   const [academicYears, setAcademicYears] = useState<string[]>(["2026-2027", "2027-2028", "2028-2029"]);
   const [newYearInput, setNewYearInput] = useState("");
   const [isAddYearModalOpen, setIsAddYearModalOpen] = useState(false);
@@ -404,7 +367,7 @@ export default function Home() {
   const [isAddItemModalOpen, setIsAddItemModalOpen] = useState(false);
   const [isEditItemModalOpen, setIsEditItemModalOpen] = useState(false);
   const [editingItemForm, setEditingItemForm] = useState<LabItem | null>(null);
-  
+
   const [printReportType, setPrintReportType] = useState<"request" | "inventory" | "plan" | "breakage" | null>(null);
   const [selectedRequestForPrint, setSelectedRequestForPrint] = useState<PrepRequest | null>(null);
 
@@ -638,125 +601,73 @@ export default function Home() {
           <style>
             @page {
               size: A4 landscape;
-              margin: 6mm 7mm;
+              margin: 10mm 12mm;
             }
-
-            :root {
-              --page-bg: #ffffff;
-              --ink: #0f172a;
-              --muted: #475569;
-              --line: #cbd5e1;
-              --header: #0f172a;
-            }
-
             * {
               box-sizing: border-box !important;
             }
-
             html, body {
               margin: 0 !important;
               padding: 0 !important;
               width: 100% !important;
-              min-height: 100% !important;
-              background: var(--page-bg) !important;
-              color: var(--ink) !important;
-              font-family: Arial, sans-serif !important;
+              background: #ffffff !important;
+              color: #0f172a !important;
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-
-            body {
-              background: #ffffff !important;
-              overflow: visible !important;
-            }
-
-            .print-page {
+            .print-report {
               display: block !important;
               width: 100% !important;
               background: #ffffff !important;
             }
-
             .printable-report {
               display: block !important;
               width: 100% !important;
-              max-width: none !important;
               margin: 0 !important;
-              padding: 3mm 4mm !important;
+              padding: 0 !important;
               background: #ffffff !important;
-              border: none !important;
-              border-radius: 0 !important;
-              box-shadow: none !important;
-              overflow: visible !important;
-              page-break-inside: avoid !important;
-              break-inside: avoid !important;
             }
-
-            .printable-report > * {
-              display: block !important;
+            .official-letterhead {
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              border-bottom: 2px solid #0f172a !important;
+              padding-bottom: 8px !important;
+              margin-bottom: 12px !important;
             }
-
             .report-table {
-              display: table !important;
               width: 100% !important;
               border-collapse: collapse !important;
-              table-layout: auto !important;
-              font-size: 9px !important;
-              line-height: 1.35 !important;
-              border: 1px solid var(--line) !important;
-              background: #ffffff !important;
+              margin-bottom: 15px !important;
             }
-
-            .report-table thead,
-            .report-table tbody,
-            .report-table tr,
             .report-table th,
             .report-table td {
-              display: revert !important;
-            }
-
-            .report-table th,
-            .report-table td {
-              padding: 4px 5px !important;
-              border: 1px solid var(--line) !important;
-              vertical-align: top !important;
-              text-align: right !important;
+              padding: 6px 8px !important;
+              font-size: 11px !important;
+              line-height: 1.4 !important;
+              border: 1px solid #94a3b8 !important;
               word-wrap: break-word !important;
             }
-
             .report-table thead th {
-              background: var(--header) !important;
+              background-color: #0f172a !important;
               color: #ffffff !important;
-              font-weight: 700 !important;
+              font-weight: bold !important;
+              text-align: right !important;
             }
-
-            .report-row {
-              break-inside: avoid !important;
-              page-break-inside: avoid !important;
-            }
-
             .report-row:nth-child(even) {
-              background: #f8fafc !important;
+              background-color: #f8fafc !important;
             }
-
-            .report-header {
-              order: 1 !important;
-            }
-
-            .report-table {
-              order: 2 !important;
-            }
-
             .report-footer {
-              order: 3 !important;
-            }
-
-            .printable-report > div:first-child {
-              margin-top: 0 !important;
+              margin-top: 20px !important;
+              padding-top: 10px !important;
+              border-top: 1px solid #cbd5e1 !important;
+              page-break-inside: avoid !important;
             }
           </style>
         </head>
         <body>
-          <div class="print-page">${clone.outerHTML}</div>
+          <div class="print-report">${clone.outerHTML}</div>
         </body>
       </html>
     `;
@@ -1187,7 +1098,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-50 p-6 text-slate-800 print:bg-white print:p-0" dir="rtl">
-      
+
       <div className="print:hidden bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
@@ -1367,7 +1278,7 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-3 w-full md:w-auto flex-wrap">
               {userRole === "admin" && (
                 <>
                   <button
@@ -2280,43 +2191,41 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div id="printable-inventory-area" className="printable-report relative mt-6 print:mt-0 border-2 border-slate-800 print:border print:border-slate-800 p-6 rounded-xl overflow-hidden" dir="rtl">
-              <div className="relative">
-                <ReportLetterhead
-                  reportCode={`INV-${selectedAcademicYear}`}
-                  title="تقرير جرد المخزون والعهدة المخبرية"
-                  rightMeta={[`التخصص: ${selectedSubject}`, `العام الدراسي: ${selectedAcademicYear}`, `تاريخ الإصدار: ${new Date().toISOString().split("T")[0]}`]}
-                />
-                <table className="report-table w-full text-right text-xs border border-slate-300">
-                  <thead className="bg-slate-900 text-white font-bold">
-                    <tr>
-                      <th className="p-2 border-l border-slate-700 text-center w-10">م</th>
-                      <th className="p-2 border-l border-slate-700">كود الصنف</th>
-                      <th className="p-2 border-l border-slate-700">اسم المادة / الأداة / الجهاز</th>
-                      <th className="p-2 border-l border-slate-700">التخصص</th>
-                      <th className="p-2 border-l border-slate-700">طبيعة الصنف</th>
-                      <th className="p-2 border-l border-slate-700 text-center">الرصيد الفعلي</th>
-                      <th className="p-2 border-l border-slate-700 text-center">حد الطلب</th>
-                      <th className="p-2 text-center">الموقع بالمعمل</th>
+            <div id="printable-inventory-area" className="printable-report relative mt-6 print:mt-0 p-6 rounded-xl overflow-hidden bg-white" dir="rtl">
+              <ReportLetterhead
+                reportCode={`INV-${selectedAcademicYear}`}
+                title="تقرير جرد المخزون والعهدة المخبرية"
+                rightMeta={[`التخصص: ${selectedSubject}`, `العام الدراسي: ${selectedAcademicYear}`, `تاريخ الإصدار: ${new Date().toISOString().split("T")[0]}`]}
+              />
+              <table className="report-table w-full text-right text-xs border border-slate-300">
+                <thead className="bg-slate-900 text-white font-bold">
+                  <tr>
+                    <th className="p-2 border-l border-slate-700 text-center w-10">م</th>
+                    <th className="p-2 border-l border-slate-700">كود الصنف</th>
+                    <th className="p-2 border-l border-slate-700">اسم المادة / الأداة / الجهاز</th>
+                    <th className="p-2 border-l border-slate-700">التخصص</th>
+                    <th className="p-2 border-l border-slate-700">طبيعة الصنف</th>
+                    <th className="p-2 border-l border-slate-700 text-center">الرصيد الفعلي</th>
+                    <th className="p-2 border-l border-slate-700 text-center">حد الطلب</th>
+                    <th className="p-2 text-center">الموقع بالمعمل</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-300">
+                  {filteredItems.map((it, idx) => (
+                    <tr key={it.id} className={`report-row ${idx % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
+                      <td className="p-2 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
+                      <td className="p-2 border-l border-slate-300 font-mono">{it.id}</td>
+                      <td className="p-2 border-l border-slate-300 font-semibold">{it.name}</td>
+                      <td className="p-2 border-l border-slate-300">{it.subject}</td>
+                      <td className="p-2 border-l border-slate-300">{it.nature === "consumable" ? "مستهلك" : "عهدة مستردة"}</td>
+                      <td className={`p-2 border-l border-slate-300 text-center font-bold ${it.currentStock <= it.minLimit ? "text-rose-600" : "text-slate-900"}`}>{it.currentStock} {it.unit}</td>
+                      <td className="p-2 border-l border-slate-300 text-center">{it.minLimit} {it.unit}</td>
+                      <td className="p-2 text-center text-slate-600">{it.location}</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-300">
-                    {filteredItems.map((it, idx) => (
-                      <tr key={it.id} className={`report-row ${idx % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
-                        <td className="p-2 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
-                        <td className="p-2 border-l border-slate-300 font-mono">{it.id}</td>
-                        <td className="p-2 border-l border-slate-300 font-semibold">{it.name}</td>
-                        <td className="p-2 border-l border-slate-300">{it.subject}</td>
-                        <td className="p-2 border-l border-slate-300">{it.nature === "consumable" ? "مستهلك" : "عهدة مستردة"}</td>
-                        <td className={`p-2 border-l border-slate-300 text-center font-bold ${it.currentStock <= it.minLimit ? "text-rose-600" : "text-slate-900"}`}>{it.currentStock} {it.unit}</td>
-                        <td className="p-2 border-l border-slate-300 text-center">{it.minLimit} {it.unit}</td>
-                        <td className="p-2 text-center text-slate-600">{it.location}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <ReportFooter recordCount={filteredItems.length} />
-              </div>
+                  ))}
+                </tbody>
+              </table>
+              <ReportFooter recordCount={filteredItems.length} />
             </div>
           </div>
         </div>
@@ -2335,52 +2244,49 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div id="printable-plan-area" className="printable-report relative mt-6 print:mt-0 border-2 border-teal-800 print:border print:border-teal-800 p-6 rounded-xl overflow-hidden" dir="rtl">
-              <div className="relative">
-                <ReportLetterhead
-                  reportCode={`PLAN-${selectedAcademicYear}-W${selectedWeek}`}
-                  title="الخطة التشغيلية وجدول تجارب المختبر"
-                  subtitle={`${selectedSemester} | الأسبوع (${selectedWeek})`}
-                  rightMeta={[`العام الدراسي: ${selectedAcademicYear}`, `التخصص: ${selectedSubject}`, `تاريخ الإصدار: ${new Date().toISOString().split("T")[0]}`]}
-                  accentClass="border-teal-800"
-                  titleColorClass="text-teal-900"
-                />
-                <table className="report-table w-full text-right text-xs border border-slate-300">
-                  <thead className="bg-teal-800 text-white font-bold">
+            <div id="printable-plan-area" className="printable-report relative mt-6 print:mt-0 p-6 rounded-xl overflow-hidden bg-white" dir="rtl">
+              <ReportLetterhead
+                reportCode={`PLAN-${selectedAcademicYear}-W${selectedWeek}`}
+                title="الخطة التشغيلية وجدول تجارب المختبر"
+                subtitle={`${selectedSemester} | الأسبوع (${selectedWeek})`}
+                rightMeta={[`العام الدراسي: ${selectedAcademicYear}`, `التخصص: ${selectedSubject}`, `تاريخ الإصدار: ${new Date().toISOString().split("T")[0]}`]}
+                titleColorClass="text-teal-900"
+              />
+              <table className="report-table w-full text-right text-xs border border-slate-300">
+                <thead className="bg-teal-800 text-white font-bold">
+                  <tr>
+                    <th className="p-2 border-l border-teal-700 text-center">اليوم</th>
+                    <th className="p-2 border-l border-teal-700 text-center">الحصة</th>
+                    <th className="p-2 border-l border-teal-700">الصف والشعبة</th>
+                    <th className="p-2 border-l border-teal-700">المادة المقررة</th>
+                    <th className="p-2 border-l border-teal-700">عنوان التجربة المعملية</th>
+                    <th className="p-2 border-l border-teal-700">المعلم المنفذ</th>
+                    <th className="p-2 border-l border-teal-700">أمين المختبر</th>
+                    <th className="p-2 text-center">المختبر المحدد</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-300">
+                  {filteredPlans.length === 0 ? (
                     <tr>
-                      <th className="p-2 border-l border-teal-700 text-center">اليوم</th>
-                      <th className="p-2 border-l border-teal-700 text-center">الحصة</th>
-                      <th className="p-2 border-l border-teal-700">الصف والشعبة</th>
-                      <th className="p-2 border-l border-teal-700">المادة المقررة</th>
-                      <th className="p-2 border-l border-teal-700">عنوان التجربة المعملية</th>
-                      <th className="p-2 border-l border-teal-700">المعلم المنفذ</th>
-                      <th className="p-2 border-l border-teal-700">أمين المختبر</th>
-                      <th className="p-2 text-center">المختبر المحدد</th>
+                      <td colSpan={8} className="text-center py-8 text-slate-400 text-xs">لا توجد تجارب مجدولة لهذا الأسبوع والفلاتر المحددة.</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-300">
-                    {filteredPlans.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="text-center py-8 text-slate-400 text-xs">لا توجد تجارب مجدولة لهذا الأسبوع والفلاتر المحددة.</td>
+                  ) : (
+                    filteredPlans.map((pl, idx) => (
+                      <tr key={pl.id} className={`report-row ${idx % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
+                        <td className="p-2 border-l border-slate-300 text-center font-bold">{pl.day}</td>
+                        <td className="p-2 border-l border-slate-300 text-center">{pl.period}</td>
+                        <td className="p-2 border-l border-slate-300 font-semibold">{pl.grade} ({pl.track}) - {pl.section}</td>
+                        <td className="p-2 border-l border-slate-300">{pl.subject}</td>
+                        <td className="p-2 border-l border-slate-300 font-medium text-teal-800">{pl.experimentTitle}</td>
+                        <td className="p-2 border-l border-slate-300">{pl.teacherName}</td>
+                        <td className="p-2 border-l border-slate-300">{pl.labTechnician}</td>
+                        <td className="p-2 text-center">{pl.labRoom}</td>
                       </tr>
-                    ) : (
-                      filteredPlans.map((pl, idx) => (
-                        <tr key={pl.id} className={`report-row ${idx % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
-                          <td className="p-2 border-l border-slate-300 text-center font-bold">{pl.day}</td>
-                          <td className="p-2 border-l border-slate-300 text-center">{pl.period}</td>
-                          <td className="p-2 border-l border-slate-300 font-semibold">{pl.grade} ({pl.track}) - {pl.section}</td>
-                          <td className="p-2 border-l border-slate-300">{pl.subject}</td>
-                          <td className="p-2 border-l border-slate-300 font-medium text-teal-800">{pl.experimentTitle}</td>
-                          <td className="p-2 border-l border-slate-300">{pl.teacherName}</td>
-                          <td className="p-2 border-l border-slate-300">{pl.labTechnician}</td>
-                          <td className="p-2 text-center">{pl.labRoom}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-                <ReportFooter recordCount={filteredPlans.length} />
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              <ReportFooter recordCount={filteredPlans.length} />
             </div>
           </div>
         </div>
@@ -2410,52 +2316,49 @@ export default function Home() {
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div id="printable-breakage-area" className="printable-report relative mt-6 print:mt-0 border-2 border-rose-900 print:border print:border-rose-900 p-6 rounded-xl overflow-hidden" dir="rtl">
-              <div className="relative">
-                <ReportLetterhead
-                  reportCode={`BRK-${new Date().toISOString().split("T")[0]}`}
-                  title="محضر إثبات كسر وتلف أدوات وأجهزة مخبرية"
-                  subtitle="كشف حوادث الكسر والتوالف الرسمية المخصومة من العهدة"
-                  rightMeta={[`التخصص: ${selectedBreakageSubject}`, `تاريخ الاعتماد: ${new Date().toISOString().split("T")[0]}`]}
-                  accentClass="border-rose-900"
-                  titleColorClass="text-rose-900"
-                />
-                <table className="report-table w-full text-right text-xs border border-slate-300">
-                  <thead className="bg-rose-900 text-white font-bold">
+            <div id="printable-breakage-area" className="printable-report relative mt-6 print:mt-0 p-6 rounded-xl overflow-hidden bg-white" dir="rtl">
+              <ReportLetterhead
+                reportCode={`BRK-${new Date().toISOString().split("T")[0]}`}
+                title="محضر إثبات كسر وتلف أدوات وأجهزة مخبرية"
+                subtitle="كشف حوادث الكسر والتوالف الرسمية المخصومة من العهدة"
+                rightMeta={[`التخصص: ${selectedBreakageSubject}`, `تاريخ الاعتماد: ${new Date().toISOString().split("T")[0]}`]}
+                titleColorClass="text-rose-900"
+              />
+              <table className="report-table w-full text-right text-xs border border-slate-300">
+                <thead className="bg-rose-900 text-white font-bold">
+                  <tr>
+                    <th className="p-2 border-l border-rose-800 text-center">رقم المحضر</th>
+                    <th className="p-2 border-l border-rose-800 text-center">التاريخ</th>
+                    <th className="p-2 border-l border-rose-800">المادة</th>
+                    <th className="p-2 border-l border-rose-800">اسم الصنف المكسور / التالف</th>
+                    <th className="p-2 border-l border-rose-800 text-center">الكمية التالفة</th>
+                    <th className="p-2 border-l border-rose-800">المتسبب (الطالب / الشعبة)</th>
+                    <th className="p-2 border-l border-rose-800">سبب الحادث وملاحظات السلامة</th>
+                    <th className="p-2 text-center">المعلم المشرف</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-300">
+                  {filteredBreakageRecords.length === 0 ? (
                     <tr>
-                      <th className="p-2 border-l border-rose-800 text-center">رقم المحضر</th>
-                      <th className="p-2 border-l border-rose-800 text-center">التاريخ</th>
-                      <th className="p-2 border-l border-rose-800">المادة</th>
-                      <th className="p-2 border-l border-rose-800">اسم الصنف المكسور / التالف</th>
-                      <th className="p-2 border-l border-rose-800 text-center">الكمية التالفة</th>
-                      <th className="p-2 border-l border-rose-800">المتسبب (الطالب / الشعبة)</th>
-                      <th className="p-2 border-l border-rose-800">سبب الحادث وملاحظات السلامة</th>
-                      <th className="p-2 text-center">المعلم المشرف</th>
+                      <td colSpan={8} className="text-center py-8 text-slate-400 text-xs">لا توجد حالات كسر مسجّلة لهذا الفلتر.</td>
                     </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-300">
-                    {filteredBreakageRecords.length === 0 ? (
-                      <tr>
-                        <td colSpan={8} className="text-center py-8 text-slate-400 text-xs">لا توجد حالات كسر مسجّلة لهذا الفلتر.</td>
+                  ) : (
+                    filteredBreakageRecords.map((b, idx) => (
+                      <tr key={b.id} className={`report-row ${idx % 2 === 1 ? "bg-rose-50/40" : "bg-white"}`}>
+                        <td className="p-2 border-l border-slate-300 text-center font-mono font-bold text-rose-700">{b.id}</td>
+                        <td className="p-2 border-l border-slate-300 text-center">{b.date}</td>
+                        <td className="p-2 border-l border-slate-300 font-bold text-slate-700">{b.subject}</td>
+                        <td className="p-2 border-l border-slate-300 font-bold text-slate-900">{b.itemName}</td>
+                        <td className="p-2 border-l border-slate-300 text-center font-bold text-rose-600">-{b.quantity}</td>
+                        <td className="p-2 border-l border-slate-300 font-semibold">{b.brokenBy}</td>
+                        <td className="p-2 border-l border-slate-300 text-slate-600">{b.reason}</td>
+                        <td className="p-2 text-center">{b.teacherName}</td>
                       </tr>
-                    ) : (
-                      filteredBreakageRecords.map((b, idx) => (
-                        <tr key={b.id} className={`report-row ${idx % 2 === 1 ? "bg-rose-50/40" : "bg-white"}`}>
-                          <td className="p-2 border-l border-slate-300 text-center font-mono font-bold text-rose-700">{b.id}</td>
-                          <td className="p-2 border-l border-slate-300 text-center">{b.date}</td>
-                          <td className="p-2 border-l border-slate-300 font-bold text-slate-700">{b.subject}</td>
-                          <td className="p-2 border-l border-slate-300 font-bold text-slate-900">{b.itemName}</td>
-                          <td className="p-2 border-l border-slate-300 text-center font-bold text-rose-600">-{b.quantity}</td>
-                          <td className="p-2 border-l border-slate-300 font-semibold">{b.brokenBy}</td>
-                          <td className="p-2 border-l border-slate-300 text-slate-600">{b.reason}</td>
-                          <td className="p-2 text-center">{b.teacherName}</td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-                <ReportFooter recordCount={filteredBreakageRecords.length} />
-              </div>
+                    ))
+                  )}
+                </tbody>
+              </table>
+              <ReportFooter recordCount={filteredBreakageRecords.length} />
             </div>
           </div>
         </div>
@@ -2487,7 +2390,7 @@ export default function Home() {
 
           <div 
             id="printable-request-area" 
-            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-3 print:m-0 print:p-0 print:border-none print:shadow-none overflow-hidden"
+            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl space-y-4 print:m-0 print:p-0 print:shadow-none overflow-hidden"
             dir="rtl"
           >
             <ReportLetterhead
@@ -2497,21 +2400,21 @@ export default function Home() {
               rightMeta={[`المادة: ${selectedRequestForPrint.subject}`, `العام الدراسي: ${selectedRequestForPrint.academicYear}`, `التاريخ: ${selectedRequestForPrint.date}`]}
             />
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-2.5 rounded-lg border border-slate-300 text-xs print:bg-slate-50">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs">
               <div>
                 <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
-                <p className="mt-1"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
-                <p className="mt-1"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
+                <p className="mt-1.5"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
+                <p className="mt-1.5"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
               </div>
               <div>
                 <p><span className="font-bold text-slate-900">أمين المختبر المشرف:</span> {selectedRequestForPrint.labTechnician}</p>
-                <p className="mt-1"><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
-                <p className="mt-1"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
+                <p className="mt-1.5"><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
+                <p className="mt-1.5"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
               </div>
             </div>
 
             <div>
-              <h4 className="font-bold text-xs text-slate-900 mb-1">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
+              <h4 className="font-bold text-xs text-slate-900 mb-1.5">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
               <table className="report-table w-full text-right text-xs border border-slate-300">
                 <thead className="bg-slate-100 border-b border-slate-300 text-slate-800 font-bold">
                   <tr>
@@ -2538,7 +2441,7 @@ export default function Home() {
 
             {selectedRequestForPrint.procurements?.length > 0 && (
               <div>
-                <h4 className="font-bold text-xs text-slate-900 mb-1">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
+                <h4 className="font-bold text-xs text-slate-900 mb-1.5">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
                 <table className="report-table w-full text-right text-xs border border-slate-300">
                   <thead className="bg-emerald-50 border-b border-slate-300 text-emerald-900 font-bold">
                     <tr>
