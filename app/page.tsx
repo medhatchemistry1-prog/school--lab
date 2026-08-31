@@ -135,58 +135,100 @@ function PrintStylesheet() {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: 100% !important;
-            overflow: hidden !important;
+            height: auto !important;
+            overflow: visible !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body * { visibility: hidden !important; }
-          .printable-report, .printable-report * { visibility: visible !important; }
-          .printable-report {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            right: 0 !important;
-            bottom: 0 !important;
+
+          body {
+            display: block !important;
+          }
+
+          body > *:not(.print-report) {
+            display: none !important;
+          }
+
+          .print-report {
+            display: block !important;
+            position: static !important;
+            left: auto !important;
+            top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
             width: 100% !important;
-            height: 100% !important;
             max-width: none !important;
-            max-height: none !important;
+            height: auto !important;
             margin: 0 !important;
-            padding: 2mm !important;
-            box-sizing: border-box !important;
+            padding: 0 !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
-            page-break-after: avoid !important;
-            page-break-before: avoid !important;
+            overflow: visible !important;
             page-break-inside: avoid !important;
-            overflow: hidden !important;
+            break-inside: avoid !important;
           }
-          .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
-          .report-table thead { display: table-header-group !important; }
+
+          .print-report > *:not(.printable-report) {
+            display: none !important;
+          }
+
+          .printable-report {
+            display: block !important;
+            position: static !important;
+            left: auto !important;
+            top: auto !important;
+            right: auto !important;
+            bottom: auto !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border: none !important;
+            overflow: visible !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+          }
+
+          .printable-report,
+          .printable-report *,
+          .report-table,
+          .report-table *,
+          .report-row {
+            visibility: visible !important;
+            color: #0f172a !important;
+            background: #ffffff !important;
+          }
+
+          .report-row {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+
+          .report-table thead {
+            display: table-header-group !important;
+          }
+
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
             font-size: 8.5px !important;
             table-layout: auto !important;
           }
-          .report-table th, .report-table td {
+
+          .report-table th,
+          .report-table td {
             padding: 2px 3px !important;
             line-height: 1.1 !important;
             word-wrap: break-word !important;
+            color: #0f172a !important;
           }
-          .print-report {
-            position: static !important;
-            width: 100% !important;
-            height: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: #ffffff !important;
-            display: block !important;
-            overflow: hidden !important;
+
+          .no-print {
+            display: none !important;
           }
-          .no-print { display: none !important; }
         }
       `,
       }}
