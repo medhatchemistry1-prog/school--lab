@@ -307,9 +307,17 @@ function PrintStylesheet() {
 
           .signature-box .line {
             display: block !important;
-            border-bottom: 1px solid #94a3b8 !important;
             width: 100% !important;
             height: 20px !important;
+            text-align: center !important;
+          }
+
+          .signature-dots {
+            display: block !important;
+            letter-spacing: 2px !important;
+            color: #94a3b8 !important;
+            font-weight: bold !important;
+            font-size: 14px !important;
           }
 
           .no-print {
@@ -362,15 +370,19 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="report-footer mt-6 pt-3 border-t border-slate-300">
-      <div className="signatures-grid flex justify-between items-center w-full mb-4 text-xs">
+    <div className="report-footer mt-6 pt-3 border-t border-slate-300 flex flex-col gap-4">
+      <div className="signatures-grid flex justify-between items-center w-full text-xs">
         <div className="signature-box w-[45%] text-center">
           <span className="label">توقيع وختم أمين المختبر</span>
-          <span className="line" aria-hidden="true" />
+          <div className="line">
+            <span className="signature-dots">.............................</span>
+          </div>
         </div>
         <div className="signature-box w-[45%] text-center">
           <span className="label">اعتماد إدارة المدرسة / قسم المختبرات</span>
-          <span className="line" aria-hidden="true" />
+          <div className="line">
+            <span className="signature-dots">.............................</span>
+          </div>
         </div>
       </div>
       <div className="flex items-center justify-between text-[8px] text-slate-400 pt-2 border-t border-slate-200">
@@ -2499,34 +2511,16 @@ export default function Home() {
               rightMeta={[`المادة: ${selectedRequestForPrint.subject}`, `العام الدراسي: ${selectedRequestForPrint.academicYear}`, `التاريخ: ${selectedRequestForPrint.date}`]}
             />
 
-            <div className="report-meta-bar">
-              <div className="flex flex-col gap-1.5">
-                <div className="meta-block">
-                  <span className="meta-label">معلم المنفذ:</span>
-                  <span>{selectedRequestForPrint.teacherName}</span>
-                </div>
-                <div className="meta-block">
-                  <span className="meta-label">المادة المقررة:</span>
-                  <span>{selectedRequestForPrint.subject}</span>
-                </div>
-                <div className="meta-block">
-                  <span className="meta-label">الصف والشعبة:</span>
-                  <span>{selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</span>
-                </div>
+            <div className="report-meta-bar grid grid-cols-2 gap-4 bg-white p-2 text-xs border-b border-slate-200">
+              <div className="text-right border-l border-slate-300 pl-3">
+                <p className="mb-2"><span className="font-bold">معلم المنفذ:</span><br/>{selectedRequestForPrint.teacherName}</p>
+                <p className="mb-2"><span className="font-bold">المادة المقررة:</span><br/>{selectedRequestForPrint.subject}</p>
+                <p><span className="font-bold">الصف والشعبة:</span><br/>{selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <div className="meta-block">
-                  <span className="meta-label">أمين المختبر المشرف:</span>
-                  <span>{selectedRequestForPrint.labTechnician}</span>
-                </div>
-                <div className="meta-block">
-                  <span className="meta-label">الحصة:</span>
-                  <span>{selectedRequestForPrint.period}</span>
-                </div>
-                <div className="meta-block">
-                  <span className="meta-label">عنوان التجربة:</span>
-                  <span>{selectedRequestForPrint.experimentTitle}</span>
-                </div>
+              <div className="text-right">
+                <p className="mb-2"><span className="font-bold">أمين المختبر المشرف:</span><br/>{selectedRequestForPrint.labTechnician}</p>
+                <p className="mb-2"><span className="font-bold">الحصة:</span><br/>{selectedRequestForPrint.period}</p>
+                <p><span className="font-bold">عنوان التجربة:</span><br/>{selectedRequestForPrint.experimentTitle}</p>
               </div>
             </div>
 
