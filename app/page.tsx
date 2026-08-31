@@ -127,15 +127,11 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 6mm 8mm;
+          margin: 15mm 18mm;
         }
         @media print {
-          :root {
-            color-scheme: light;
-          }
           html, body {
             background: #ffffff !important;
-            color: #0f172a !important;
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
@@ -143,52 +139,25 @@ function PrintStylesheet() {
             overflow: visible !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            visibility: visible !important;
           }
-          body > * {
-            visibility: hidden !important;
-          }
-          .print-report,
-          .print-report * {
-            visibility: visible !important;
-          }
-          .print-report {
-            position: static !important;
-            inset: auto !important;
-            display: block !important;
-            width: 100% !important;
-            height: auto !important;
-            max-width: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            overflow: visible !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
-            border: none !important;
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
-          .printable-report,
-          .printable-report * {
-            visibility: visible !important;
-            color: #0f172a !important;
-            background: #ffffff !important;
-          }
+          body * { visibility: hidden !important; }
+          .printable-report, .printable-report * { visibility: visible !important; }
           .printable-report {
-            position: static !important;
+            position: relative !important;
             left: auto !important;
             top: auto !important;
             right: auto !important;
             width: 100% !important;
             max-width: 100% !important;
-            margin: 0 !important;
-            padding: 3mm 4mm !important;
+            margin: 0 auto !important;
+            padding: 8mm 10mm !important;
             box-sizing: border-box !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
             overflow: visible !important;
-            break-inside: avoid !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
             page-break-inside: avoid !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
@@ -196,14 +165,23 @@ function PrintStylesheet() {
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 8.5px !important;
+            font-size: 9.5px !important;
             table-layout: auto !important;
           }
           .report-table th, .report-table td {
-            padding: 2px 3px !important;
-            line-height: 1.1 !important;
+            padding: 3px 5px !important;
+            line-height: 1.2 !important;
             word-wrap: break-word !important;
-            color: #0f172a !important;
+          }
+          .print-report {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            display: block !important;
+            overflow: visible !important;
           }
           .no-print { display: none !important; }
         }
