@@ -121,7 +121,7 @@ function AtomLogo() {
 }
 
 // ============================================================
-//       أوراق طباعة وتصدير PDF مُحسّنة باحترافية عالية
+//       أوراق طباعة وتصدير PDF مُحسّنة بدقة تامة
 // ============================================================
 function PrintStylesheet() {
   return (
@@ -177,11 +177,11 @@ function PrintStylesheet() {
             break-inside: avoid !important;
           }
 
-          /* الترويسة الرسمية الموحدة للتقارير */
+          /* الترويسة الرسمية الموحدة لضمان محاذاة اليمين واليسار تماماً كالمرفقات */
           .official-letterhead {
             display: flex !important;
             justify-content: space-between !important;
-            align-items: center !important;
+            align-items: flex-start !important;
             border-bottom: 2px solid #0f172a !important;
             padding-bottom: 8px !important;
             margin-bottom: 12px !important;
@@ -216,11 +216,24 @@ function PrintStylesheet() {
             background-color: #f8fafc !important;
           }
 
+          /* تنسيق التوقيعات بسطر واحد تماماً كالمرفقات */
           .report-footer {
-            margin-top: 20px !important;
+            margin-top: 25px !important;
             padding-top: 10px !important;
             border-top: 1px solid #cbd5e1 !important;
             page-break-inside: avoid !important;
+          }
+
+          .signatures-grid {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            width: 100% !important;
+          }
+
+          .signature-box {
+            width: 45% !important;
+            text-align: center !important;
           }
 
           .no-print {
@@ -249,7 +262,8 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className="official-letterhead mb-4 flex items-center justify-between border-b-2 border-slate-900 pb-3" dir="rtl">
+    <div className="official-letterhead mb-4 flex items-start justify-between border-b-2 border-slate-900 pb-3" dir="rtl">
+      {/* الجهة الرسمية على اليمين تماماً وبنفس التنسيق */}
       <div className="text-right text-[10px] font-bold leading-relaxed text-slate-800">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
@@ -262,6 +276,7 @@ function ReportLetterhead({
         {subtitle && <p className="text-[10px] font-semibold text-slate-600 mt-0.5">{subtitle}</p>}
       </div>
 
+      {/* البيانات التعريفية والتاريخ على اليسار تماماً وبنفس التنسيق والألوان */}
       <div className="text-left text-[10px] font-bold leading-relaxed text-slate-800">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
@@ -274,13 +289,14 @@ function ReportLetterhead({
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
     <div className="report-footer mt-6 pt-3 border-t border-slate-300">
-      <div className="grid grid-cols-2 gap-12 text-center text-xs mb-4">
-        <div>
-          <p className="font-bold text-slate-900 mb-6">توقيع وختم أمين المختبر</p>
+      {/* سطر التوقيعات المتجاور (أمين المختبر يميناً واعتماد المدرسة يساراً في سطر واحد) */}
+      <div className="signatures-grid flex justify-between items-center w-full mb-4 text-xs">
+        <div className="signature-box w-[45%] text-center">
+          <p className="font-bold text-slate-900 mb-5">توقيع وختم أمين المختبر</p>
           <p className="text-slate-400">...................................................</p>
         </div>
-        <div>
-          <p className="font-bold text-slate-900 mb-6">اعتماد إدارة المدرسة / قسم المختبرات</p>
+        <div className="signature-box w-[45%] text-center">
+          <p className="font-bold text-slate-900 mb-5">اعتماد إدارة المدرسة / قسم المختبرات</p>
           <p className="text-slate-400">...................................................</p>
         </div>
       </div>
@@ -631,7 +647,7 @@ export default function Home() {
             .official-letterhead {
               display: flex !important;
               justify-content: space-between !important;
-              align-items: center !important;
+              align-items: flex-start !important;
               border-bottom: 2px solid #0f172a !important;
               padding-bottom: 8px !important;
               margin-bottom: 12px !important;
@@ -663,6 +679,16 @@ export default function Home() {
               padding-top: 10px !important;
               border-top: 1px solid #cbd5e1 !important;
               page-break-inside: avoid !important;
+            }
+            .signatures-grid {
+              display: flex !important;
+              justify-content: space-between !important;
+              align-items: center !important;
+              width: 100% !important;
+            }
+            .signature-box {
+              width: 45% !important;
+              text-align: center !important;
             }
           </style>
         </head>
