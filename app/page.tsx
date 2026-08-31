@@ -130,8 +130,12 @@ function PrintStylesheet() {
           margin: 6mm 8mm;
         }
         @media print {
+          :root {
+            color-scheme: light;
+          }
           html, body {
             background: #ffffff !important;
+            color: #0f172a !important;
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
@@ -139,9 +143,14 @@ function PrintStylesheet() {
             overflow: visible !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            visibility: visible !important;
           }
-          body > *:not(.print-report) {
-            display: none !important;
+          body > * {
+            visibility: hidden !important;
+          }
+          .print-report,
+          .print-report * {
+            visibility: visible !important;
           }
           .print-report {
             position: static !important;
@@ -159,8 +168,11 @@ function PrintStylesheet() {
             break-inside: avoid !important;
             page-break-inside: avoid !important;
           }
-          .printable-report, .printable-report * {
+          .printable-report,
+          .printable-report * {
             visibility: visible !important;
+            color: #0f172a !important;
+            background: #ffffff !important;
           }
           .printable-report {
             position: static !important;
@@ -191,6 +203,7 @@ function PrintStylesheet() {
             padding: 2px 3px !important;
             line-height: 1.1 !important;
             word-wrap: break-word !important;
+            color: #0f172a !important;
           }
           .no-print { display: none !important; }
         }
