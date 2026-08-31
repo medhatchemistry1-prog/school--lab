@@ -120,6 +120,7 @@ function AtomLogo() {
   );
 }
 
+// ===================== تعديل PrintStylesheet =====================
 function PrintStylesheet() {
   return (
     <style
@@ -127,7 +128,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 7mm 9mm;
+          margin: 5mm 8mm;
         }
         @media print {
           *, *:before, *:after {
@@ -177,7 +178,7 @@ function PrintStylesheet() {
             max-width: none !important;
             height: auto !important;
             margin: 0 !important;
-            padding: 6mm 7mm !important;
+            padding: 4mm 6mm !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
@@ -185,6 +186,7 @@ function PrintStylesheet() {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             overflow: visible !important;
+            font-size: 10.5px !important;
           }
 
           .report-row {
@@ -199,18 +201,32 @@ function PrintStylesheet() {
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 9px !important;
+            font-size: 10.5px !important;
             table-layout: auto !important;
           }
 
           .report-table th, .report-table td {
             padding: 3px 4px !important;
-            line-height: 1.2 !important;
+            line-height: 1.3 !important;
             word-wrap: break-word !important;
           }
 
           .printable-report > div:first-child {
             margin-top: 0 !important;
+          }
+
+          /* منع الصفحات البيضاء في استمارة التحضير */
+          .report-request .printable-report {
+            padding: 4mm 6mm !important;
+            page-break-after: avoid !important;
+            break-after: avoid !important;
+          }
+          .report-request .report-table {
+            font-size: 10.5px !important;
+          }
+          .report-request .report-table th,
+          .report-request .report-table td {
+            padding: 2px 4px !important;
           }
 
           .no-print {
@@ -222,6 +238,7 @@ function PrintStylesheet() {
     />
   );
 }
+// ================================================================
 
 function ReportLetterhead({
   reportCode,
@@ -240,7 +257,7 @@ function ReportLetterhead({
 }) {
   return (
     <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-1 mb-2`}>
-      <div className="text-right text-[8.5px] font-bold text-slate-600 leading-tight min-w-[120px]">
+      <div className="text-right text-[9px] font-bold text-slate-600 leading-tight min-w-[120px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
         <p>قسم المختبرات</p>
@@ -249,11 +266,11 @@ function ReportLetterhead({
       <div className="flex flex-col items-center gap-0 flex-1">
         <AtomLogo />
         <h2 className={`text-xs font-black ${titleColorClass} text-center -mt-0.5`}>{title}</h2>
-        {subtitle && <p className="text-[8px] text-slate-500 font-semibold text-center">{subtitle}</p>}
-        <p className="text-[7px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
+        {subtitle && <p className="text-[8.5px] text-slate-500 font-semibold text-center">{subtitle}</p>}
+        <p className="text-[7.5px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
       </div>
 
-      <div className="text-left text-[8.5px] font-bold text-slate-600 leading-tight min-w-[120px]">
+      <div className="text-left text-[9px] font-bold text-slate-600 leading-tight min-w-[120px]">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
@@ -265,7 +282,7 @@ function ReportLetterhead({
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
     <div className="mt-2 pt-1 border-t border-slate-300 space-y-0.5">
-      <div className="grid grid-cols-2 gap-8 text-center text-[8.5px]">
+      <div className="grid grid-cols-2 gap-8 text-center text-[9px]">
         <div>
           <p className="font-bold text-slate-900 mb-2">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
@@ -275,7 +292,7 @@ function ReportFooter({ recordCount }: { recordCount: number }) {
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
-      <div className="flex items-center justify-between text-[7px] text-slate-400 pt-0.5 border-t border-slate-200">
+      <div className="flex items-center justify-between text-[7.5px] text-slate-400 pt-0.5 border-t border-slate-200">
         <span>تم إصدار هذا التقرير آلياً من قاعدة البيانات السحابية (Neon) بتاريخ {new Date().toLocaleString("ar-EG")}</span>
         <span>إجمالي السجلات: {recordCount}</span>
       </div>
@@ -598,7 +615,7 @@ export default function Home() {
           <style>
             @page {
               size: A4 landscape;
-              margin: 7mm 9mm;
+              margin: 5mm 8mm;
             }
             html, body {
               margin: 0;
@@ -613,16 +630,21 @@ export default function Home() {
               width: 100%;
               border-collapse: collapse;
               table-layout: auto;
-              font-size: 9px;
+              font-size: 10.5px;
             }
             th, td {
               padding: 3px 4px;
-              line-height: 1.2;
+              line-height: 1.3;
               vertical-align: top;
               word-wrap: break-word;
             }
             .report-row { break-inside: avoid; page-break-inside: avoid; }
             .report-table thead { display: table-header-group; }
+            .printable-report {
+              padding: 4mm 6mm;
+              page-break-after: avoid;
+              break-after: avoid;
+            }
           </style>
         </head>
         <body>
@@ -2403,7 +2425,7 @@ export default function Home() {
                       <th className="p-1.5 border-l border-slate-300 text-center w-8">م</th>
                       <th className="p-1.5 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
                       <th className="p-1.5 border-l border-slate-300 text-center">الكمية المطلوبة</th>
-                      <th className="p-1.5 border-l border-slate-300">جهة التأمين والتوفير</th>
+                      <th className="p-1.5 text-center">جهة التأمين والتوفير</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-300">
