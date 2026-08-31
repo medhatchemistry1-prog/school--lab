@@ -108,15 +108,13 @@ const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل ال
 
 function AtomLogo() {
   return (
-    <div className="relative flex h-20 w-20 items-center justify-center">
-      <div className="absolute h-16 w-16 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
-      <div className="absolute h-12 w-12 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
-      <div className="absolute h-20 w-20 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
-      <div className="absolute h-3 w-3 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_18px_rgba(251,191,36,0.8)]" />
-      <div className="absolute left-6 top-2 h-2.5 w-2.5 rounded-full bg-cyan-400 shadow-[0_0_16px_rgba(34,211,238,0.8)]" />
-      <div className="absolute right-5 bottom-4 h-2.5 w-2.5 rounded-full bg-violet-400 shadow-[0_0_16px_rgba(167,139,250,0.8)]" />
+    <div className="relative flex h-16 w-16 items-center justify-center">
+      <div className="absolute h-12 w-12 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
+      <div className="absolute h-9 w-9 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
+      <div className="absolute h-14 w-14 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
+      <div className="absolute h-2.5 w-2.5 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_14px_rgba(251,191,36,0.8)]" />
       <div className="absolute text-blue-600">
-        <Atom className="h-8 w-8 drop-shadow-[0_0_12px_rgba(37,99,235,0.7)]" />
+        <Atom className="h-6 w-6 drop-shadow-[0_0_10px_rgba(37,99,235,0.7)]" />
       </div>
     </div>
   );
@@ -128,18 +126,6 @@ function PrintStylesheet() {
       dangerouslySetInnerHTML={{
         __html: `
         @page {
-          size: A4 portrait;
-          margin: 6mm 8mm;
-        }
-        @page inventory-landscape {
-          size: A4 landscape;
-          margin: 6mm 8mm;
-        }
-        @page report-landscape {
-          size: A4 landscape;
-          margin: 6mm 8mm;
-        }
-        @page request-landscape {
           size: A4 landscape;
           margin: 6mm 8mm;
         }
@@ -149,6 +135,7 @@ function PrintStylesheet() {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
+            height: 100% !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -163,26 +150,16 @@ function PrintStylesheet() {
             width: 100% !important;
             max-width: none !important;
             margin: 0 !important;
-            padding: 0 !important;
+            padding: 4mm !important;
             box-shadow: none !important;
             border: none !important;
             background: #ffffff !important;
-          }
-          .report-inventory .printable-report,
-          .report-plan .printable-report,
-          .report-breakage .printable-report,
-          .report-request .printable-report {
-            width: 100% !important;
-            max-width: none !important;
-            min-width: 0 !important;
-          }
-          .report-request .printable-report {
-            padding: 0.5rem 0.5rem 0 !important;
+            page-break-inside: avoid !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
-          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 9px !important; }
-          .report-table th, .report-table td { padding: 3px 4px !important; }
+          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 10px !important; }
+          .report-table th, .report-table td { padding: 4px 6px !important; }
           .print-report {
             position: absolute !important;
             left: 0 !important;
@@ -216,7 +193,7 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className={`relative flex items-center justify-between gap-4 border-b-[3px] ${accentClass} pb-3 mb-4`}>
+    <div className={`relative flex items-center justify-between gap-4 border-b-[2px] ${accentClass} pb-2 mb-3`}>
       <div className="text-right text-[10px] font-bold text-slate-600 leading-relaxed min-w-[140px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
@@ -225,9 +202,9 @@ function ReportLetterhead({
 
       <div className="flex flex-col items-center gap-0.5 flex-1">
         <AtomLogo />
-        <h2 className={`text-base font-black ${titleColorClass} text-center -mt-2`}>{title}</h2>
+        <h2 className={`text-base font-black ${titleColorClass} text-center -mt-1`}>{title}</h2>
         {subtitle && <p className="text-[10px] text-slate-500 font-semibold text-center">{subtitle}</p>}
-        <p className="text-[9px] font-mono text-slate-400 mt-0.5">كود التقرير: {reportCode}</p>
+        <p className="text-[9px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
       </div>
 
       <div className="text-left text-[10px] font-bold text-slate-600 leading-relaxed min-w-[140px]">
@@ -241,14 +218,14 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-6 pt-3 border-t border-slate-300 space-y-2">
-      <div className="grid grid-cols-2 gap-8 pt-2 text-center text-[11px]">
+    <div className="mt-4 pt-2 border-t border-slate-300 space-y-2">
+      <div className="grid grid-cols-2 gap-8 pt-1 text-center text-[11px]">
         <div>
-          <p className="font-bold text-slate-900 mb-6">توقيع أمين المختبر</p>
+          <p className="font-bold text-slate-900 mb-4">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-6">اعتماد قسم المختبرات</p>
+          <p className="font-bold text-slate-900 mb-4">اعتماد قسم المختبرات</p>
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
@@ -2249,7 +2226,7 @@ export default function Home() {
 
           <div 
             id="printable-request-area" 
-            className="printable-report relative bg-white w-full max-w-3xl p-8 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-6 print:m-0 print:p-0 print:border-none print:shadow-none overflow-hidden"
+            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-4 print:m-0 print:p-2 print:border-none print:shadow-none overflow-hidden"
             dir="rtl"
           >
             <ReportLetterhead
@@ -2259,21 +2236,21 @@ export default function Home() {
               rightMeta={[`المادة: ${selectedRequestForPrint.subject}`, `العام الدراسي: ${selectedRequestForPrint.academicYear}`, `التاريخ: ${selectedRequestForPrint.date}`]}
             />
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-4 rounded-lg border border-slate-300 text-sm print:bg-slate-50">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs print:bg-slate-50">
               <div>
                 <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
-                <p className="mt-2"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
-                <p className="mt-2"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
+                <p className="mt-1"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
+                <p className="mt-1"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
               </div>
               <div>
                 <p><span className="font-bold text-slate-900">أمين المختبر المشرف:</span> {selectedRequestForPrint.labTechnician}</p>
-                <p><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
-                <p className="mt-2"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
+                <p className="mt-1"><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
+                <p className="mt-1"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
               </div>
             </div>
 
             <div>
-              <h4 className="font-bold text-sm text-slate-900 mb-2">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
+              <h4 className="font-bold text-xs text-slate-900 mb-1.5">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
               <table className="report-table w-full text-right text-xs border border-slate-300">
                 <thead className="bg-slate-100 border-b border-slate-300 text-slate-800 font-bold">
                   <tr>
@@ -2300,7 +2277,7 @@ export default function Home() {
 
             {selectedRequestForPrint.procurements?.length > 0 && (
               <div>
-                <h4 className="font-bold text-sm text-slate-900 mb-2">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
+                <h4 className="font-bold text-xs text-slate-900 mb-1.5">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
                 <table className="report-table w-full text-right text-xs border border-slate-300">
                   <thead className="bg-emerald-50 border-b border-slate-300 text-emerald-900 font-bold">
                     <tr>
