@@ -150,18 +150,15 @@ function PrintStylesheet() {
           }
 
           .print-report {
-            display: block !important;
             position: static !important;
-            left: auto !important;
-            top: auto !important;
-            right: auto !important;
-            bottom: auto !important;
+            inset: auto !important;
+            display: block !important;
             width: 100% !important;
             max-width: none !important;
             height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
-            background: #ffffff !important;
+            background: transparent !important;
             box-shadow: none !important;
             border: none !important;
             overflow: visible !important;
@@ -169,24 +166,33 @@ function PrintStylesheet() {
             break-inside: avoid !important;
           }
 
-          .print-report > *:not(.printable-report) {
+          .report-preview-shell {
+            display: block !important;
+            width: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+
+          .report-preview-header {
             display: none !important;
           }
 
           .printable-report {
             display: block !important;
             position: static !important;
-            left: auto !important;
-            top: auto !important;
-            right: auto !important;
-            bottom: auto !important;
             width: 100% !important;
-            max-width: 100% !important;
+            max-width: none !important;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
-            box-shadow: none !important;
             border: none !important;
+            box-shadow: none !important;
             overflow: visible !important;
             page-break-inside: avoid !important;
             break-inside: avoid !important;
@@ -199,7 +205,7 @@ function PrintStylesheet() {
           .report-row {
             visibility: visible !important;
             color: #0f172a !important;
-            background: #ffffff !important;
+            background: transparent !important;
           }
 
           .report-row {
@@ -575,12 +581,106 @@ export default function Home() {
     setPrintReportType(type);
   };
 
+  const printReportElement = () => {
+    const reportElement = document.querySelector('.printable-report') as HTMLElement | null;
+    if (!reportElement) {
+      window.print();
+      return;
+    }
+
+    const printWindow = window.open('', '_blank', 'width=1200,height=900');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+
+    const clone = reportElement.cloneNode(true) as HTMLElement;
+    clone.style.all = 'unset';
+    clone.style.display = 'block';
+    clone.style.width = '100%';
+    clone.style.maxWidth = '100%';
+    clone.style.margin = '0';
+    clone.style.padding = '0';
+    clone.style.background = '#ffffff';
+    clone.style.border = 'none';
+    clone.style.boxShadow = 'none';
+
+    const printMarkup = `
+      <!doctype html>
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>تقرير مختبر</title>
+          <style>
+            @page {
+              size: A4 landscape;
+              margin: 8mm 10mm;
+            }
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: #ffffff;
+              color: #0f172a;
+              font-family: Arial, sans-serif;
+            }
+            body {
+              padding: 0;
+            }
+            * {
+              box-sizing: border-box;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: auto;
+              font-size: 8.5px;
+            }
+            th, td {
+              padding: 2px 3px;
+              line-height: 1.1;
+              vertical-align: top;
+              word-wrap: break-word;
+            }
+            .report-table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+            .report-row {
+              page-break-inside: avoid;
+              break-inside: avoid;
+            }
+            .report-table thead {
+              display: table-header-group;
+            }
+            .no-print {
+              display: none !important;
+            }
+          </style>
+        </head>
+        <body>
+          ${clone.outerHTML}
+        </body>
+      </html>
+    `;
+
+    printWindow.document.open();
+    printWindow.document.write(printMarkup);
+    printWindow.document.close();
+    printWindow.focus();
+
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 300);
+  };
+
   const handlePrintRequest = () => {
     if (!selectedRequestForPrint) return;
     const previousTitle = document.title;
     document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
     setTimeout(() => {
-      window.print();
+      printReportElement();
       document.title = previousTitle;
     }, 150);
   };
@@ -2072,7 +2172,7 @@ export default function Home() {
                 </label>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={printReportElement} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
@@ -2123,11 +2223,11 @@ export default function Home() {
       {printReportType === "plan" && (
         <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
+          <div className="report-preview-shell bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
+            <div className="report-preview-header flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <h3 className="font-bold text-slate-900 text-lg">معاينة الخطة التشغيلية للمختبرات</h3>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={printReportElement} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
@@ -2187,8 +2287,8 @@ export default function Home() {
       {printReportType === "breakage" && (
         <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
-          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
+          <div className="report-preview-shell bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
+            <div className="report-preview-header flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-600">فلتر الطباعة:</span>
                 <select
@@ -2202,7 +2302,7 @@ export default function Home() {
                 </select>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={printReportElement} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
@@ -2262,7 +2362,7 @@ export default function Home() {
       {printReportType === "request" && selectedRequestForPrint && (
         <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible">
           <PrintStylesheet />
-          <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
+          <div className="report-preview-header w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
               <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك بنجاح</span>
             </div>
