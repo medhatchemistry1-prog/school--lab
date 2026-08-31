@@ -277,25 +277,33 @@ function ReportLetterhead({
   accentClass?: string;
   titleColorClass?: string;
 }) {
+  const headerStyle = accentClass.includes("teal")
+    ? { backgroundColor: "#0f766e", borderColor: "#115e59", color: "#ffffff" }
+    : accentClass.includes("rose")
+      ? { backgroundColor: "#881337", borderColor: "#4c0519", color: "#ffffff" }
+      : { backgroundColor: "#0f172a", borderColor: "#1e293b", color: "#ffffff" };
+
   return (
-    <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-1 mb-2`}>
-      <div className="text-right text-[9px] font-bold text-slate-600 leading-tight min-w-[120px]">
-        <p>دولة الإمارات العربية المتحدة</p>
-        <p>وزارة التربية والتعليم</p>
-        <p>قسم المختبرات</p>
-      </div>
+    <div className="mb-2 overflow-hidden rounded-t-xl border-2" style={{ borderColor: headerStyle.borderColor }}>
+      <div className="flex items-center justify-between gap-2 px-3 py-2" style={{ backgroundColor: headerStyle.backgroundColor, color: headerStyle.color }}>
+        <div className="text-right text-[9px] font-bold leading-tight min-w-[120px] opacity-95">
+          <p>دولة الإمارات العربية المتحدة</p>
+          <p>وزارة التربية والتعليم</p>
+          <p>قسم المختبرات</p>
+        </div>
 
-      <div className="flex flex-col items-center gap-0 flex-1">
-        <AtomLogo />
-        <h2 className={`text-xs font-black ${titleColorClass} text-center -mt-0.5`}>{title}</h2>
-        {subtitle && <p className="text-[8.5px] text-slate-500 font-semibold text-center">{subtitle}</p>}
-        <p className="text-[7.5px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
-      </div>
+        <div className="flex flex-col items-center gap-0 flex-1">
+          <AtomLogo />
+          <h2 className={`text-xs font-black text-center -mt-0.5 ${titleColorClass}`} style={{ color: headerStyle.color }}>{title}</h2>
+          {subtitle && <p className="text-[8.5px] font-semibold text-center opacity-90" style={{ color: headerStyle.color }}>{subtitle}</p>}
+          <p className="text-[7.5px] font-mono opacity-90" style={{ color: headerStyle.color }}>كود التقرير: {reportCode}</p>
+        </div>
 
-      <div className="text-left text-[9px] font-bold text-slate-600 leading-tight min-w-[120px]">
-        {rightMeta.map((line, i) => (
-          <p key={i}>{line}</p>
-        ))}
+        <div className="text-left text-[9px] font-bold leading-tight min-w-[120px] opacity-95">
+          {rightMeta.map((line, i) => (
+            <p key={i}>{line}</p>
+          ))}
+        </div>
       </div>
     </div>
   );
