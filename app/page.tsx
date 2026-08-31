@@ -108,13 +108,13 @@ const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل ال
 
 function AtomLogo() {
   return (
-    <div className="relative flex h-14 w-14 items-center justify-center">
-      <div className="absolute h-10 w-10 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
-      <div className="absolute h-8 w-8 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
-      <div className="absolute h-12 w-12 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
-      <div className="absolute h-2 w-2 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
+    <div className="relative flex h-12 w-12 items-center justify-center">
+      <div className="absolute h-9 w-9 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
+      <div className="absolute h-7 w-7 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
+      <div className="absolute h-10 w-10 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
+      <div className="absolute h-1.5 w-1.5 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
       <div className="absolute text-blue-600">
-        <Atom className="h-5 w-5 drop-shadow-[0_0_8px_rgba(37,99,235,0.7)]" />
+        <Atom className="h-4 w-4 drop-shadow-[0_0_6px_rgba(37,99,235,0.7)]" />
       </div>
     </div>
   );
@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 6mm 7mm;
+          margin: 10mm 12mm;
         }
         @media print {
           html, body {
@@ -143,42 +143,30 @@ function PrintStylesheet() {
           body * { visibility: hidden !important; }
           .printable-report, .printable-report * { visibility: visible !important; }
           .printable-report {
-            position: relative !important;
-            left: auto !important;
-            top: auto !important;
-            right: auto !important;
-            bottom: auto !important;
-            display: block !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 100% !important;
             height: auto !important;
             max-width: none !important;
             max-height: none !important;
             margin: 0 !important;
-            padding: 2mm 3mm !important;
+            padding: 0 !important;
             box-shadow: none !important;
             border: none !important;
             background: #ffffff !important;
             box-sizing: border-box !important;
-            zoom: 100% !important;
             page-break-after: avoid !important;
             page-break-before: avoid !important;
             page-break-inside: avoid !important;
             overflow: visible !important;
           }
-          .report-row,
-          .report-table,
-          .printable-report,
-          .print-report {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
+          .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
-          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 9px !important; }
-          .report-table th, .report-table td { padding: 2px 3px !important; line-height: 1.1 !important; }
+          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 9.5px !important; }
+          .report-table th, .report-table td { padding: 3px 5px !important; line-height: 1.2 !important; }
           .print-report {
             position: static !important;
-            left: auto !important;
-            top: auto !important;
             width: 100% !important;
             height: auto !important;
             margin: 0 !important;
@@ -210,21 +198,21 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-2 mb-2 shrink-0`}>
-      <div className="text-right text-[10px] font-bold text-slate-600 leading-tight min-w-[130px]">
+    <div className={`relative flex items-center justify-between gap-3 border-b-[2px] ${accentClass} pb-2 mb-3`}>
+      <div className="text-right text-[10px] font-bold text-slate-600 leading-tight min-w-[140px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
         <p>قسم المختبرات</p>
       </div>
 
-      <div className="flex flex-col items-center gap-0 flex-1">
+      <div className="flex flex-col items-center gap-0.5 flex-1">
         <AtomLogo />
         <h2 className={`text-sm font-black ${titleColorClass} text-center -mt-1`}>{title}</h2>
         {subtitle && <p className="text-[9px] text-slate-500 font-semibold text-center">{subtitle}</p>}
         <p className="text-[8px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
       </div>
 
-      <div className="text-left text-[10px] font-bold text-slate-600 leading-tight min-w-[130px]">
+      <div className="text-left text-[10px] font-bold text-slate-600 leading-tight min-w-[140px]">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
@@ -235,14 +223,14 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-2 pt-2 border-t border-slate-300 space-y-1 shrink-0">
+    <div className="mt-4 pt-2 border-t border-slate-300 space-y-1">
       <div className="grid grid-cols-2 gap-8 text-center text-[10px]">
         <div>
-          <p className="font-bold text-slate-900 mb-3">توقيع أمين المختبر</p>
+          <p className="font-bold text-slate-900 mb-4">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-3">اعتماد قسم المختبرات</p>
+          <p className="font-bold text-slate-900 mb-4">اعتماد قسم المختبرات</p>
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
@@ -2243,7 +2231,7 @@ export default function Home() {
 
           <div 
             id="printable-request-area" 
-            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-3 print:m-0 print:p-2 print:border-none print:shadow-none overflow-hidden"
+            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-3 print:m-0 print:p-0 print:border-none print:shadow-none overflow-hidden"
             dir="rtl"
           >
             <ReportLetterhead
