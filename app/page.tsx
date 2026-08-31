@@ -108,13 +108,13 @@ const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل ال
 
 function AtomLogo() {
   return (
-    <div className="relative flex h-12 w-12 items-center justify-center">
-      <div className="absolute h-9 w-9 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
-      <div className="absolute h-7 w-7 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
-      <div className="absolute h-10 w-10 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
-      <div className="absolute h-1.5 w-1.5 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
+    <div className="relative flex h-10 w-10 items-center justify-center">
+      <div className="absolute h-8 w-8 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
+      <div className="absolute h-6 w-6 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
+      <div className="absolute h-9 w-9 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
+      <div className="absolute h-1.5 w-1.5 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
       <div className="absolute text-blue-600">
-        <Atom className="h-4 w-4 drop-shadow-[0_0_6px_rgba(37,99,235,0.7)]" />
+        <Atom className="h-3.5 w-3.5 drop-shadow-[0_0_5px_rgba(37,99,235,0.7)]" />
       </div>
     </div>
   );
@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 10mm 12mm;
+          margin: 8mm 10mm;
         }
         @media print {
           html, body {
@@ -148,41 +148,43 @@ function PrintStylesheet() {
             top: 0 !important;
             right: 0 !important;
             bottom: 0 !important;
-            margin: 0 auto !important;
             width: 100% !important;
-            max-width: 100% !important;
-            padding: 6mm 8mm !important;
+            height: 100% !important;
+            max-width: none !important;
+            max-height: none !important;
+            margin: 0 !important;
+            padding: 2mm !important;
             box-sizing: border-box !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
-            zoom: 92% !important;
             page-break-after: avoid !important;
             page-break-before: avoid !important;
             page-break-inside: avoid !important;
+            overflow: hidden !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 9px !important;
+            font-size: 8.5px !important;
             table-layout: auto !important;
           }
           .report-table th, .report-table td {
-            padding: 3px 4px !important;
-            line-height: 1.15 !important;
+            padding: 2px 3px !important;
+            line-height: 1.1 !important;
             word-wrap: break-word !important;
           }
           .print-report {
             position: static !important;
             width: 100% !important;
-            height: auto !important;
+            height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
             display: block !important;
-            overflow: visible !important;
+            overflow: hidden !important;
           }
           .no-print { display: none !important; }
         }
@@ -208,21 +210,21 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className={`relative flex items-center justify-between gap-3 border-b-[2px] ${accentClass} pb-2 mb-3`}>
-      <div className="text-right text-[10px] font-bold text-slate-600 leading-tight min-w-[140px]">
+    <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-1.5 mb-2`}>
+      <div className="text-right text-[9px] font-bold text-slate-600 leading-tight min-w-[130px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
         <p>قسم المختبرات</p>
       </div>
 
-      <div className="flex flex-col items-center gap-0.5 flex-1">
+      <div className="flex flex-col items-center gap-0 flex-1">
         <AtomLogo />
-        <h2 className={`text-sm font-black ${titleColorClass} text-center -mt-1`}>{title}</h2>
-        {subtitle && <p className="text-[9px] text-slate-500 font-semibold text-center">{subtitle}</p>}
-        <p className="text-[8px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
+        <h2 className={`text-xs font-black ${titleColorClass} text-center -mt-0.5`}>{title}</h2>
+        {subtitle && <p className="text-[8.5px] text-slate-500 font-semibold text-center">{subtitle}</p>}
+        <p className="text-[7.5px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
       </div>
 
-      <div className="text-left text-[10px] font-bold text-slate-600 leading-tight min-w-[140px]">
+      <div className="text-left text-[9px] font-bold text-slate-600 leading-tight min-w-[130px]">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
@@ -233,18 +235,18 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-3 pt-2 border-t border-slate-300 space-y-1">
-      <div className="grid grid-cols-2 gap-8 text-center text-[10px]">
+    <div className="mt-2 pt-1.5 border-t border-slate-300 space-y-0.5">
+      <div className="grid grid-cols-2 gap-8 text-center text-[9px]">
         <div>
-          <p className="font-bold text-slate-900 mb-3">توقيع أمين المختبر</p>
+          <p className="font-bold text-slate-900 mb-2">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-3">اعتماد قسم المختبرات</p>
+          <p className="font-bold text-slate-900 mb-2">اعتماد قسم المختبرات</p>
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
-      <div className="flex items-center justify-between text-[8px] text-slate-400 pt-1 border-t border-slate-200">
+      <div className="flex items-center justify-between text-[7.5px] text-slate-400 pt-0.5 border-t border-slate-200">
         <span>تم إصدار هذا التقرير آلياً من قاعدة البيانات السحابية (Neon) بتاريخ {new Date().toLocaleString("ar-EG")}</span>
         <span>إجمالي السجلات: {recordCount}</span>
       </div>
