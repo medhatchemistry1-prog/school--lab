@@ -177,7 +177,6 @@ function PrintStylesheet() {
             break-inside: avoid !important;
           }
 
-          /* الترويسة الرسمية الموحدة لضمان محاذاة اليمين واليسار تماماً كالمرفقات */
           .official-letterhead {
             display: flex !important;
             justify-content: space-between !important;
@@ -188,12 +187,75 @@ function PrintStylesheet() {
             background: #ffffff !important;
           }
 
-          /* جداول البيانات */
+          .official-letterhead .meta-left,
+          .official-letterhead .meta-right {
+            width: 24% !important;
+            font-size: 10px !important;
+            font-weight: 700 !important;
+            line-height: 1.5 !important;
+            color: #0f172a !important;
+          }
+
+          .official-letterhead .meta-center {
+            flex: 1 !important;
+            text-align: center !important;
+            min-width: 0 !important;
+          }
+
+          .official-letterhead .meta-center .doc-id {
+            display: block !important;
+            font-size: 9px !important;
+            font-family: monospace !important;
+            color: #475569 !important;
+            margin-bottom: 2px !important;
+          }
+
+          .official-letterhead .meta-center h2 {
+            font-size: 14px !important;
+            font-weight: 900 !important;
+            margin: 0 !important;
+            color: #0f172a !important;
+          }
+
+          .official-letterhead .meta-center p {
+            font-size: 10px !important;
+            margin: 2px 0 0 !important;
+            color: #475569 !important;
+          }
+
+          .report-meta-bar {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 12px !important;
+            padding: 10px 12px !important;
+            margin-bottom: 12px !important;
+            border: 1px solid #cbd5e1 !important;
+            background: #f8fafc !important;
+            border-radius: 8px !important;
+            font-size: 11px !important;
+            line-height: 1.6 !important;
+          }
+
+          .report-meta-bar .meta-block {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            gap: 8px !important;
+            text-align: right !important;
+          }
+
+          .report-meta-bar .meta-label {
+            font-weight: 700 !important;
+            color: #0f172a !important;
+          }
+
           .report-table {
             width: 100% !important;
             border-collapse: collapse !important;
             margin-bottom: 15px !important;
             table-layout: auto !important;
+            border: 1px solid #94a3b8 !important;
+            background: #ffffff !important;
           }
 
           .report-table th,
@@ -203,20 +265,20 @@ function PrintStylesheet() {
             line-height: 1.4 !important;
             border: 1px solid #94a3b8 !important;
             word-wrap: break-word !important;
+            text-align: right !important;
+            vertical-align: top !important;
           }
 
           .report-table thead th {
             background-color: #0f172a !important;
             color: #ffffff !important;
             font-weight: bold !important;
-            text-align: right !important;
           }
 
           .report-row:nth-child(even) {
             background-color: #f8fafc !important;
           }
 
-          /* تنسيق التوقيعات بسطر واحد تماماً كالمرفقات */
           .report-footer {
             margin-top: 25px !important;
             padding-top: 10px !important;
@@ -234,6 +296,20 @@ function PrintStylesheet() {
           .signature-box {
             width: 45% !important;
             text-align: center !important;
+          }
+
+          .signature-box .label {
+            display: block !important;
+            margin-bottom: 12px !important;
+            font-weight: 700 !important;
+            color: #0f172a !important;
+          }
+
+          .signature-box .line {
+            display: block !important;
+            border-bottom: 1px solid #94a3b8 !important;
+            width: 100% !important;
+            height: 20px !important;
           }
 
           .no-print {
@@ -262,22 +338,20 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className="official-letterhead mb-4 flex items-start justify-between border-b-2 border-slate-900 pb-3" dir="rtl">
-      {/* الجهة الرسمية على اليمين تماماً وبنفس التنسيق */}
-      <div className="text-right text-[10px] font-bold leading-relaxed text-slate-800">
+    <div className="official-letterhead mb-4" dir="rtl">
+      <div className="meta-left text-right">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
         <p>قسم المختبرات المدرسية</p>
       </div>
 
-      <div className="flex flex-col items-center justify-center text-center">
-        <span className="font-mono text-[9px] font-semibold text-slate-500 mb-0.5">معرف المستند: {reportCode}</span>
-        <h2 className={`text-sm font-black ${titleColorClass}`}>{title}</h2>
-        {subtitle && <p className="text-[10px] font-semibold text-slate-600 mt-0.5">{subtitle}</p>}
+      <div className="meta-center">
+        <span className="doc-id">معرف المستند: {reportCode}</span>
+        <h2 className={titleColorClass}>{title}</h2>
+        {subtitle && <p>{subtitle}</p>}
       </div>
 
-      {/* البيانات التعريفية والتاريخ على اليسار تماماً وبنفس التنسيق والألوان */}
-      <div className="text-left text-[10px] font-bold leading-relaxed text-slate-800">
+      <div className="meta-right text-left">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
@@ -289,15 +363,14 @@ function ReportLetterhead({
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
     <div className="report-footer mt-6 pt-3 border-t border-slate-300">
-      {/* سطر التوقيعات المتجاور (أمين المختبر يميناً واعتماد المدرسة يساراً في سطر واحد) */}
       <div className="signatures-grid flex justify-between items-center w-full mb-4 text-xs">
         <div className="signature-box w-[45%] text-center">
-          <p className="font-bold text-slate-900 mb-5">توقيع وختم أمين المختبر</p>
-          <p className="text-slate-400">...................................................</p>
+          <span className="label">توقيع وختم أمين المختبر</span>
+          <span className="line" aria-hidden="true" />
         </div>
         <div className="signature-box w-[45%] text-center">
-          <p className="font-bold text-slate-900 mb-5">اعتماد إدارة المدرسة / قسم المختبرات</p>
-          <p className="text-slate-400">...................................................</p>
+          <span className="label">اعتماد إدارة المدرسة / قسم المختبرات</span>
+          <span className="line" aria-hidden="true" />
         </div>
       </div>
       <div className="flex items-center justify-between text-[8px] text-slate-400 pt-2 border-t border-slate-200">
