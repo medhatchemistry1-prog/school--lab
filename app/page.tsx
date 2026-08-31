@@ -108,13 +108,13 @@ const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل ال
 
 function AtomLogo() {
   return (
-    <div className="relative flex h-16 w-16 items-center justify-center">
-      <div className="absolute h-12 w-12 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
-      <div className="absolute h-9 w-9 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
-      <div className="absolute h-14 w-14 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
-      <div className="absolute h-2.5 w-2.5 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_14px_rgba(251,191,36,0.8)]" />
+    <div className="relative flex h-14 w-14 items-center justify-center">
+      <div className="absolute h-10 w-10 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
+      <div className="absolute h-8 w-8 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
+      <div className="absolute h-12 w-12 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
+      <div className="absolute h-2 w-2 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_12px_rgba(251,191,36,0.8)]" />
       <div className="absolute text-blue-600">
-        <Atom className="h-6 w-6 drop-shadow-[0_0_10px_rgba(37,99,235,0.7)]" />
+        <Atom className="h-5 w-5 drop-shadow-[0_0_8px_rgba(37,99,235,0.7)]" />
       </div>
     </div>
   );
@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 6mm 8mm;
+          margin: 5mm 6mm;
         }
         @media print {
           html, body {
@@ -136,6 +136,7 @@ function PrintStylesheet() {
             padding: 0 !important;
             width: 100% !important;
             height: 100% !important;
+            overflow: hidden !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -146,29 +147,39 @@ function PrintStylesheet() {
             left: 0 !important;
             top: 0 !important;
             right: 0 !important;
-            display: block !important;
+            bottom: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: space-between !important;
             width: 100% !important;
+            height: 100% !important;
             max-width: none !important;
+            max-height: 100vh !important;
             margin: 0 !important;
-            padding: 4mm !important;
+            padding: 3mm 4mm !important;
             box-shadow: none !important;
             border: none !important;
             background: #ffffff !important;
+            box-sizing: border-box !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
             page-break-inside: avoid !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
-          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 10px !important; }
-          .report-table th, .report-table td { padding: 4px 6px !important; }
+          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 9.5px !important; }
+          .report-table th, .report-table td { padding: 2px 4px !important; line-height: 1.15 !important; }
           .print-report {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
             width: 100% !important;
+            height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
             display: block !important;
+            overflow: hidden !important;
           }
         }
       `,
@@ -193,21 +204,21 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className={`relative flex items-center justify-between gap-4 border-b-[2px] ${accentClass} pb-2 mb-3`}>
-      <div className="text-right text-[10px] font-bold text-slate-600 leading-relaxed min-w-[140px]">
+    <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-2 mb-2 shrink-0`}>
+      <div className="text-right text-[10px] font-bold text-slate-600 leading-tight min-w-[130px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
         <p>قسم المختبرات</p>
       </div>
 
-      <div className="flex flex-col items-center gap-0.5 flex-1">
+      <div className="flex flex-col items-center gap-0 flex-1">
         <AtomLogo />
-        <h2 className={`text-base font-black ${titleColorClass} text-center -mt-1`}>{title}</h2>
-        {subtitle && <p className="text-[10px] text-slate-500 font-semibold text-center">{subtitle}</p>}
-        <p className="text-[9px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
+        <h2 className={`text-sm font-black ${titleColorClass} text-center -mt-1`}>{title}</h2>
+        {subtitle && <p className="text-[9px] text-slate-500 font-semibold text-center">{subtitle}</p>}
+        <p className="text-[8px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
       </div>
 
-      <div className="text-left text-[10px] font-bold text-slate-600 leading-relaxed min-w-[140px]">
+      <div className="text-left text-[10px] font-bold text-slate-600 leading-tight min-w-[130px]">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
@@ -218,18 +229,18 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-4 pt-2 border-t border-slate-300 space-y-2">
-      <div className="grid grid-cols-2 gap-8 pt-1 text-center text-[11px]">
+    <div className="mt-2 pt-2 border-t border-slate-300 space-y-1 shrink-0">
+      <div className="grid grid-cols-2 gap-8 text-center text-[10px]">
         <div>
-          <p className="font-bold text-slate-900 mb-4">توقيع أمين المختبر</p>
+          <p className="font-bold text-slate-900 mb-3">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-4">اعتماد قسم المختبرات</p>
+          <p className="font-bold text-slate-900 mb-3">اعتماد قسم المختبرات</p>
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
-      <div className="flex items-center justify-between text-[9px] text-slate-400 pt-1 border-t border-slate-200">
+      <div className="flex items-center justify-between text-[8px] text-slate-400 pt-1 border-t border-slate-200">
         <span>تم إصدار هذا التقرير آلياً من قاعدة البيانات السحابية (Neon) بتاريخ {new Date().toLocaleString("ar-EG")}</span>
         <span>إجمالي السجلات: {recordCount}</span>
       </div>
@@ -2062,7 +2073,7 @@ export default function Home() {
       )}
 
       {printReportType === "plan" && (
-        <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent" style={{ page: "report-landscape" } as React.CSSProperties}>
+        <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2126,7 +2137,7 @@ export default function Home() {
       )}
 
       {printReportType === "breakage" && (
-        <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent" style={{ page: "report-landscape" } as React.CSSProperties}>
+        <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
@@ -2201,7 +2212,7 @@ export default function Home() {
       )}
 
       {printReportType === "request" && selectedRequestForPrint && (
-        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible" style={{ page: "request-landscape" } as React.CSSProperties}>
+        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible">
           <PrintStylesheet />
           <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
@@ -2226,7 +2237,7 @@ export default function Home() {
 
           <div 
             id="printable-request-area" 
-            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-4 print:m-0 print:p-2 print:border-none print:shadow-none overflow-hidden"
+            className="printable-report relative bg-white w-full max-w-3xl p-6 rounded-b-2xl shadow-2xl border-2 border-slate-900 space-y-3 print:m-0 print:p-2 print:border-none print:shadow-none overflow-hidden"
             dir="rtl"
           >
             <ReportLetterhead
@@ -2236,7 +2247,7 @@ export default function Home() {
               rightMeta={[`المادة: ${selectedRequestForPrint.subject}`, `العام الدراسي: ${selectedRequestForPrint.academicYear}`, `التاريخ: ${selectedRequestForPrint.date}`]}
             />
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs print:bg-slate-50">
+            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-2.5 rounded-lg border border-slate-300 text-xs print:bg-slate-50">
               <div>
                 <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
                 <p className="mt-1"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
@@ -2250,25 +2261,25 @@ export default function Home() {
             </div>
 
             <div>
-              <h4 className="font-bold text-xs text-slate-900 mb-1.5">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
+              <h4 className="font-bold text-xs text-slate-900 mb-1">1. أدوات ومواد عهدة المختبر المصروفة:</h4>
               <table className="report-table w-full text-right text-xs border border-slate-300">
                 <thead className="bg-slate-100 border-b border-slate-300 text-slate-800 font-bold">
                   <tr>
-                    <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
-                    <th className="p-2 border-l border-slate-300">اسم المادة / الأداة / الجهاز</th>
-                    <th className="p-2 border-l border-slate-300 text-center">الكمية المصروفة</th>
-                    <th className="p-2 border-l border-slate-300 text-center">نوع البند</th>
-                    <th className="p-2 text-center">حالة الإرجاع والاستهلاك</th>
+                    <th className="p-1.5 border-l border-slate-300 text-center w-8">م</th>
+                    <th className="p-1.5 border-l border-slate-300">اسم المادة / الأداة / الجهاز</th>
+                    <th className="p-1.5 border-l border-slate-300 text-center">الكمية المصروفة</th>
+                    <th className="p-1.5 border-l border-slate-300 text-center">نوع البند</th>
+                    <th className="p-1.5 text-center">حالة الإرجاع والاستهلاك</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-300">
                   {selectedRequestForPrint.items.map((it, idx) => (
                     <tr key={idx} className="report-row">
-                      <td className="p-2 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
-                      <td className="p-2 border-l border-slate-300 font-semibold">{it.itemName}</td>
-                      <td className="p-2 border-l border-slate-300 text-center font-bold text-slate-900">{it.quantity} {it.unit}</td>
-                      <td className="p-2 border-l border-slate-300 text-center">{it.nature === "consumable" ? "مستهلك (كيماويات)" : "عهدة مستردة"}</td>
-                      <td className="p-2 text-center text-slate-600">{it.nature === "consumable" ? "خُصم من الرصيد" : "يُعاد سليماً بعد الحصة"}</td>
+                      <td className="p-1.5 border-l border-slate-300 text-center font-bold">{idx + 1}</td>
+                      <td className="p-1.5 border-l border-slate-300 font-semibold">{it.itemName}</td>
+                      <td className="p-1.5 border-l border-slate-300 text-center font-bold text-slate-900">{it.quantity} {it.unit}</td>
+                      <td className="p-1.5 border-l border-slate-300 text-center">{it.nature === "consumable" ? "مستهلك (كيماويات)" : "عهدة مستردة"}</td>
+                      <td className="p-1.5 text-center text-slate-600">{it.nature === "consumable" ? "خُصم من الرصيد" : "يُعاد سليماً بعد الحصة"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -2277,23 +2288,23 @@ export default function Home() {
 
             {selectedRequestForPrint.procurements?.length > 0 && (
               <div>
-                <h4 className="font-bold text-xs text-slate-900 mb-1.5">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
+                <h4 className="font-bold text-xs text-slate-900 mb-1">2. عينات ومواد تم توفيرها للتجربة (شراء خارجي):</h4>
                 <table className="report-table w-full text-right text-xs border border-slate-300">
                   <thead className="bg-emerald-50 border-b border-slate-300 text-emerald-900 font-bold">
                     <tr>
-                      <th className="p-2 border-l border-slate-300 text-center w-10">م</th>
-                      <th className="p-2 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
-                      <th className="p-2 border-l border-slate-300 text-center">الكمية المطلوبة</th>
-                      <th className="p-2 text-center">جهة التأمين والتوفير</th>
+                      <th className="p-1.5 border-l border-slate-300 text-center w-8">م</th>
+                      <th className="p-1.5 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
+                      <th className="p-1.5 border-l border-slate-300 text-center">الكمية المطلوبة</th>
+                      <th className="p-1.5 text-center">جهة التأمين والتوفير</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-300">
                     {selectedRequestForPrint.procurements.map((prc, pidx) => (
                       <tr key={pidx} className="report-row">
-                        <td className="p-2 border-l border-slate-300 text-center font-bold">{pidx + 1}</td>
-                        <td className="p-2 border-l border-slate-300 font-semibold">{prc.name}</td>
-                        <td className="p-2 border-l border-slate-300 text-center font-bold">{prc.quantity}</td>
-                        <td className="p-2 text-center text-slate-700 font-medium">{prc.providedBy}</td>
+                        <td className="p-1.5 border-l border-slate-300 text-center font-bold">{pidx + 1}</td>
+                        <td className="p-1.5 border-l border-slate-300 font-semibold">{prc.name}</td>
+                        <td className="p-1.5 border-l border-slate-300 text-center font-bold">{prc.quantity}</td>
+                        <td className="p-1.5 text-center text-slate-700 font-medium">{prc.providedBy}</td>
                       </tr>
                     ))}
                   </tbody>
