@@ -2004,7 +2004,7 @@ export default function Home() {
 
       {/* --- تقارير الطباعة PDF --- */}
       {printReportType === "inventory" && (
-        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent" style={{ page: "inventory-landscape" } as React.CSSProperties}>
+        <div className="print-report report-inventory fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
           <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
