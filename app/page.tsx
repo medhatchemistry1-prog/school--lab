@@ -284,22 +284,21 @@ function ReportLetterhead({
       : { backgroundColor: "#0f172a", borderColor: "#1e293b", color: "#ffffff" };
 
   return (
-    <div className="mb-2 overflow-hidden rounded-t-xl border-2" style={{ borderColor: headerStyle.borderColor }}>
-      <div className="flex items-center justify-between gap-2 px-3 py-2" style={{ backgroundColor: headerStyle.backgroundColor, color: headerStyle.color }}>
-        <div className="text-right text-[9px] font-bold leading-tight min-w-[120px] opacity-95">
+    <div className="mb-2 overflow-hidden rounded-t-md border border-b-0" style={{ borderColor: headerStyle.borderColor }}>
+      <div className="flex items-center justify-between gap-2 px-2 py-1.5" style={{ backgroundColor: headerStyle.backgroundColor, color: headerStyle.color }}>
+        <div className="min-w-[120px] text-right text-[8px] font-bold leading-[1.2] opacity-95">
           <p>دولة الإمارات العربية المتحدة</p>
           <p>وزارة التربية والتعليم</p>
           <p>قسم المختبرات</p>
         </div>
 
-        <div className="flex flex-col items-center gap-0 flex-1">
-          <AtomLogo />
-          <h2 className={`text-xs font-black text-center -mt-0.5 ${titleColorClass}`} style={{ color: headerStyle.color }}>{title}</h2>
-          {subtitle && <p className="text-[8.5px] font-semibold text-center opacity-90" style={{ color: headerStyle.color }}>{subtitle}</p>}
-          <p className="text-[7.5px] font-mono opacity-90" style={{ color: headerStyle.color }}>كود التقرير: {reportCode}</p>
+        <div className="flex flex-1 flex-col items-center justify-center text-center">
+          <p className="text-[7px] font-mono opacity-90" style={{ color: headerStyle.color }}>كود التقرير: {reportCode}</p>
+          <h2 className={`text-[10px] font-black ${titleColorClass}`} style={{ color: headerStyle.color }}>{title}</h2>
+          {subtitle && <p className="text-[7.5px] font-semibold opacity-90" style={{ color: headerStyle.color }}>{subtitle}</p>}
         </div>
 
-        <div className="text-left text-[9px] font-bold leading-tight min-w-[120px] opacity-95">
+        <div className="min-w-[120px] text-left text-[8px] font-bold leading-[1.2] opacity-95">
           {rightMeta.map((line, i) => (
             <p key={i}>{line}</p>
           ))}
@@ -643,7 +642,7 @@ export default function Home() {
           <style>
             @page {
               size: A4 landscape;
-              margin: 6mm 8mm;
+              margin: 5mm 7mm;
             }
             html, body {
               margin: 0 !important;
@@ -671,10 +670,10 @@ export default function Home() {
               width: 100% !important;
               max-width: none !important;
               margin: 0 !important;
-              padding: 4mm 6mm !important;
+              padding: 2.5mm 4mm !important;
               background: #ffffff !important;
               box-shadow: none !important;
-              border: 2px solid #0f172a !important;
+              border: 1px solid #0f172a !important;
               border-radius: 0 !important;
               overflow: visible !important;
               page-break-inside: avoid !important;
@@ -685,7 +684,7 @@ export default function Home() {
               width: 100% !important;
               border-collapse: collapse !important;
               table-layout: auto !important;
-              font-size: 10.5px !important;
+              font-size: 9.5px !important;
               border: 1px solid #cbd5e1 !important;
               background-color: #ffffff !important;
             }
