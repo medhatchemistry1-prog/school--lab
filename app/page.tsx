@@ -135,6 +135,10 @@ function PrintStylesheet() {
           size: A4 landscape;
           margin: 6mm 8mm;
         }
+        @page request-landscape {
+          size: A4 landscape;
+          margin: 6mm 8mm;
+        }
         @media print {
           html, body {
             background: #ffffff !important;
@@ -159,6 +163,11 @@ function PrintStylesheet() {
             box-shadow: none !important;
             border: none !important;
             background: #ffffff !important;
+          }
+          .report-request .printable-report {
+            width: 100% !important;
+            max-width: none !important;
+            min-width: 0 !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
@@ -2205,7 +2214,7 @@ export default function Home() {
       )}
 
       {printReportType === "request" && selectedRequestForPrint && (
-        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible">
+        <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible" style={{ page: "request-landscape" } as React.CSSProperties}>
           <PrintStylesheet />
           <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
