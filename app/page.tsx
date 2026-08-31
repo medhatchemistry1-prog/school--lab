@@ -601,10 +601,8 @@ export default function Home() {
     setPrintReportType(type);
   };
 
-  const handlePrintRequest = () => {
-    if (!selectedRequestForPrint) return;
-
-    const reportNode = document.getElementById('printable-request-area');
+  const printReportToPdf = (reportId: string, title: string) => {
+    const reportNode = document.getElementById(reportId);
     if (!reportNode) {
       window.print();
       return;
@@ -620,11 +618,11 @@ export default function Home() {
     clone.style.background = '#ffffff';
     clone.style.border = 'none';
     clone.style.boxShadow = 'none';
-
+    clone.removeAttribute('id');
     clone.className = 'printable-report';
 
     const wrapper = document.createElement('div');
-    wrapper.className = 'print-report report-request';
+    wrapper.className = 'print-report';
     wrapper.appendChild(clone);
 
     const printMarkup = `
@@ -633,13 +631,50 @@ export default function Home() {
         <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>ورقة تحضير مختبر</title>
+          <title>${title}</title>
           <style>
-            ${document.querySelector('style[data-print-styles]')?.innerHTML || ''}
+            @page {
+              size: A4 landscape;
+              margin: 6mm 8mm;
+            }
+            html, body {
+              margin: 0 !important;
+              padding: 0 !important;
+              width: 100% !important;
+              height: auto !important;
+              background: #ffffff !important;
+              color: #0f172a !important;
+              font-family: Arial, sans-serif !important;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            * { box-sizing: border-box !important; }
+            body {
+              background: #ffffff !important;
+              overflow: visible !important;
+            }
+            .print-report {
+              display: block !important;
+              width: 100% !important;
+              background: #ffffff !important;
+            }
+            .printable-report {
+              display: block !important;
+              width: 100% !important;
+              max-width: none !important;
+              margin: 0 !important;
+              padding: 4mm 6mm !important;
+              background: #ffffff !important;
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              overflow: visible !important;
+            }
             .report-table {
               display: table !important;
-              border-collapse: collapse !important;
               width: 100% !important;
+              border-collapse: collapse !important;
+              table-layout: auto !important;
               font-size: 10.5px !important;
               border: 1px solid #cbd5e1 !important;
             }
@@ -651,17 +686,19 @@ export default function Home() {
               display: table-cell !important;
               padding: 4px 5px !important;
               border: 1px solid #cbd5e1 !important;
+              line-height: 1.4 !important;
+              vertical-align: top !important;
             }
             .report-row {
               display: table-row !important;
               break-inside: avoid !important;
+              page-break-inside: avoid !important;
             }
             .report-row:nth-child(even) {
               background-color: #f8fafc !important;
             }
-            .printable-report {
-              display: block !important;
-              padding: 4mm 6mm !important;
+            .printable-report > div:first-child {
+              margin-top: 0 !important;
             }
           </style>
         </head>
@@ -678,7 +715,7 @@ export default function Home() {
     }
 
     const previousTitle = document.title;
-    document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
+    document.title = title;
 
     printWindow.document.open();
     printWindow.document.write(printMarkup);
@@ -689,7 +726,12 @@ export default function Home() {
       printWindow.print();
       printWindow.close();
       document.title = previousTitle;
-    }, 500);
+    }, 450);
+  };
+
+  const handlePrintRequest = () => {
+    if (!selectedRequestForPrint) return;
+    printReportToPdf('printable-request-area', `طلب-تحضير-${selectedRequestForPrint.id}`);
   };
 
   const handleUndoLastBreakage = async () => {
@@ -2179,13 +2221,13 @@ export default function Home() {
                 </label>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={() => printReportToPdf('printable-inventory-area', 'تقرير-جرد-المختبرات')} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div className="printable-report relative mt-6 print:mt-0 border-2 border-slate-800 print:border print:border-slate-800 p-6 rounded-xl overflow-hidden" dir="rtl">
+            <div id="printable-inventory-area" className="printable-report relative mt-6 print:mt-0 border-2 border-slate-800 print:border print:border-slate-800 p-6 rounded-xl overflow-hidden" dir="rtl">
               <div className="relative">
                 <ReportLetterhead
                   reportCode={`INV-${selectedAcademicYear}`}
@@ -2234,13 +2276,13 @@ export default function Home() {
             <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <h3 className="font-bold text-slate-900 text-lg">معاينة الخطة التشغيلية للمختبرات</h3>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={() => printReportToPdf('printable-plan-area', 'تقرير-الخطة-التشغيلية')} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div className="printable-report relative mt-6 print:mt-0 border-2 border-teal-800 print:border print:border-teal-800 p-6 rounded-xl overflow-hidden" dir="rtl">
+            <div id="printable-plan-area" className="printable-report relative mt-6 print:mt-0 border-2 border-teal-800 print:border print:border-teal-800 p-6 rounded-xl overflow-hidden" dir="rtl">
               <div className="relative">
                 <ReportLetterhead
                   reportCode={`PLAN-${selectedAcademicYear}-W${selectedWeek}`}
@@ -2309,13 +2351,13 @@ export default function Home() {
                 </select>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={() => printReportToPdf('printable-breakage-area', 'تقرير-الكسر-والتلف')} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
               </div>
             </div>
-            <div className="printable-report relative mt-6 print:mt-0 border-2 border-rose-900 print:border print:border-rose-900 p-6 rounded-xl overflow-hidden" dir="rtl">
+            <div id="printable-breakage-area" className="printable-report relative mt-6 print:mt-0 border-2 border-rose-900 print:border print:border-rose-900 p-6 rounded-xl overflow-hidden" dir="rtl">
               <div className="relative">
                 <ReportLetterhead
                   reportCode={`BRK-${new Date().toISOString().split("T")[0]}`}
