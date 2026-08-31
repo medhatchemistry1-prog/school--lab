@@ -628,10 +628,6 @@ export default function Home() {
     clone.removeAttribute('id');
     clone.className = 'printable-report';
 
-    const wrapper = document.createElement('div');
-    wrapper.className = 'print-report';
-    wrapper.appendChild(clone);
-
     const printMarkup = `
       <!doctype html>
       <html dir="rtl" lang="ar">
@@ -642,78 +638,125 @@ export default function Home() {
           <style>
             @page {
               size: A4 landscape;
-              margin: 5mm 7mm;
+              margin: 6mm 7mm;
             }
+
+            :root {
+              --page-bg: #ffffff;
+              --ink: #0f172a;
+              --muted: #475569;
+              --line: #cbd5e1;
+              --header: #0f172a;
+            }
+
+            * {
+              box-sizing: border-box !important;
+            }
+
             html, body {
               margin: 0 !important;
               padding: 0 !important;
               width: 100% !important;
-              height: auto !important;
-              background: #ffffff !important;
-              color: #0f172a !important;
+              min-height: 100% !important;
+              background: var(--page-bg) !important;
+              color: var(--ink) !important;
               font-family: Arial, sans-serif !important;
-              -webkit-print-color-adjust: exact;
-              print-color-adjust: exact;
+              -webkit-print-color-adjust: exact !important;
+              print-color-adjust: exact !important;
             }
-            * { box-sizing: border-box !important; }
+
             body {
               background: #ffffff !important;
               overflow: visible !important;
             }
-            .print-report {
+
+            .print-page {
               display: block !important;
               width: 100% !important;
               background: #ffffff !important;
             }
+
             .printable-report {
               display: block !important;
               width: 100% !important;
               max-width: none !important;
               margin: 0 !important;
-              padding: 2.2mm 3.5mm !important;
+              padding: 3mm 4mm !important;
               background: #ffffff !important;
-              box-shadow: none !important;
-              border: 1px solid #0f172a !important;
+              border: none !important;
               border-radius: 0 !important;
+              box-shadow: none !important;
               overflow: visible !important;
               page-break-inside: avoid !important;
               break-inside: avoid !important;
             }
+
+            .printable-report > * {
+              display: block !important;
+            }
+
             .report-table {
               display: table !important;
               width: 100% !important;
               border-collapse: collapse !important;
               table-layout: auto !important;
               font-size: 9px !important;
-              border: 1px solid #cbd5e1 !important;
-              background-color: #ffffff !important;
+              line-height: 1.35 !important;
+              border: 1px solid var(--line) !important;
+              background: #ffffff !important;
             }
-            .report-table thead {
-              display: table-header-group !important;
-            }
+
+            .report-table thead,
+            .report-table tbody,
+            .report-table tr,
             .report-table th,
             .report-table td {
-              display: table-cell !important;
-              padding: 4px 5px !important;
-              border: 1px solid #cbd5e1 !important;
-              line-height: 1.4 !important;
-              vertical-align: top !important;
+              display: revert !important;
             }
+
+            .report-table th,
+            .report-table td {
+              padding: 4px 5px !important;
+              border: 1px solid var(--line) !important;
+              vertical-align: top !important;
+              text-align: right !important;
+              word-wrap: break-word !important;
+            }
+
+            .report-table thead th {
+              background: var(--header) !important;
+              color: #ffffff !important;
+              font-weight: 700 !important;
+            }
+
             .report-row {
-              display: table-row !important;
               break-inside: avoid !important;
               page-break-inside: avoid !important;
             }
+
             .report-row:nth-child(even) {
-              background-color: #f8fafc !important;
+              background: #f8fafc !important;
             }
+
+            .report-header {
+              order: 1 !important;
+            }
+
+            .report-table {
+              order: 2 !important;
+            }
+
+            .report-footer {
+              order: 3 !important;
+            }
+
             .printable-report > div:first-child {
               margin-top: 0 !important;
             }
           </style>
         </head>
         <body>
-          ${wrapper.outerHTML}
+          <div class="print-page">${clone.outerHTML}</div>
         </body>
       </html>
     `;
@@ -736,7 +779,7 @@ export default function Home() {
       printWindow.print();
       printWindow.close();
       document.title = previousTitle;
-    }, 450);
+    }, 500);
   };
 
   const handlePrintRequest = () => {
