@@ -120,10 +120,13 @@ function AtomLogo() {
   );
 }
 
-// ===================== تعديل PrintStylesheet =====================
+// ============================================================
+//          PRINT STYLESHEET مُحسَّن بشكل كبير
+// ============================================================
 function PrintStylesheet() {
   return (
     <style
+      data-print-styles
       dangerouslySetInnerHTML={{
         __html: `
         @page {
@@ -131,7 +134,7 @@ function PrintStylesheet() {
           margin: 5mm 8mm;
         }
         @media print {
-          *, *:before, *:after {
+          * {
             box-sizing: border-box !important;
           }
           html, body {
@@ -150,11 +153,8 @@ function PrintStylesheet() {
           }
 
           .print-report {
-            position: static !important;
-            inset: auto !important;
             display: block !important;
             width: 100% !important;
-            min-height: 0 !important;
             height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
@@ -171,9 +171,7 @@ function PrintStylesheet() {
           }
 
           .printable-report {
-            position: static !important;
-            left: auto !important;
-            top: auto !important;
+            display: block !important;
             width: 100% !important;
             max-width: none !important;
             height: auto !important;
@@ -186,51 +184,75 @@ function PrintStylesheet() {
             page-break-inside: avoid !important;
             break-inside: avoid !important;
             overflow: visible !important;
-            font-size: 10.5px !important;
+            font-size: 11px !important;
           }
 
-          .report-row {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
+          /* جداول التقرير */
+          .report-table {
+            display: table !important;
+            border-collapse: collapse !important;
+            width: 100% !important;
+            font-size: 10.5px !important;
+            table-layout: auto !important;
+            border: 1px solid #cbd5e1 !important;
           }
 
           .report-table thead {
             display: table-header-group !important;
           }
 
-          .report-table {
-            border-collapse: collapse !important;
-            width: 100% !important;
-            font-size: 10.5px !important;
-            table-layout: auto !important;
-          }
-
-          .report-table th, .report-table td {
-            padding: 3px 4px !important;
-            line-height: 1.3 !important;
+          .report-table th,
+          .report-table td {
+            display: table-cell !important;
+            padding: 4px 5px !important;
+            line-height: 1.4 !important;
             word-wrap: break-word !important;
+            border: 1px solid #cbd5e1 !important;
           }
 
+          .report-table th {
+            background-color: #1e293b !important;
+            color: #ffffff !important;
+            font-weight: bold !important;
+          }
+
+          .report-row {
+            display: table-row !important;
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+
+          .report-row:nth-child(even) {
+            background-color: #f8fafc !important;
+          }
+
+          /* ترويسة وتذييل */
           .printable-report > div:first-child {
             margin-top: 0 !important;
           }
 
-          /* منع الصفحات البيضاء في استمارة التحضير */
-          .report-request .printable-report {
-            padding: 4mm 6mm !important;
+          /* منع الصفحات البيضاء */
+          .printable-report,
+          .report-row,
+          .report-table {
             page-break-after: avoid !important;
             break-after: avoid !important;
+          }
+
+          .no-print {
+            display: none !important;
+          }
+
+          /* ضمان ظهور كل المحتوى في استمارة التحضير */
+          .report-request .printable-report {
+            padding: 3mm 5mm !important;
           }
           .report-request .report-table {
             font-size: 10.5px !important;
           }
           .report-request .report-table th,
           .report-request .report-table td {
-            padding: 2px 4px !important;
-          }
-
-          .no-print {
-            display: none !important;
+            padding: 3px 4px !important;
           }
         }
       `,
@@ -238,7 +260,7 @@ function PrintStylesheet() {
     />
   );
 }
-// ================================================================
+// ============================================================
 
 function ReportLetterhead({
   reportCode,
@@ -582,12 +604,6 @@ export default function Home() {
   const handlePrintRequest = () => {
     if (!selectedRequestForPrint) return;
 
-    const printWindow = window.open('', '_blank', 'width=1200,height=900');
-    if (!printWindow) {
-      window.print();
-      return;
-    }
-
     const reportNode = document.getElementById('printable-request-area');
     if (!reportNode) {
       window.print();
@@ -605,6 +621,12 @@ export default function Home() {
     clone.style.border = 'none';
     clone.style.boxShadow = 'none';
 
+    clone.className = 'printable-report';
+
+    const wrapper = document.createElement('div');
+    wrapper.className = 'print-report report-request';
+    wrapper.appendChild(clone);
+
     const printMarkup = `
       <!doctype html>
       <html dir="rtl" lang="ar">
@@ -613,48 +635,51 @@ export default function Home() {
           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
           <title>ورقة تحضير مختبر</title>
           <style>
-            @page {
-              size: A4 landscape;
-              margin: 5mm 8mm;
-            }
-            html, body {
-              margin: 0;
-              padding: 0;
-              background: #ffffff;
-              color: #0f172a;
-              font-family: Arial, sans-serif;
-            }
-            * { box-sizing: border-box; }
-            body { padding: 0; }
+            ${document.querySelector('style[data-print-styles]')?.innerHTML || ''}
             .report-table {
-              width: 100%;
-              border-collapse: collapse;
-              table-layout: auto;
-              font-size: 10.5px;
+              display: table !important;
+              border-collapse: collapse !important;
+              width: 100% !important;
+              font-size: 10.5px !important;
+              border: 1px solid #cbd5e1 !important;
             }
-            th, td {
-              padding: 3px 4px;
-              line-height: 1.3;
-              vertical-align: top;
-              word-wrap: break-word;
+            .report-table thead {
+              display: table-header-group !important;
             }
-            .report-row { break-inside: avoid; page-break-inside: avoid; }
-            .report-table thead { display: table-header-group; }
+            .report-table th,
+            .report-table td {
+              display: table-cell !important;
+              padding: 4px 5px !important;
+              border: 1px solid #cbd5e1 !important;
+            }
+            .report-row {
+              display: table-row !important;
+              break-inside: avoid !important;
+            }
+            .report-row:nth-child(even) {
+              background-color: #f8fafc !important;
+            }
             .printable-report {
-              padding: 4mm 6mm;
-              page-break-after: avoid;
-              break-after: avoid;
+              display: block !important;
+              padding: 4mm 6mm !important;
             }
           </style>
         </head>
         <body>
-          ${clone.outerHTML}
+          ${wrapper.outerHTML}
         </body>
       </html>
     `;
 
+    const printWindow = window.open('', '_blank', 'width=1200,height=900');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+
     const previousTitle = document.title;
     document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
+
     printWindow.document.open();
     printWindow.document.write(printMarkup);
     printWindow.document.close();
@@ -664,7 +689,7 @@ export default function Home() {
       printWindow.print();
       printWindow.close();
       document.title = previousTitle;
-    }, 300);
+    }, 500);
   };
 
   const handleUndoLastBreakage = async () => {
