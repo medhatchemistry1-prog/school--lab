@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 8mm 10mm;
+          margin: 10mm 12mm;
         }
         @media print {
           html, body {
@@ -135,79 +135,56 @@ function PrintStylesheet() {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
+            height: 100% !important;
+            overflow: hidden !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body {
-            display: block !important;
-          }
-          .print-report {
-            position: static !important;
-            left: auto !important;
-            top: auto !important;
-            right: auto !important;
-            bottom: auto !important;
-            width: 100% !important;
-            max-width: none !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
+          body * { visibility: hidden !important; }
+          .printable-report, .printable-report * { visibility: visible !important; }
           .printable-report {
-            position: static !important;
-            left: auto !important;
-            top: auto !important;
-            right: auto !important;
-            bottom: auto !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            margin: 0 auto !important;
             width: 100% !important;
             max-width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
+            padding: 6mm 8mm !important;
+            box-sizing: border-box !important;
             background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
-            overflow: visible !important;
+            zoom: 92% !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
             page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-          .print-report,
-          .printable-report,
-          .printable-report *,
-          .report-table,
-          .report-table *,
-          .report-row {
-            visibility: visible !important;
-            color: #0f172a !important;
-            background: transparent !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 8.5px !important;
+            font-size: 9px !important;
             table-layout: auto !important;
           }
           .report-table th, .report-table td {
-            padding: 2px 3px !important;
-            line-height: 1.1 !important;
+            padding: 3px 4px !important;
+            line-height: 1.15 !important;
             word-wrap: break-word !important;
-            color: #0f172a !important;
           }
-          .no-print,
-          .print-report > :not(.printable-report) {
-            display: none !important;
+          .print-report {
+            position: static !important;
+            width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            display: block !important;
+            overflow: visible !important;
           }
+          .no-print { display: none !important; }
         }
       `,
       }}
