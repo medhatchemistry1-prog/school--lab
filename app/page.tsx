@@ -2499,16 +2499,34 @@ export default function Home() {
               rightMeta={[`المادة: ${selectedRequestForPrint.subject}`, `العام الدراسي: ${selectedRequestForPrint.academicYear}`, `التاريخ: ${selectedRequestForPrint.date}`]}
             />
 
-            <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3 rounded-lg border border-slate-300 text-xs">
-              <div>
-                <p><span className="font-bold text-slate-900">المعلم المنفذ:</span> {selectedRequestForPrint.teacherName}</p>
-                <p className="mt-1.5"><span className="font-bold text-slate-900">المادة المقررة:</span> {selectedRequestForPrint.subject}</p>
-                <p className="mt-1.5"><span className="font-bold text-slate-900">الصف والشعبة:</span> {selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</p>
+            <div className="report-meta-bar">
+              <div className="flex flex-col gap-1.5">
+                <div className="meta-block">
+                  <span className="meta-label">معلم المنفذ:</span>
+                  <span>{selectedRequestForPrint.teacherName}</span>
+                </div>
+                <div className="meta-block">
+                  <span className="meta-label">المادة المقررة:</span>
+                  <span>{selectedRequestForPrint.subject}</span>
+                </div>
+                <div className="meta-block">
+                  <span className="meta-label">الصف والشعبة:</span>
+                  <span>{selectedRequestForPrint.grade} ({selectedRequestForPrint.track}) - شعبة {selectedRequestForPrint.section}</span>
+                </div>
               </div>
-              <div>
-                <p><span className="font-bold text-slate-900">أمين المختبر المشرف:</span> {selectedRequestForPrint.labTechnician}</p>
-                <p className="mt-1.5"><span className="font-bold text-slate-900">الحصة:</span> {selectedRequestForPrint.period}</p>
-                <p className="mt-1.5"><span className="font-bold text-slate-900">عنوان التجربة:</span> {selectedRequestForPrint.experimentTitle}</p>
+              <div className="flex flex-col gap-1.5">
+                <div className="meta-block">
+                  <span className="meta-label">أمين المختبر المشرف:</span>
+                  <span>{selectedRequestForPrint.labTechnician}</span>
+                </div>
+                <div className="meta-block">
+                  <span className="meta-label">الحصة:</span>
+                  <span>{selectedRequestForPrint.period}</span>
+                </div>
+                <div className="meta-block">
+                  <span className="meta-label">عنوان التجربة:</span>
+                  <span>{selectedRequestForPrint.experimentTitle}</span>
+                </div>
               </div>
             </div>
 
