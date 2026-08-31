@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 10mm 12mm;
+          margin: 10mm 15mm;
         }
         @media print {
           html, body {
@@ -135,8 +135,7 @@ function PrintStylesheet() {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
+            height: 100% !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
@@ -146,25 +145,30 @@ function PrintStylesheet() {
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
+            right: 0 !important;
             width: 100% !important;
-            height: auto !important;
-            max-width: none !important;
-            max-height: none !important;
+            max-width: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
+            box-sizing: border-box !important;
+            background: #ffffff !important;
             box-shadow: none !important;
             border: none !important;
-            background: #ffffff !important;
-            box-sizing: border-box !important;
-            page-break-after: avoid !important;
-            page-break-before: avoid !important;
-            page-break-inside: avoid !important;
             overflow: visible !important;
           }
           .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
           .report-table thead { display: table-header-group !important; }
-          .report-table { border-collapse: collapse !important; width: 100% !important; font-size: 9.5px !important; }
-          .report-table th, .report-table td { padding: 3px 5px !important; line-height: 1.2 !important; }
+          .report-table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            font-size: 9.5px !important;
+            table-layout: auto !important;
+          }
+          .report-table th, .report-table td {
+            padding: 3px 5px !important;
+            line-height: 1.2 !important;
+            word-wrap: break-word !important;
+          }
           .print-report {
             position: static !important;
             width: 100% !important;
@@ -175,6 +179,7 @@ function PrintStylesheet() {
             display: block !important;
             overflow: visible !important;
           }
+          .no-print { display: none !important; }
         }
       `,
       }}
@@ -223,14 +228,14 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-4 pt-2 border-t border-slate-300 space-y-1">
+    <div className="mt-3 pt-2 border-t border-slate-300 space-y-1">
       <div className="grid grid-cols-2 gap-8 text-center text-[10px]">
         <div>
-          <p className="font-bold text-slate-900 mb-4">توقيع أمين المختبر</p>
+          <p className="font-bold text-slate-900 mb-3">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-4">اعتماد قسم المختبرات</p>
+          <p className="font-bold text-slate-900 mb-3">اعتماد قسم المختبرات</p>
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
