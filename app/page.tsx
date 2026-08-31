@@ -666,9 +666,11 @@ export default function Home() {
               padding: 4mm 6mm !important;
               background: #ffffff !important;
               box-shadow: none !important;
-              border: none !important;
+              border: 2px solid #0f172a !important;
               border-radius: 0 !important;
               overflow: visible !important;
+              page-break-inside: avoid !important;
+              break-inside: avoid !important;
             }
             .report-table {
               display: table !important;
@@ -677,6 +679,7 @@ export default function Home() {
               table-layout: auto !important;
               font-size: 10.5px !important;
               border: 1px solid #cbd5e1 !important;
+              background-color: #ffffff !important;
             }
             .report-table thead {
               display: table-header-group !important;
