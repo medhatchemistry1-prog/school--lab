@@ -52,7 +52,7 @@ interface RequestedItemEntry {
 interface ProcurementItem {
   name: string;
   quantity: string;
-  providedBy: "أمين المختبر / المدرسة" | "المعلم" | "الطلاب";
+  providedBy: "أمين المختبر" | "المعلم" | "الطلاب";
 }
 
 interface PrepRequest {
@@ -201,7 +201,7 @@ function ReportLetterhead({
       <div className="text-right text-[10px] font-bold text-slate-600 leading-relaxed min-w-[140px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
-        <p>مدرسة خالد بن الوليد</p>
+        <p>قسم المختبرات</p>
       </div>
 
       <div className="flex flex-col items-center gap-0.5 flex-1">
@@ -229,7 +229,7 @@ function ReportFooter({ recordCount }: { recordCount: number }) {
           <p className="text-slate-400">..............................</p>
         </div>
         <div>
-          <p className="font-bold text-slate-900 mb-6">اعتماد إدارة المدرسة</p>
+          <p className="font-bold text-slate-900 mb-6">اعتماد قسم المختبرات</p>
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
@@ -342,7 +342,7 @@ export default function Home() {
   const [procurementList, setProcurementList] = useState<ProcurementItem[]>([]);
   const [newProcureName, setNewProcureName] = useState("");
   const [newProcureQty, setNewProcureQty] = useState("");
-  const [newProcureProvidedBy, setNewProcureProvidedBy] = useState<"أمين المختبر / المدرسة" | "المعلم" | "الطلاب">("أمين المختبر / المدرسة");
+  const [newProcureProvidedBy, setNewProcureProvidedBy] = useState<"أمين المختبر" | "المعلم" | "الطلاب">("أمين المختبر");
 
   const [breakageForm, setBreakageForm] = useState({
     subject: "الكيمياء" as "الكيمياء" | "الفيزياء" | "الأحياء" | "العلوم العامة",
@@ -601,7 +601,7 @@ export default function Home() {
       if (dissect) suggestedItems.push({ itemId: dissect.id, quantity: "1" });
 
       if (title.includes("تشريح")) {
-        suggestedProcurements.push({ name: "قلب وكبد خروف طازج", quantity: "3 حبات", providedBy: "أمين المختبر / المدرسة" });
+        suggestedProcurements.push({ name: "قلب وكبد خروف طازج", quantity: "3 حبات", providedBy: "أمين المختبر" });
       }
       setAiSuggestionMsg("✨ اقتراح ذكي: تم اقتراح المجاهر، الصبغات، أدوات التشريح، وعينات الشراء المناسبة.");
     } 
@@ -679,7 +679,7 @@ export default function Home() {
     setProcurementList(prev => [...prev, { name: cleanName, quantity: cleanQty, providedBy: newProcureProvidedBy }]);
     setNewProcureName("");
     setNewProcureQty("");
-    setNewProcureProvidedBy("أمين المختبر / المدرسة");
+    setNewProcureProvidedBy("أمين المختبر");
     setErrorMsg("");
   };
 
@@ -1812,7 +1812,7 @@ export default function Home() {
                   <input type="text" placeholder="اسم العينة (قلب خروف)" value={newProcureName} onChange={(e) => setNewProcureName(e.target.value)} className="flex-1 text-xs p-1.5 bg-white border border-slate-300 rounded outline-none" />
                   <input type="text" placeholder="الكمية" value={newProcureQty} onChange={(e) => setNewProcureQty(e.target.value)} className="w-20 text-xs p-1.5 bg-white border border-slate-300 rounded outline-none text-center" />
                   <select value={newProcureProvidedBy} onChange={(e) => setNewProcureProvidedBy(e.target.value as any)} className="text-xs p-1.5 bg-white border border-slate-300 rounded outline-none">
-                    <option value="أمين المختبر / المدرسة">المدرسة</option><option value="المعلم">المعلم</option><option value="الطلاب">الطلاب</option>
+                    <option value="أمين المختبر">أمين المختبر</option><option value="المعلم">المعلم</option><option value="الطلاب">الطلاب</option>
                   </select>
                   <button type="button" onClick={handleAddProcurement} className="bg-emerald-700 text-white text-xs px-3 py-1.5 rounded font-bold">+ إضافة</button>
                 </div>
