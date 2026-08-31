@@ -285,20 +285,20 @@ function ReportLetterhead({
 
   return (
     <div className="mb-2 overflow-hidden rounded-t-md border border-b-0" style={{ borderColor: headerStyle.borderColor }}>
-      <div className="flex items-center justify-between gap-2 px-2 py-1.5" style={{ backgroundColor: headerStyle.backgroundColor, color: headerStyle.color }}>
-        <div className="min-w-[120px] text-right text-[8px] font-bold leading-[1.2] opacity-95">
+      <div className="flex items-center justify-between gap-2 px-2 py-1" style={{ backgroundColor: headerStyle.backgroundColor, color: headerStyle.color }}>
+        <div className="min-w-[120px] text-right text-[7.5px] font-bold leading-[1.15] opacity-95">
           <p>دولة الإمارات العربية المتحدة</p>
           <p>وزارة التربية والتعليم</p>
           <p>قسم المختبرات</p>
         </div>
 
         <div className="flex flex-1 flex-col items-center justify-center text-center">
-          <p className="text-[7px] font-mono opacity-90" style={{ color: headerStyle.color }}>كود التقرير: {reportCode}</p>
-          <h2 className={`text-[10px] font-black ${titleColorClass}`} style={{ color: headerStyle.color }}>{title}</h2>
-          {subtitle && <p className="text-[7.5px] font-semibold opacity-90" style={{ color: headerStyle.color }}>{subtitle}</p>}
+          <p className="text-[6.8px] font-mono opacity-90" style={{ color: headerStyle.color }}>كود التقرير: {reportCode}</p>
+          <h2 className={`text-[9.5px] font-black ${titleColorClass}`} style={{ color: headerStyle.color }}>{title}</h2>
+          {subtitle && <p className="text-[7px] font-semibold opacity-90" style={{ color: headerStyle.color }}>{subtitle}</p>}
         </div>
 
-        <div className="min-w-[120px] text-left text-[8px] font-bold leading-[1.2] opacity-95">
+        <div className="min-w-[120px] text-left text-[7.5px] font-bold leading-[1.15] opacity-95">
           {rightMeta.map((line, i) => (
             <p key={i}>{line}</p>
           ))}
@@ -670,7 +670,7 @@ export default function Home() {
               width: 100% !important;
               max-width: none !important;
               margin: 0 !important;
-              padding: 2.5mm 4mm !important;
+              padding: 2.2mm 3.5mm !important;
               background: #ffffff !important;
               box-shadow: none !important;
               border: 1px solid #0f172a !important;
@@ -684,7 +684,7 @@ export default function Home() {
               width: 100% !important;
               border-collapse: collapse !important;
               table-layout: auto !important;
-              font-size: 9.5px !important;
+              font-size: 9px !important;
               border: 1px solid #cbd5e1 !important;
               background-color: #ffffff !important;
             }
