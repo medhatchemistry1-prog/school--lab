@@ -108,13 +108,13 @@ const SEMESTERS_LIST = ["الفصل الدراسي الأول", "الفصل ال
 
 function AtomLogo() {
   return (
-    <div className="relative flex h-10 w-10 items-center justify-center">
-      <div className="absolute h-8 w-8 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
-      <div className="absolute h-6 w-6 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
-      <div className="absolute h-9 w-9 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
+    <div className="relative flex h-9 w-9 items-center justify-center">
+      <div className="absolute h-7 w-7 rounded-full border border-cyan-200/80" style={{ transform: "rotate(18deg)" }} />
+      <div className="absolute h-5 w-5 rounded-full border border-indigo-200/90" style={{ transform: "rotate(-24deg)" }} />
+      <div className="absolute h-8 w-8 rounded-full border border-sky-200/70" style={{ transform: "rotate(32deg)" }} />
       <div className="absolute h-1.5 w-1.5 rounded-full bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-500 shadow-[0_0_8px_rgba(251,191,36,0.8)]" />
       <div className="absolute text-blue-600">
-        <Atom className="h-3.5 w-3.5 drop-shadow-[0_0_5px_rgba(37,99,235,0.7)]" />
+        <Atom className="h-3 w-3 drop-shadow-[0_0_5px_rgba(37,99,235,0.7)]" />
       </div>
     </div>
   );
@@ -127,114 +127,68 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 8mm 10mm;
+          margin: 6mm 8mm;
         }
         @media print {
+          *, *:before, *:after {
+            box-sizing: border-box !important;
+          }
           html, body {
             background: #ffffff !important;
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: auto !important;
-            overflow: visible !important;
+            height: 100% !important;
+            overflow: hidden !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-
-          body {
-            display: block !important;
-          }
-
-          body > *:not(.print-report) {
-            display: none !important;
-          }
-
-          .print-report {
-            position: static !important;
-            inset: auto !important;
-            display: block !important;
-            width: 100% !important;
-            max-width: none !important;
-            height: auto !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-            overflow: visible !important;
-            page-break-inside: avoid !important;
-            break-inside: avoid !important;
-          }
-
-          .report-preview-shell {
-            display: block !important;
-            width: 100% !important;
+          body * { visibility: hidden !important; }
+          .printable-report, .printable-report * { visibility: visible !important; }
+          .printable-report {
+            position: fixed !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100vw !important;
+            height: 100vh !important;
             max-width: none !important;
             max-height: none !important;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 0 !important;
             margin: 0 !important;
-            overflow: visible !important;
-          }
-
-          .report-preview-header {
-            display: none !important;
-          }
-
-          .printable-report {
-            display: block !important;
-            position: static !important;
-            width: 100% !important;
-            max-width: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
+            padding: 4mm 6mm !important;
             background: #ffffff !important;
-            border: none !important;
             box-shadow: none !important;
-            overflow: visible !important;
+            border: none !important;
+            page-break-after: avoid !important;
+            page-break-before: avoid !important;
             page-break-inside: avoid !important;
-            break-inside: avoid !important;
+            overflow: hidden !important;
           }
-
-          .printable-report,
-          .printable-report *,
-          .report-table,
-          .report-table *,
-          .report-row {
-            visibility: visible !important;
-            color: #0f172a !important;
-            background: transparent !important;
-          }
-
-          .report-row {
-            break-inside: avoid !important;
-            page-break-inside: avoid !important;
-          }
-
-          .report-table thead {
-            display: table-header-group !important;
-          }
-
+          .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
+          .report-table thead { display: table-header-group !important; }
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 8.5px !important;
+            font-size: 8px !important;
             table-layout: auto !important;
           }
-
-          .report-table th,
-          .report-table td {
+          .report-table th, .report-table td {
             padding: 2px 3px !important;
             line-height: 1.1 !important;
             word-wrap: break-word !important;
-            color: #0f172a !important;
           }
-
-          .no-print {
-            display: none !important;
+          .print-report {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            background: #ffffff !important;
+            display: block !important;
+            overflow: hidden !important;
           }
+          .no-print { display: none !important; }
         }
       `,
       }}
@@ -258,8 +212,8 @@ function ReportLetterhead({
   titleColorClass?: string;
 }) {
   return (
-    <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-1.5 mb-2`}>
-      <div className="text-right text-[9px] font-bold text-slate-600 leading-tight min-w-[130px]">
+    <div className={`relative flex items-center justify-between gap-2 border-b-[2px] ${accentClass} pb-1 mb-2`}>
+      <div className="text-right text-[8.5px] font-bold text-slate-600 leading-tight min-w-[120px]">
         <p>دولة الإمارات العربية المتحدة</p>
         <p>وزارة التربية والتعليم</p>
         <p>قسم المختبرات</p>
@@ -268,11 +222,11 @@ function ReportLetterhead({
       <div className="flex flex-col items-center gap-0 flex-1">
         <AtomLogo />
         <h2 className={`text-xs font-black ${titleColorClass} text-center -mt-0.5`}>{title}</h2>
-        {subtitle && <p className="text-[8.5px] text-slate-500 font-semibold text-center">{subtitle}</p>}
-        <p className="text-[7.5px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
+        {subtitle && <p className="text-[8px] text-slate-500 font-semibold text-center">{subtitle}</p>}
+        <p className="text-[7px] font-mono text-slate-400">كود التقرير: {reportCode}</p>
       </div>
 
-      <div className="text-left text-[9px] font-bold text-slate-600 leading-tight min-w-[130px]">
+      <div className="text-left text-[8.5px] font-bold text-slate-600 leading-tight min-w-[120px]">
         {rightMeta.map((line, i) => (
           <p key={i}>{line}</p>
         ))}
@@ -283,8 +237,8 @@ function ReportLetterhead({
 
 function ReportFooter({ recordCount }: { recordCount: number }) {
   return (
-    <div className="mt-2 pt-1.5 border-t border-slate-300 space-y-0.5">
-      <div className="grid grid-cols-2 gap-8 text-center text-[9px]">
+    <div className="mt-2 pt-1 border-t border-slate-300 space-y-0.5">
+      <div className="grid grid-cols-2 gap-8 text-center text-[8.5px]">
         <div>
           <p className="font-bold text-slate-900 mb-2">توقيع أمين المختبر</p>
           <p className="text-slate-400">..............................</p>
@@ -294,7 +248,7 @@ function ReportFooter({ recordCount }: { recordCount: number }) {
           <p className="text-slate-400">..............................</p>
         </div>
       </div>
-      <div className="flex items-center justify-between text-[7.5px] text-slate-400 pt-0.5 border-t border-slate-200">
+      <div className="flex items-center justify-between text-[7px] text-slate-400 pt-0.5 border-t border-slate-200">
         <span>تم إصدار هذا التقرير آلياً من قاعدة البيانات السحابية (Neon) بتاريخ {new Date().toLocaleString("ar-EG")}</span>
         <span>إجمالي السجلات: {recordCount}</span>
       </div>
@@ -581,106 +535,12 @@ export default function Home() {
     setPrintReportType(type);
   };
 
-  const printReportElement = () => {
-    const reportElement = document.querySelector('.printable-report') as HTMLElement | null;
-    if (!reportElement) {
-      window.print();
-      return;
-    }
-
-    const printWindow = window.open('', '_blank', 'width=1200,height=900');
-    if (!printWindow) {
-      window.print();
-      return;
-    }
-
-    const clone = reportElement.cloneNode(true) as HTMLElement;
-    clone.style.all = 'unset';
-    clone.style.display = 'block';
-    clone.style.width = '100%';
-    clone.style.maxWidth = '100%';
-    clone.style.margin = '0';
-    clone.style.padding = '0';
-    clone.style.background = '#ffffff';
-    clone.style.border = 'none';
-    clone.style.boxShadow = 'none';
-
-    const printMarkup = `
-      <!doctype html>
-      <html dir="rtl" lang="ar">
-        <head>
-          <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-          <title>تقرير مختبر</title>
-          <style>
-            @page {
-              size: A4 landscape;
-              margin: 8mm 10mm;
-            }
-            html, body {
-              margin: 0;
-              padding: 0;
-              background: #ffffff;
-              color: #0f172a;
-              font-family: Arial, sans-serif;
-            }
-            body {
-              padding: 0;
-            }
-            * {
-              box-sizing: border-box;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              table-layout: auto;
-              font-size: 8.5px;
-            }
-            th, td {
-              padding: 2px 3px;
-              line-height: 1.1;
-              vertical-align: top;
-              word-wrap: break-word;
-            }
-            .report-table {
-              width: 100%;
-              border-collapse: collapse;
-            }
-            .report-row {
-              page-break-inside: avoid;
-              break-inside: avoid;
-            }
-            .report-table thead {
-              display: table-header-group;
-            }
-            .no-print {
-              display: none !important;
-            }
-          </style>
-        </head>
-        <body>
-          ${clone.outerHTML}
-        </body>
-      </html>
-    `;
-
-    printWindow.document.open();
-    printWindow.document.write(printMarkup);
-    printWindow.document.close();
-    printWindow.focus();
-
-    setTimeout(() => {
-      printWindow.print();
-      printWindow.close();
-    }, 300);
-  };
-
   const handlePrintRequest = () => {
     if (!selectedRequestForPrint) return;
     const previousTitle = document.title;
     document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
     setTimeout(() => {
-      printReportElement();
+      window.print();
       document.title = previousTitle;
     }, 150);
   };
@@ -2172,7 +2032,7 @@ export default function Home() {
                 </label>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={printReportElement} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
@@ -2223,11 +2083,11 @@ export default function Home() {
       {printReportType === "plan" && (
         <div className="print-report report-plan fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
-          <div className="report-preview-shell bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
-            <div className="report-preview-header flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
+          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <h3 className="font-bold text-slate-900 text-lg">معاينة الخطة التشغيلية للمختبرات</h3>
               <div className="flex items-center gap-3">
-                <button onClick={printReportElement} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
@@ -2287,8 +2147,8 @@ export default function Home() {
       {printReportType === "breakage" && (
         <div className="print-report report-breakage fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 print:p-0 print:static print:flex-none print:items-start print:justify-start print:bg-transparent">
           <PrintStylesheet />
-          <div className="report-preview-shell bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
-            <div className="report-preview-header flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
+          <div className="bg-white rounded-2xl max-w-4xl w-full p-8 shadow-2xl border border-slate-200 max-h-[95vh] overflow-y-auto print:shadow-none print:border-none print:w-full print:max-h-none print:p-0">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-200 print:hidden">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-600">فلتر الطباعة:</span>
                 <select
@@ -2302,7 +2162,7 @@ export default function Home() {
                 </select>
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={printReportElement} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
+                <button onClick={() => window.print()} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2 rounded-lg text-sm font-bold shadow">
                   <Printer className="w-4 h-4" /> <span>طباعة / تصدير PDF</span>
                 </button>
                 <button onClick={() => setPrintReportType(null)} className="text-slate-400 p-2"><X className="w-5 h-5" /></button>
@@ -2362,7 +2222,7 @@ export default function Home() {
       {printReportType === "request" && selectedRequestForPrint && (
         <div className="print-report report-request fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 overflow-y-auto print:static print:flex-none print:items-start print:justify-start print:bg-transparent print:overflow-visible">
           <PrintStylesheet />
-          <div className="report-preview-header w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
+          <div className="w-full max-w-3xl flex items-center justify-between bg-slate-900 text-white px-6 py-3 rounded-t-2xl shadow-lg mb-0 print:hidden">
             <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold">
               <CheckCircle2 className="w-4 h-4" /> <span>تم اعتماد الصرف وسياسة الاستهلاك بنجاح</span>
             </div>
@@ -2443,7 +2303,7 @@ export default function Home() {
                       <th className="p-1.5 border-l border-slate-300 text-center w-8">م</th>
                       <th className="p-1.5 border-l border-slate-300">اسم المادة / العينة الطازجة</th>
                       <th className="p-1.5 border-l border-slate-300 text-center">الكمية المطلوبة</th>
-                      <th className="p-1.5 text-center">جهة التأمين والتوفير</th>
+                      <th className="p-1.5 border-l border-slate-300">جهة التأمين والتوفير</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-300">
