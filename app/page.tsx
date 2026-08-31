@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 6mm 8mm;
+          margin: 7mm 9mm;
         }
         @media print {
           *, *:before, *:after {
@@ -138,57 +138,84 @@ function PrintStylesheet() {
             margin: 0 !important;
             padding: 0 !important;
             width: 100% !important;
-            height: 100% !important;
-            overflow: hidden !important;
+            height: auto !important;
+            overflow: visible !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
           }
-          body * { visibility: hidden !important; }
-          .printable-report, .printable-report * { visibility: visible !important; }
-          .printable-report {
-            position: fixed !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100vw !important;
-            height: 100vh !important;
-            max-width: none !important;
-            max-height: none !important;
-            margin: 0 !important;
-            padding: 4mm 6mm !important;
-            background: #ffffff !important;
-            box-shadow: none !important;
-            border: none !important;
-            page-break-after: avoid !important;
-            page-break-before: avoid !important;
-            page-break-inside: avoid !important;
-            overflow: hidden !important;
+
+          body > *:not(.print-report) {
+            display: none !important;
           }
-          .report-row { break-inside: avoid !important; page-break-inside: avoid !important; }
-          .report-table thead { display: table-header-group !important; }
-          .report-table {
-            border-collapse: collapse !important;
-            width: 100% !important;
-            font-size: 8px !important;
-            table-layout: auto !important;
-          }
-          .report-table th, .report-table td {
-            padding: 2px 3px !important;
-            line-height: 1.1 !important;
-            word-wrap: break-word !important;
-          }
+
           .print-report {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
+            position: static !important;
+            inset: auto !important;
+            display: block !important;
             width: 100% !important;
-            height: 100% !important;
+            min-height: 0 !important;
+            height: auto !important;
             margin: 0 !important;
             padding: 0 !important;
             background: #ffffff !important;
-            display: block !important;
-            overflow: hidden !important;
+            box-shadow: none !important;
+            border: none !important;
+            overflow: visible !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
           }
-          .no-print { display: none !important; }
+
+          .print-report > *:not(.printable-report) {
+            display: none !important;
+          }
+
+          .printable-report {
+            position: static !important;
+            left: auto !important;
+            top: auto !important;
+            width: 100% !important;
+            max-width: none !important;
+            height: auto !important;
+            margin: 0 !important;
+            padding: 6mm 7mm !important;
+            background: #ffffff !important;
+            box-shadow: none !important;
+            border: none !important;
+            border-radius: 0 !important;
+            page-break-inside: avoid !important;
+            break-inside: avoid !important;
+            overflow: visible !important;
+          }
+
+          .report-row {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+
+          .report-table thead {
+            display: table-header-group !important;
+          }
+
+          .report-table {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            font-size: 9px !important;
+            table-layout: auto !important;
+          }
+
+          .report-table th, .report-table td {
+            padding: 3px 4px !important;
+            line-height: 1.2 !important;
+            word-wrap: break-word !important;
+          }
+
+          .printable-report > div:first-child {
+            margin-top: 0 !important;
+          }
+
+          .no-print {
+            display: none !important;
+          }
         }
       `,
       }}
@@ -537,12 +564,85 @@ export default function Home() {
 
   const handlePrintRequest = () => {
     if (!selectedRequestForPrint) return;
+
+    const printWindow = window.open('', '_blank', 'width=1200,height=900');
+    if (!printWindow) {
+      window.print();
+      return;
+    }
+
+    const reportNode = document.getElementById('printable-request-area');
+    if (!reportNode) {
+      window.print();
+      return;
+    }
+
+    const clone = reportNode.cloneNode(true) as HTMLElement;
+    clone.style.all = 'unset';
+    clone.style.display = 'block';
+    clone.style.width = '100%';
+    clone.style.maxWidth = '100%';
+    clone.style.margin = '0';
+    clone.style.padding = '0';
+    clone.style.background = '#ffffff';
+    clone.style.border = 'none';
+    clone.style.boxShadow = 'none';
+
+    const printMarkup = `
+      <!doctype html>
+      <html dir="rtl" lang="ar">
+        <head>
+          <meta charset="UTF-8" />
+          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <title>ورقة تحضير مختبر</title>
+          <style>
+            @page {
+              size: A4 landscape;
+              margin: 7mm 9mm;
+            }
+            html, body {
+              margin: 0;
+              padding: 0;
+              background: #ffffff;
+              color: #0f172a;
+              font-family: Arial, sans-serif;
+            }
+            * { box-sizing: border-box; }
+            body { padding: 0; }
+            .report-table {
+              width: 100%;
+              border-collapse: collapse;
+              table-layout: auto;
+              font-size: 9px;
+            }
+            th, td {
+              padding: 3px 4px;
+              line-height: 1.2;
+              vertical-align: top;
+              word-wrap: break-word;
+            }
+            .report-row { break-inside: avoid; page-break-inside: avoid; }
+            .report-table thead { display: table-header-group; }
+          </style>
+        </head>
+        <body>
+          ${clone.outerHTML}
+        </body>
+      </html>
+    `;
+
     const previousTitle = document.title;
     document.title = `طلب-تحضير-${selectedRequestForPrint.id}`;
+    printWindow.document.open();
+    printWindow.document.write(printMarkup);
+    printWindow.document.close();
+    printWindow.focus();
+
     setTimeout(() => {
-      window.print();
+      printWindow.print();
+      printWindow.close();
       document.title = previousTitle;
-    }, 150);
+    }, 300);
   };
 
   const handleUndoLastBreakage = async () => {
