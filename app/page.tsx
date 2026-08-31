@@ -127,7 +127,7 @@ function PrintStylesheet() {
         __html: `
         @page {
           size: A4 landscape;
-          margin: 8mm 10mm;
+          margin: 6mm 8mm;
         }
         @media print {
           html, body {
@@ -170,7 +170,7 @@ function PrintStylesheet() {
             width: 100% !important;
             max-width: 100% !important;
             margin: 0 !important;
-            padding: 5mm 6mm !important;
+            padding: 3mm 4mm !important;
             box-sizing: border-box !important;
             background: #ffffff !important;
             box-shadow: none !important;
@@ -184,12 +184,12 @@ function PrintStylesheet() {
           .report-table {
             border-collapse: collapse !important;
             width: 100% !important;
-            font-size: 9.5px !important;
+            font-size: 8.5px !important;
             table-layout: auto !important;
           }
           .report-table th, .report-table td {
-            padding: 3px 5px !important;
-            line-height: 1.2 !important;
+            padding: 2px 3px !important;
+            line-height: 1.1 !important;
             word-wrap: break-word !important;
           }
           .no-print { display: none !important; }
