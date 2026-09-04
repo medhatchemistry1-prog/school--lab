@@ -89,6 +89,7 @@ interface OperationalPlanItem {
   academicYear: string;
   semester: string;
   weekNumber: number;
+  date: string;
   day: "السبت" | "الأحد" | "الإثنين" | "الثلاثاء" | "الأربعاء" | "الخميس" | "الجمعة";
   period: string;
   subject: "الكيمياء" | "الفيزياء" | "الأحياء" | "العلوم العامة";
@@ -441,6 +442,7 @@ export default function Home() {
     academicYear: "2026-2027",
     semester: "الفصل الدراسي الأول",
     weekNumber: 1,
+    date: new Date().toISOString().split("T")[0],
     day: "الأحد" as any,
     period: PERIODS_LIST[0],
     subject: "الكيمياء" as any,
@@ -1056,6 +1058,7 @@ export default function Home() {
       academicYear: planFormData.academicYear,
       semester: planFormData.semester,
       weekNumber: Number(planFormData.weekNumber) || 1,
+      date: planFormData.date,
       day: planFormData.day,
       period: planFormData.period,
       subject: planFormData.subject,
@@ -1520,6 +1523,7 @@ export default function Home() {
             <table className="w-full text-right text-sm">
               <thead className="bg-slate-50 text-slate-600 border-b border-slate-200">
                 <tr>
+                  <th className="px-6 py-4 font-semibold">التاريخ</th>
                   <th className="px-6 py-4 font-semibold">اليوم والحصة</th>
                   <th className="px-6 py-4 font-semibold">الصف والشعبة</th>
                   <th className="px-6 py-4 font-semibold">المادة والتجربة</th>
@@ -1532,13 +1536,14 @@ export default function Home() {
               <tbody className="divide-y divide-slate-200">
                 {filteredPlans.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-400">
+                    <td colSpan={8} className="text-center py-12 text-slate-400">
                       لا توجد تجارب مجدولة في الأسبوع ({selectedWeek}) لـ ({selectedSemester} - {selectedAcademicYear}).
                     </td>
                   </tr>
                 ) : (
                   filteredPlans.map((plan) => (
                     <tr key={plan.id} className="hover:bg-slate-50/75 transition">
+                      <td className="px-6 py-4 text-slate-600">{plan.date || "-"}</td>
                       <td className="px-6 py-4 font-bold text-slate-900">{plan.day} - {plan.period}</td>
                       <td className="px-6 py-4">{plan.grade} ({plan.track}) - شعبة {plan.section}</td>
                       <td className="px-6 py-4 font-medium text-teal-700">{plan.experimentTitle}</td>
@@ -2160,10 +2165,14 @@ export default function Home() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-4 gap-2">
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">رقم الأسبوع</label>
                   <input type="number" min="1" required value={planFormData.weekNumber} onChange={(e) => setPlanFormData({ ...planFormData, weekNumber: Number(e.target.value) })} className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg font-bold text-center" />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1">التاريخ</label>
+                  <input type="date" required value={planFormData.date} onChange={(e) => setPlanFormData({ ...planFormData, date: e.target.value })} className="w-full text-xs p-2 bg-slate-50 border border-slate-300 rounded-lg font-bold" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-slate-700 mb-1">اليوم</label>
@@ -2316,6 +2325,7 @@ export default function Home() {
                 <table className="report-table w-full text-right text-xs border border-slate-300">
                   <thead className="bg-teal-800 text-white font-bold">
                     <tr>
+                      <th className="p-2 border-l border-teal-700 text-center">التاريخ</th>
                       <th className="p-2 border-l border-teal-700 text-center">اليوم</th>
                       <th className="p-2 border-l border-teal-700 text-center">الحصة</th>
                       <th className="p-2 border-l border-teal-700">الصف والشعبة</th>
@@ -2329,11 +2339,12 @@ export default function Home() {
                   <tbody className="divide-y divide-slate-300">
                     {filteredPlans.length === 0 ? (
                       <tr>
-                        <td colSpan={8} className="text-center py-8 text-slate-400 text-xs">لا توجد تجارب مجدولة لهذا الأسبوع والفلاتر المحددة.</td>
+                        <td colSpan={9} className="text-center py-8 text-slate-400 text-xs">لا توجد تجارب مجدولة لهذا الأسبوع والفلاتر المحددة.</td>
                       </tr>
                     ) : (
                       filteredPlans.map((pl, idx) => (
                         <tr key={pl.id} className={`report-row ${idx % 2 === 1 ? "bg-slate-50" : "bg-white"}`}>
+                          <td className="p-2 border-l border-slate-300 text-center">{pl.date || "-"}</td>
                           <td className="p-2 border-l border-slate-300 text-center font-bold">{pl.day}</td>
                           <td className="p-2 border-l border-slate-300 text-center">{pl.period}</td>
                           <td className="p-2 border-l border-slate-300 font-semibold">{pl.grade} ({pl.track}) - {pl.section}</td>

@@ -3,12 +3,14 @@ import { query } from '@/lib/db';
 
 export async function GET() {
   try {
+    await query('ALTER TABLE operational_plans ADD COLUMN IF NOT EXISTS plan_date DATE');
     const result = await query('SELECT * FROM operational_plans ORDER BY id DESC');
     const plans = result.rows.map((row: any) => ({
       id: row.id,
       academicYear: row.academic_year,
       semester: row.semester,
       weekNumber: Number(row.week_number),
+      date: row.plan_date ? new Date(row.plan_date).toISOString().split('T')[0] : '',
       day: row.day,
       period: row.period,
       subject: row.subject,
@@ -30,17 +32,19 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { id, academicYear, semester, weekNumber, day, period, subject, grade, track, section, teacherName, labTechnician, experimentTitle, labRoom, status } = body;
+    const { id, academicYear, semester, weekNumber, date, day, period, subject, grade, track, section, teacherName, labTechnician, experimentTitle, labRoom, status } = body;
+
+    await query('ALTER TABLE operational_plans ADD COLUMN IF NOT EXISTS plan_date DATE');
 
     await query(
-      `INSERT INTO operational_plans (id, academic_year, semester, week_number, day, period, subject, grade, track, section, teacher_name, lab_technician, experiment_title, lab_room, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+      `INSERT INTO operational_plans (id, academic_year, semester, week_number, plan_date, day, period, subject, grade, track, section, teacher_name, lab_technician, experiment_title, lab_room, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        ON CONFLICT (id) DO UPDATE SET 
-       academic_year = EXCLUDED.academic_year, semester = EXCLUDED.semester, week_number = EXCLUDED.week_number,
+       academic_year = EXCLUDED.academic_year, semester = EXCLUDED.semester, week_number = EXCLUDED.week_number, plan_date = EXCLUDED.plan_date,
        day = EXCLUDED.day, period = EXCLUDED.period, subject = EXCLUDED.subject, grade = EXCLUDED.grade,
        track = EXCLUDED.track, section = EXCLUDED.section, teacher_name = EXCLUDED.teacher_name,
        lab_technician = EXCLUDED.lab_technician, experiment_title = EXCLUDED.experiment_title, lab_room = EXCLUDED.lab_room, status = EXCLUDED.status;`,
-      [id, academicYear, semester, weekNumber, day, period, subject, grade, track, section, teacherName, labTechnician, experimentTitle, labRoom, status]
+      [id, academicYear, semester, weekNumber, date || null, day, period, subject, grade, track, section, teacherName, labTechnician, experimentTitle, labRoom, status]
     );
 
     return NextResponse.json({ success: true });
